@@ -1,829 +1,189 @@
-// ══════════════════════════════════════════════════════════════
-// 🌐 I18N — Çoklu Dil Sistemi (Türkçe / İngilizce)
-// Tüm arayüz metinleri (butonlar, menüler, modal içerikleri,
-// popup mesajları) bu sözlükten geliyor. Dil tercihi localStorage'a
-// kaydedilir ve sayfa her açıldığında otomatik uygulanır.
-// Kullanım: t('key') → aktif dildeki metni döndürür.
-//           t('key', {ad:'değer'}) → {{ad}} yer tutucularını değiştirir.
-// HTML'de: <span data-i18n="key">...</span> → applyI18n() metnini basar.
-//          data-i18n-placeholder="key" → input placeholder'ını basar.
-//          data-i18n-title="key" → title attribute'unu basar.
-// ══════════════════════════════════════════════════════════════
-const I18N = {
-  tr: {
-    // ── Login ekranı ──
-    'login.title': '🗳 PixelFront',
-    'login.desc': "Türkiye'nin seçim haritasını şekillendir.<br>Her <b>3 dakikada</b> bir <b>7 piksel</b> hakkın var.<br>İlin içine tıkla — sınırlara tıklanamaz.",
-    'login.google': 'Google ile Giriş Yap',
-    'login.or_email': 'veya email ile',
-    'login.tab_signup': 'Kayıt Ol',
-    'login.tab_signin': 'Giriş Yap',
-    'login.username_ph': 'Kullanıcı adı seç...',
-    'login.email_ph': 'Email adresin...',
-    'login.password_ph': 'Şifre (en az 6 karakter)...',
-    'login.submit_signup': 'Kayıt Ol ve Haritaya Gir →',
-    'login.submit_signin': 'Giriş Yap →',
-    'login.register_title': '✏ Hesabına Giriş Yap',
-    'login.register_desc': 'Piksel basmak için email ile kayıt ol veya giriş yap.',
+// ══════════════════════════════════════════════════════
+// 🔊 SFX — Merkezi Ses Efekti Motoru
+// Oyundaki tüm butonlar ve önemli aksiyonlar (piksel atma,
+// duyuru vb.) için kısa, dosya gerektirmeyen WebAudio sesleri.
+// Tek bir AudioContext paylaşılır (her çalışta yeni context
+// açıp kapatmak hem yavaş hem de bazı tarayıcılarda ardışık
+// seslerin kesilmesine yol açabiliyordu).
+// ══════════════════════════════════════════════════════
+const SFX = (()=>{
+  let ctx = null;
+  let unlocked = false;
+  let muted = false;
 
-    // ── Topbar ──
-    'topbar.title': '🗳 PixelFront',
-    'topbar.guest': '👤 Misafir',
-    'topbar.timelapse': '🎬 Timelapse',
-    'topbar.history': '🕰 Geçmiş',
-    'topbar.admin': '⚙ Admin',
-    'topbar.admin_on': '⚙ Admin ON',
-    'topbar.owner': '👑 Owner',
-    'topbar.menu': 'Menü',
-
-    // ── Sidebar / panel başlıkları ──
-    'sidebar.toggle_title': 'Paneli aç/kapat',
-    'sidebar.leaderboard': '🏅 En Yüksek Seviyeler',
-    'sidebar.region_results': 'Bölge / İl Sonuçları',
-    'sidebar.recent_moves': 'Son Hamleler',
-    'sidebar.loading': 'Yükleniyor...',
-
-    // ── Chat ──
-    'chat.btn_title': 'AI Asistan',
-    'chat.tab_global': '🌍 Genel',
-    'chat.tab_faction': '⚑ Faction',
-    'chat.input_ph': 'Mesaj yaz...',
-
-    // ── Pixel widget / toolbar ──
-    'pixel.unit': ' piksel',
-    'pixel.next': 'Sonraki piksel: ',
-    'paint.erase': '🗑 Piksel Sil',
-    'paint.event_off': '⚡ Piksel Etkinliği: KAPALI',
-    'paint.event_on': '⚡ Piksel Etkinliği: AÇIK',
-    'paint.rollback_off': '🕰 Rollback Aracı: KAPALI',
-    'paint.rollback_on': '🕰 Rollback Aracı: AÇIK',
-    'paint.announce': '📢 Duyuru Yaz',
-    'palette.title': 'Renk seç',
-    'faction.btn_title': 'Faction',
-    'faction.label': '⚑ Faction',
-
-    // ── Geçmiş (history) banner ──
-    'history.back_title': 'Geri',
-    'history.fwd_title': 'İleri',
-    'history.step_15m': '15 dk',
-    'history.step_1h': '1 saat',
-    'history.step_6h': '6 saat',
-    'history.step_1d': '1 gün',
-    'history.exit': '✕ Çık',
-
-    // ── Duyuru ──
-    'announce.label': 'Duyuru',
-
-    // ── Owner panel ──
-    'owner.title': 'Admin Yönetimi',
-    'owner.assign_label': 'Email ile Admin Ata',
-    'owner.email_ph': 'kullanici@example.com',
-    'owner.make_admin': 'Admin Yap',
-    'owner.make_owner': 'Owner Yap',
-    'owner.revoke': 'Yetkiyi Kaldır',
-    'owner.current_label': 'Mevcut Yetkililer',
-    'owner.loading': 'Yükleniyor...',
-    'owner.load_failed': 'Yüklenemedi.',
-    'owner.none_yet': 'Henüz kimse yok.',
-    'owner.role_owner': '👑 Owner',
-    'owner.role_admin': '🛡 Admin',
-    'owner.email_required': '⚠ Email gerekli.',
-    'owner.processing': 'İşleniyor...',
-    'owner.assign_success': '✓ Yetki verildi: ',
-    'owner.revoke_success': '✓ Yetki kaldırıldı.',
-    'owner.conn_error': '⚠ Bağlantı hatası.',
-    'owner.user_not_found': 'Bu email ile kayıtlı kullanıcı bulunamadı.',
-    'owner.not_owner': 'Bu işlem için owner yetkisi gerekli.',
-    'owner.cannot_revoke_self': 'Kendi owner yetkini kaldıramazsın.',
-    'owner.op_failed': 'İşlem başarısız.',
-
-    // ── Profil modalı ──
-    'profile.title': '👤 Profil',
-    'profile.tab_profile': '👤 Profil',
-    'profile.tab_level': '⭐ Seviye',
-    'profile.tab_stats': '📊 İstatistik',
-    'profile.tab_settings': '⚙ Ayarlar',
-    'profile.stat_pixel': 'Piksel',
-    'profile.stat_total': 'Toplam',
-    'profile.stat_next': 'Sonraki',
-    'profile.username_label': 'Kullanıcı Adı',
-    'profile.username_ph': 'Yeni isim...',
-    'profile.save': 'Kaydet',
-    'profile.bio_label': 'Biyografi',
-    'profile.bio_ph': 'Kendini tanıt...',
-    'profile.frame_label': 'Avatar Çerçevesi',
-
-    // ── Seviye paneli ──
-    'level.title': 'Seviye',
-    'level.next_label': 'Sonraki: ',
-    'level.rewards_title': '🎁 Seviye Ödülleri',
-    'level.leaderboard_loading': 'Yükleniyor...',
-
-    // ── Seri (streak) paneli ──
-    'streak.title': 'Günlük Seri',
-    'streak.best_label': 'En İyi: ',
-    'streak.days_unit': ' gün',
-    'streak.day_short': '.gün',
-    'streak.tomorrow_note': "Yarın giriş yaparsan: {{icon}} +{{pixels}} piksel, +{{xp}} XP. Bir gün atlarsan seri 1'e sıfırlanır.",
-    'streak.notif_label': '🔥 GÜNLÜK SERİ',
-    'streak.cal_title': '30 Günlük Geçmiş',
-    'streak.cal_active': 'Aktif gün',
-    'streak.cal_missed': 'Boş gün',
-    'frame.locked_tip': 'Seviye {{lvl}}\'de açılır',
-    'frame.locked_popup': '🔒 Bu çerçeve Seviye {{lvl}}\'de açılır (şu an Seviye {{cur}})',
-
-    // ── İstatistik paneli ──
-    'stats.my_stats': '📊 İstatistiklerim',
-    'stats.total_pixel': 'Toplam Piksel',
-    'stats.current_pixel': 'Mevcut Piksel',
-    'stats.day_streak': 'Gün Serisi',
-    'stats.best_day': 'En İyi Gün',
-    'stats.party_breakdown': 'Parti Dağılımı (Toplam Piksel)',
-    'stats.no_pixels': 'Henüz piksel yerleştirilmedi.',
-    'stats.weekly_activity': 'Son 7 Günlük Aktivite',
-
-    // ── Ayarlar paneli ──
-    'settings.appearance': 'Görünüm',
-    'settings.language': 'Dil',
-    'settings.language_desc': 'Arayüz dilini değiştir',
-    'settings.pixel_counter': 'Piksel Sayacı',
-    'settings.pixel_counter_desc': 'Ana ekranda piksel göstergesi',
-    'settings.province_labels': 'İl Etiketleri',
-    'settings.province_labels_desc': 'Haritada il isimlerini göster',
-    'settings.animations': 'Animasyonlar',
-    'settings.animations_desc': 'Piksel yerleştirme efektleri',
-    'settings.notifications': 'Bildirimler',
-    'settings.pixel_ready': 'Piksel Hazır Bildirimi',
-    'settings.pixel_ready_desc': 'Piksel dolunca uyar',
-    'settings.account': 'Hesap',
-    'settings.joined': 'Üye Olunma',
-    'settings.reset_stats': '🗑 İstatistikleri Sıfırla',
-    'settings.saved': '✓ Ayarlar kaydedildi',
-    'settings.reset_confirm_title': 'İstatistikleri sıfırlamak istediğine emin misin?',
-    'settings.reset_done': '✓ İstatistikler sıfırlandı',
-
-    // ── Faction modalı ──
-    'faction.title': '⚑ Faction',
-    'faction.create_title': 'Faction Kur',
-    'faction.create_desc': 'Kendi takımını kur, arkadaşlarını davet et, birlikte bölgeleri boya!',
-    'faction.name_ph': 'Faction adı...',
-    'faction.tag_ph': 'TAG (2-5 harf)',
-    'faction.create_btn': '✦ Faction Kur',
-    'faction.or_join': 'veya bir faction\'a katıl',
-    'faction.invite_code_ph': 'Davet kodu gir...',
-    'faction.join_code_btn': 'Kod ile Katıl',
-    'faction.browse_title': 'Faction\'ları Keşfet',
-    'faction.search_ph': 'Faction ara...',
-    'faction.members_unit': ' üye',
-    'faction.join_btn': 'Katıl',
-    'faction.no_results': 'Sonuç bulunamadı.',
-    'faction.leader': 'Lider',
-    'faction.officer': 'Yönetici',
-    'faction.member': 'Üye',
-    'faction.leave_btn': '🚪 Faction\'dan Ayrıl',
-    'faction.disband_btn': '⚠ Faction\'ı Dağıt',
-    'faction.invite_label': 'Davet Kodu',
-    'faction.copy': 'Kopyala',
-    'faction.new_code': 'Yeni Kod Üret',
-    'faction.members_title': 'Üyeler',
-    'faction.kick': 'Çıkar',
-    'faction.promote': 'Yönetici Yap',
-    'faction.demote': 'Üye Yap',
-    'faction.color_label': 'Faction Rengi',
-    'faction.logo_label': 'Faction Logosu',
-
-    // ── Pixel Event modalı ──
-    'pe.title': 'Piksel Etkinliği',
-    'pe.normal_rate': 'Normal hız',
-    'pe.normal_rate_val': '3dk → 7 piksel',
-    'pe.event_rate': 'Etkinlik hızı',
-    'pe.event_rate_val': "1dk → 6 piksel ⚡",
-    'pe.duration_label': 'Etkinlik Süresi',
-    'pe.dur_5min': '5 Dakika',
-    'pe.dur_5min_sub': 'Kısa etkinlik',
-    'pe.dur_10min': '10 Dakika',
-    'pe.dur_10min_sub': 'Uzun etkinlik',
-    'pe.start_btn': '⚡ Etkinliği Başlat',
-    'pe.active_label': "Etkinlik Aktif — 1dk'da 6 piksel",
-    'pe.remaining': 'Kalan süre:',
-    'pe.refresh_btn': '🔄 Süreyi Yenile ',
-    'pe.stop_btn': '⏹ Etkinliği Şimdi Durdur',
-    'pe.banner_active': '⚡ Piksel Etkinliği Aktif — ',
-    'pe.banner_rate': "1dk'da 6 piksel",
-
-    // ── Duyuru modalı ──
-    'am.title': 'Duyuru Yayınla',
-    'am.info': 'Yazdığın duyuru, oyundaki tüm oyuncuların ekranının üst kısmında bir ses efektiyle birlikte şerit olarak belirir. Şerit 2 kez gösterildikten sonra otomatik olarak kaybolur.',
-    'am.text_label': 'Duyuru Metni',
-    'am.text_ph': 'Örn: Sunucu 5 dakika içinde bakıma girecek!',
-    'am.send_btn': '📢 Duyuruyu Yayınla',
-    'am.empty_error': '⚠ Duyuru metni boş olamaz.',
-    'am.publishing': 'Yayınlanıyor...',
-    'am.published': '✓ Duyuru yayınlandı!',
-    'am.publish_failed': '⚠ Yayınlanamadı, bağlantını kontrol et.',
-
-    // ── Timelapse modalı ──
-    'tl.title': 'Timelapse Oluştur',
-    'tl.range_label': 'Zaman Aralığı',
-    'tl.speed_label': 'Hız',
-    'tl.create_btn': '🎬 Timelapse Oluştur',
-    'tl.reset_btn': '← Yeniden Ayarla',
-    'tl.download_btn': '⬇ Videoyu İndir (.webm)',
-    'tl.ready': '✅ Video hazır!',
-    'tl.daily_limit': '⛔ Bugün zaten timelapse oluşturdun!',
-    'tl.not_supported': '⚠ Tarayıcın video kaydını desteklemiyor. Chrome/Edge kullan.',
-
-    // ── Geçmiş (history) modalı ──
-    'hm.title': 'Geçmişe Bak',
-    'hm.desc': 'Haritanın geçmişteki bir anına git ve o zamanki halini gör.',
-
-    // ── Rollback modalı ──
-    'rb.toggle_off': '🕰 Rollback Aracı: KAPALI',
-    'rb.toggle_on': '🕰 Rollback Aracı: AÇIK',
-
-    // ── Level-up bildirimi ──
-    'levelup.label': '⬆ SEVİYE ATLADI!',
-
-    // ── Genel / popup mesajları ──
-    'msg.offline': '⚠ Sunucuya bağlanılamadı — çevrimdışı modda devam ediliyor.',
-    'msg.click_border': '⚠ Sınıra tıkladın — ilin içine tıkla!',
-    'msg.click_province': 'Bir ilin içine tıkla!',
-    'msg.no_pixels_left': '⏳ Piksel hakkın bitti!',
-    'msg.already_this_color': 'Bu piksel zaten bu renkle boyalı!',
-    'msg.session_expired': '⚠ Oturumun sona ermiş, lütfen tekrar giriş yap.',
-    'msg.action_failed': '⚠ İşlem başarısız, tekrar dene.',
-    'msg.conn_error': '⚠ Bağlantı hatası, tekrar dene.',
-    'msg.gained_pixels': '+{{n}} piksel! Toplam: {{total}}',
-    'msg.max_pixels': '🎉 Maksimum {{n}} piksel!',
-    'msg.map_loading': 'Harita yükleniyor...',
-    'msg.map_ready': 'Harita hazır!',
-    'msg.no_admin': '⚠ Bu özellik için admin yetkin yok.',
-    'msg.no_owner': '⚠ Bu özellik için owner yetkin yok.',
-    'msg.admin_mode_on': 'Admin modu — piksel silmek için bir piksele tıkla',
-    'msg.admin_mode_off': 'Admin modu kapatıldı',
-    'msg.delete_failed': '⚠ Piksel(ler) sunucudan silinemedi (yetki/bağlantı hatası).',
-    'msg.deleted_n': '🗑 {{n}} piksel kalıcı olarak silindi.',
-    'msg.delete_conn_error': '⚠ Bağlantı hatası, piksel(ler) silinemedi.',
-    'msg.bio_saved': '✓ Biyografi kaydedildi',
-    'msg.faction_name_required': '⚠ Faction adı gir!',
-    'msg.faction_tag_short': '⚠ Tag en az 2 karakter olmalı!',
-    'msg.faction_tag_taken': '⚠ Bu tag zaten alınmış!',
-    'msg.faction_created': '✦ {{name}} kuruldu!',
-    'msg.faction_not_found': '⚠ Faction bulunamadı!',
-    'msg.faction_already_in': "Zaten bu faction'dasın!",
-    'msg.faction_joined': "✦ {{name}} faction'ına katıldın!",
-    'msg.invite_code_required': '⚠ Kod gir!',
-    'msg.invite_code_invalid': '⚠ Geçersiz davet kodu!',
-    'msg.code_copied': '✓ Kod kopyalandı!',
-    'msg.faction_disbanded': '⚑ Faction dağıtıldı.',
-    'msg.faction_left': "🚪 Faction'dan ayrıldın.",
-    'msg.member_kicked': "✓ {{name}} faction'dan çıkarıldı.",
-    'msg.member_promoted': '✓ {{name}} Yönetici yapıldı.',
-    'msg.member_demoted': '✓ {{name}} Üye yapıldı.',
-    'msg.relation_set': '✓ [{{tag}}] ile {{label}} ilişkisi kuruldu.',
-    'msg.new_invite_code': '✓ Yeni davet kodu: {{code}}',
-    'msg.logo_updated': '✓ Faction logosu güncellendi!',
-    'msg.color_updated': '✓ Faction rengi güncellendi.',
-    'msg.invalid_username': '⚠ İsim sadece harf, rakam, boşluk, "-" ve "_" içerebilir (2-20 karakter).',
-    'msg.username_updated': '✓ İsim güncellendi: {{name}}',
-    'msg.join_faction_first': "⚑ Önce bir faction'a katıl!",
-    'msg.join_faction_short': "⚑ Faction'a katıl!",
-    'msg.event_refreshed': '🔄 Etkinlik süresi yenilendi — {{n}}dk!',
-    'msg.event_started': "⚡ Piksel Etkinliği BAŞLADI! {{n}} dakika boyunca 1dk'da 6 piksel.",
-    'msg.event_stopped': '⚡ Piksel Etkinliği durduruldu.',
-    'msg.event_ended': '⚡ Piksel Etkinliği sona erdi — normal hıza dönüldü.',
-    'msg.went_to_moment': '🕰 {{label}} anına gidildi',
-    'msg.back_to_live': '✓ Canlı görünüme dönüldü',
-    'msg.in_history_mode': '🕰 Geçmiş modundasın — piksel koyamazsın',
-    'msg.rollback_tool_on': '🕰 Rollback aracı açık — haritada bir alan sürükleyerek seç',
-    'msg.area_too_small': '⚠ Alan çok küçük — daha geniş bir alan sürükle',
-    'msg.selection_outside': '⚠ Seçim harita dışında — tekrar dene',
-    'msg.rollback_done': '🕰 Seçili alan {{label}} anına KALICI olarak döndürüldü ({{n}} piksel değişti)',
-    'msg.rollback_save_failed': '⚠ Sunucuya geri alma yazılamadı: {{err}}',
-    'msg.unknown_error': 'bilinmeyen hata',
-    'msg.rollback_reverted': '✓ Rollback geri alındı — KALICI olarak canlı görünüme dönüldü',
-    'msg.confirm_yes': 'Evet',
-    'msg.confirm_no': 'Hayır',
-    'msg.you_voted': '✓ {{party}} → {{province}}',
-    // ── Faction modalı — ek key'ler ──
-    'faction.create_section': 'YENİ FACTION OLUŞTUR',
-    'faction.color_section': 'RENK',
-    'faction.ranking_title': 'FACTION SIRALAMASI',
-    'faction.join_code_section': 'DAVET KODUYLA KATIL',
-    'faction.no_faction_yet': "Henüz bir faction'a sahip değilsin",
-    'faction.none_exist': 'Henüz hiç faction yok',
-    'faction.be_first': "İlk faction'ı sen kur!",
-    'faction.emoji_pick_title': 'Emoji seç',
-    'faction.invite_share_hint': 'Bu kodu arkadaşlarınla paylaş',
-    'faction.member_count_label': 'Üye',
-    'faction.allies_label': 'Müttefik',
-    'faction.wars_label': 'Savaş',
-    'faction.founded_label': 'Kuruluş',
-    'faction.tabs_info': 'Bilgi',
-    'faction.tabs_chat': 'Sohbet',
-    'faction.tabs_diplomacy': 'Diplomasi',
-    'faction.tabs_stats': 'İstatistik',
-    'faction.tabs_settings': 'Ayarlar',
-    'faction.chat_ph': "Faction'a mesaj yaz...",
-    'faction.no_other_factions': 'Başka faction bulunamadı',
-    'faction.new_invite_section': 'YENİ DAVET KODU',
-    'faction.change_color_section': 'FACTION RENGİNİ DEĞİŞTİR',
-    'faction.logo_upload_title': 'Logo yükle',
-    'faction.you_suffix': 'sen',
-    'faction.disband_confirm': "Bu faction'ı kalıcı olarak dağıtmak istediğine emin misin?",
-    'diplomacy.ally': 'Müttefik',
-    'diplomacy.war': 'Savaş',
-    'diplomacy.neutral': 'Nötr',
-    'leaderboard.level_short': 'Lv',
-    'leaderboard.you': 'sen',
-    'level.legendary_title': 'Efsane',
-    'xp.unit': 'XP',
-    'cd.max_short': 'maks',
-    'settings.unknown': 'Bilinmiyor',
-    'stats.last_7_days': 'Son 7 Gün',
-    'stats.pixel_unit_short': 'px',
-    'stats.today': 'Bugün',
-
-    // ── Geçmiş modal ──
-    'hm.title': 'Geçmişe Bak',
-    'hm.desc': 'Haritanın geçmişteki bir anına git ve o zamanki halini gör.',
-     'hm.info': "📌 Seçtiğin tarihe ait harita görüntüsü yüklenir. <b>Salt okunur moddur</b> — piksel koyamazsın. Çıkmak için banner'daki ✕ tuşuna bas.",
-    'hm.date_label': 'Tarih & Saat Seç',
-    'hm.quick_label': 'Hızlı Seç',
-    'hm.q_1h': '1 saat önce',
-    'hm.q_6h': '6 saat önce',
-    'hm.q_12h': '12 saat önce',
-    'hm.q_1d': '1 gün önce',
-    'hm.q_3d': '3 gün önce',
-    'hm.q_7d': '7 gün önce',
-    'hm.go_btn': '🕰 O Zamana Git',
-    'hm.loading': '⏳ Yükleniyor...',
-    'hm.err_no_date': '⚠ Lütfen bir tarih seç.',
-    'hm.err_invalid': '⚠ Geçersiz tarih.',
-    'hm.err_future': '⚠ Gelecek bir tarih seçemezsin.',
-    'hm.err_no_data': '⚠ Bu tarihte hiç piksel verisi bulunamadı.',
-    'hm.err_generic': '⚠ Hata: ',
-
-    // ── Rollback modal ──
-    'rb.title': '🕰 Alanı Geri Al (Rollback)',
-     'rb.info': '📌 Sadece haritada <b>seçtiğin alan</b> belirlediğin saatteki haline döner. Diğer bölgelere dokunulmaz. Bu işlem <b>kalıcıdır</b> — sunucudaki gerçek veriyi değiştirir, tüm kullanıcılar görür ve sayfa yenilense (F5) de aynı kalır.',
-    'rb.time_label': 'Hangi Saate Dönülsün?',
-    'rb.quick_label': 'Hızlı Seç',
-    'rb.q_30m': '30 dk önce',
-    'rb.q_1h': '1 saat önce',
-    'rb.q_6h': '6 saat önce',
-    'rb.q_1d': '1 gün önce',
-    'rb.q_3d': '3 gün önce',
-    'rb.q_7d': '7 gün önce',
-    'rb.go_btn': '🕰 Rollback At',
-    'rb.calculating': '⏳ Hesaplanıyor...',
-    'rb.applying': '⏳ Uygulanıyor...',
-     'rb.undo_btn': "↩ Önceki Rollback'i Geri Al",
-    'rb.undo_short': '↩ Geri Al',
-    'rb.cancel': '✕ Vazgeç',
-    'rb.confirm_yes': '✅ Onayla ve Uygula',
-     'rb.confirm_msg': "⚠️ <b>{{label}}</b> anına dönülecek.<br><b>{{changed}}</b> piksel gerçekten değişecek (seçili alan {{total}} piksel).<br><br>Bu işlem <b>KALICIDIR</b> — tüm kullanıcılar bu değişikliği görecek ve sayfa yenilense (F5) de aynı kalacak.<br><br>Bu rollback'i onaylıyor musun?",
-    'rb.banner_label': '🕰 Seçili alan: {{label}}',
-    'rb.banner_applied': '🕰 Seçili alan geçmişe döndürüldü',
-    'rb.err_no_date': '⚠ Lütfen bir tarih ve saat seç.',
-    'rb.err_invalid': '⚠ Geçersiz tarih.',
-    'rb.err_future': '⚠ Gelecek bir tarih seçemezsin.',
-    'rb.err_no_pixels': '⚠ Bu alanda hiç piksel yok (deniz/sınır olabilir).',
-    'rb.err_write': '⚠ Sunucuya yazılamadı: ',
-    'rb.err_generic': '⚠ Hata: ',
-  },
-  en: {
-    // ── Login screen ──
-    'login.title': '🗳 PixelFront',
-    'login.desc': "Shape Turkey's election map.<br>You get <b>7 pixels</b> every <b>3 minutes</b>.<br>Click inside a province — borders can't be clicked.",
-    'login.google': 'Sign in with Google',
-    'login.or_email': 'or with email',
-    'login.tab_signup': 'Sign Up',
-    'login.tab_signin': 'Sign In',
-    'login.username_ph': 'Choose a username...',
-    'login.email_ph': 'Your email address...',
-    'login.password_ph': 'Password (at least 6 characters)...',
-    'login.submit_signup': 'Sign Up and Enter the Map →',
-    'login.submit_signin': 'Sign In →',
-    'login.register_title': '✏ Sign In to Your Account',
-    'login.register_desc': 'Sign up or sign in with email to place pixels.',
-
-    // ── Topbar ──
-    'topbar.title': '🗳 PixelFront',
-    'topbar.guest': '👤 Guest',
-    'topbar.timelapse': '🎬 Timelapse',
-    'topbar.history': '🕰 History',
-    'topbar.admin': '⚙ Admin',
-    'topbar.admin_on': '⚙ Admin ON',
-    'topbar.owner': '👑 Owner',
-    'topbar.menu': 'Menu',
-
-    // ── Sidebar / panel titles ──
-    'sidebar.toggle_title': 'Toggle panel',
-    'sidebar.leaderboard': '🏅 Top Levels',
-    'sidebar.region_results': 'Region / Province Results',
-    'sidebar.recent_moves': 'Recent Moves',
-    'sidebar.loading': 'Loading...',
-
-    // ── Chat ──
-    'chat.btn_title': 'AI Assistant',
-    'chat.tab_global': '🌍 Global',
-    'chat.tab_faction': '⚑ Faction',
-    'chat.input_ph': 'Type a message...',
-
-    // ── Pixel widget / toolbar ──
-    'pixel.unit': ' pixels',
-    'pixel.next': 'Next pixel: ',
-    'paint.erase': '🗑 Erase Pixels',
-    'paint.event_off': '⚡ Pixel Event: OFF',
-    'paint.event_on': '⚡ Pixel Event: ON',
-    'paint.rollback_off': '🕰 Rollback Tool: OFF',
-    'paint.rollback_on': '🕰 Rollback Tool: ON',
-    'paint.announce': '📢 Write Announcement',
-    'palette.title': 'Choose color',
-    'faction.btn_title': 'Faction',
-    'faction.label': '⚑ Faction',
-
-    // ── History banner ──
-    'history.back_title': 'Back',
-    'history.fwd_title': 'Forward',
-    'history.step_15m': '15 min',
-    'history.step_1h': '1 hour',
-    'history.step_6h': '6 hours',
-    'history.step_1d': '1 day',
-    'history.exit': '✕ Exit',
-
-    // ── Announcement ──
-    'announce.label': 'Announcement',
-
-    // ── Owner panel ──
-    'owner.title': 'Admin Management',
-    'owner.assign_label': 'Assign Admin by Email',
-    'owner.email_ph': 'user@example.com',
-    'owner.make_admin': 'Make Admin',
-    'owner.make_owner': 'Make Owner',
-    'owner.revoke': 'Revoke Access',
-    'owner.current_label': 'Current Staff',
-    'owner.loading': 'Loading...',
-    'owner.load_failed': 'Failed to load.',
-    'owner.none_yet': 'No one yet.',
-    'owner.role_owner': '👑 Owner',
-    'owner.role_admin': '🛡 Admin',
-    'owner.email_required': '⚠ Email is required.',
-    'owner.processing': 'Processing...',
-    'owner.assign_success': '✓ Access granted: ',
-    'owner.revoke_success': '✓ Access revoked.',
-    'owner.conn_error': '⚠ Connection error.',
-    'owner.user_not_found': 'No user found with this email.',
-    'owner.not_owner': 'Owner access is required for this action.',
-    'owner.cannot_revoke_self': "You can't revoke your own owner access.",
-    'owner.op_failed': 'Operation failed.',
-
-    // ── Profile modal ──
-    'profile.title': '👤 Profile',
-    'profile.tab_profile': '👤 Profile',
-    'profile.tab_level': '⭐ Level',
-    'profile.tab_stats': '📊 Stats',
-    'profile.tab_settings': '⚙ Settings',
-    'profile.stat_pixel': 'Pixels',
-    'profile.stat_total': 'Total',
-    'profile.stat_next': 'Next',
-    'profile.username_label': 'Username',
-    'profile.username_ph': 'New name...',
-    'profile.save': 'Save',
-    'profile.bio_label': 'Bio',
-    'profile.bio_ph': 'Tell us about yourself...',
-    'profile.frame_label': 'Avatar Frame',
-
-    // ── Level panel ──
-    'level.title': 'Level',
-    'level.next_label': 'Next: ',
-    'level.rewards_title': '🎁 Level Rewards',
-    'level.leaderboard_loading': 'Loading...',
-
-    // ── Streak panel ──
-    'streak.title': 'Daily Streak',
-    'streak.best_label': 'Best: ',
-    'streak.days_unit': ' days',
-    'streak.day_short': 'd',
-    'streak.tomorrow_note': "If you log in tomorrow: {{icon}} +{{pixels}} pixels, +{{xp}} XP. Missing a day resets your streak to 1.",
-    'streak.notif_label': '🔥 DAILY STREAK',
-    'streak.cal_title': '30-Day History',
-    'streak.cal_active': 'Active day',
-    'streak.cal_missed': 'Missed day',
-    'frame.locked_tip': 'Unlocks at Level {{lvl}}',
-    'frame.locked_popup': '🔒 This frame unlocks at Level {{lvl}} (you are Level {{cur}})',
-
-    // ── Stats panel ──
-    'stats.my_stats': '📊 My Stats',
-    'stats.total_pixel': 'Total Pixels',
-    'stats.current_pixel': 'Current Pixels',
-    'stats.day_streak': 'Day Streak',
-    'stats.best_day': 'Best Day',
-    'stats.party_breakdown': 'Party Breakdown (Total Pixels)',
-    'stats.no_pixels': 'No pixels placed yet.',
-    'stats.weekly_activity': 'Last 7 Days of Activity',
-
-    // ── Settings panel ──
-    'settings.appearance': 'Appearance',
-    'settings.language': 'Language',
-    'settings.language_desc': 'Change interface language',
-    'settings.pixel_counter': 'Pixel Counter',
-    'settings.pixel_counter_desc': 'Show pixel counter on main screen',
-    'settings.province_labels': 'Province Labels',
-    'settings.province_labels_desc': 'Show province names on map',
-    'settings.animations': 'Animations',
-    'settings.animations_desc': 'Pixel placement effects',
-    'settings.notifications': 'Notifications',
-    'settings.pixel_ready': 'Pixel Ready Notification',
-    'settings.pixel_ready_desc': 'Alert when pixels are refilled',
-    'settings.account': 'Account',
-    'settings.joined': 'Joined',
-    'settings.reset_stats': '🗑 Reset Statistics',
-    'settings.saved': '✓ Settings saved',
-    'settings.reset_confirm_title': 'Are you sure you want to reset your statistics?',
-    'settings.reset_done': '✓ Statistics reset',
-
-    // ── Faction modal ──
-    'faction.title': '⚑ Faction',
-    'faction.create_title': 'Create a Faction',
-    'faction.create_desc': 'Start your own team, invite friends, and paint regions together!',
-    'faction.name_ph': 'Faction name...',
-    'faction.tag_ph': 'TAG (2-5 letters)',
-    'faction.create_btn': '✦ Create Faction',
-    'faction.or_join': 'or join a faction',
-    'faction.invite_code_ph': 'Enter invite code...',
-    'faction.join_code_btn': 'Join with Code',
-    'faction.browse_title': 'Browse Factions',
-    'faction.search_ph': 'Search factions...',
-    'faction.members_unit': ' members',
-    'faction.join_btn': 'Join',
-    'faction.no_results': 'No results found.',
-    'faction.leader': 'Leader',
-    'faction.officer': 'Officer',
-    'faction.member': 'Member',
-    'faction.leave_btn': '🚪 Leave Faction',
-    'faction.disband_btn': '⚠ Disband Faction',
-    'faction.invite_label': 'Invite Code',
-    'faction.copy': 'Copy',
-    'faction.new_code': 'Generate New Code',
-    'faction.members_title': 'Members',
-    'faction.kick': 'Kick',
-    'faction.promote': 'Make Officer',
-    'faction.demote': 'Make Member',
-    'faction.color_label': 'Faction Color',
-    'faction.logo_label': 'Faction Logo',
-
-    // ── Pixel Event modal ──
-    'pe.title': 'Pixel Event',
-    'pe.normal_rate': 'Normal rate',
-    'pe.normal_rate_val': '3min → 7 pixels',
-    'pe.event_rate': 'Event rate',
-    'pe.event_rate_val': '1min → 6 pixels ⚡',
-    'pe.duration_label': 'Event Duration',
-    'pe.dur_5min': '5 Minutes',
-    'pe.dur_5min_sub': 'Short event',
-    'pe.dur_10min': '10 Minutes',
-    'pe.dur_10min_sub': 'Long event',
-    'pe.start_btn': '⚡ Start Event',
-    'pe.active_label': "Event Active — 6 pixels per minute",
-    'pe.remaining': 'Time remaining:',
-    'pe.refresh_btn': '🔄 Refresh Duration ',
-    'pe.stop_btn': '⏹ Stop Event Now',
-    'pe.banner_active': '⚡ Pixel Event Active — ',
-    'pe.banner_rate': '6 pixels per minute',
-
-    // ── Announcement modal ──
-    'am.title': 'Publish Announcement',
-    'am.info': "Your announcement will appear as a banner at the top of every player's screen with a sound effect. It will show twice, then disappear automatically.",
-    'am.text_label': 'Announcement Text',
-    'am.text_ph': 'E.g: Server will go into maintenance in 5 minutes!',
-    'am.send_btn': '📢 Publish Announcement',
-    'am.empty_error': "⚠ Announcement text can't be empty.",
-    'am.publishing': 'Publishing...',
-    'am.published': '✓ Announcement published!',
-    'am.publish_failed': '⚠ Failed to publish, check your connection.',
-
-    // ── Timelapse modal ──
-    'tl.title': 'Create Timelapse',
-    'tl.range_label': 'Time Range',
-    'tl.speed_label': 'Speed',
-    'tl.create_btn': '🎬 Create Timelapse',
-    'tl.reset_btn': '← Reset',
-    'tl.download_btn': '⬇ Download Video (.webm)',
-    'tl.ready': '✅ Video ready!',
-    'tl.daily_limit': "⛔ You've already created a timelapse today!",
-    'tl.not_supported': "⚠ Your browser doesn't support video recording. Use Chrome/Edge.",
-
-    // ── History modal ──
-    'hm.title': 'Look Back in History',
-    'hm.desc': "Travel to a moment in the map's past and see how it looked.",
-
-    // ── Rollback modal ──
-    'rb.toggle_off': '🕰 Rollback Tool: OFF',
-    'rb.toggle_on': '🕰 Rollback Tool: ON',
-
-    // ── Level-up notification ──
-    'levelup.label': '⬆ LEVEL UP!',
-
-    // ── General / popup messages ──
-    'msg.offline': '⚠ Could not connect to the server — continuing in offline mode.',
-    'msg.click_border': '⚠ You clicked a border — click inside the province!',
-    'msg.click_province': 'Click inside a province!',
-    'msg.no_pixels_left': "⏳ You're out of pixels!",
-    'msg.already_this_color': 'This pixel is already this color!',
-    'msg.session_expired': '⚠ Your session has expired, please sign in again.',
-    'msg.action_failed': '⚠ Action failed, try again.',
-    'msg.conn_error': '⚠ Connection error, try again.',
-    'msg.gained_pixels': '+{{n}} pixels! Total: {{total}}',
-    'msg.max_pixels': '🎉 Maximum {{n}} pixels!',
-    'msg.map_loading': 'Loading map...',
-    'msg.map_ready': 'Map ready!',
-    'msg.no_admin': "⚠ You don't have admin access for this feature.",
-    'msg.no_owner': "⚠ You don't have owner access for this feature.",
-    'msg.admin_mode_on': 'Admin mode — click a pixel to erase it',
-    'msg.admin_mode_off': 'Admin mode turned off',
-    'msg.delete_failed': '⚠ Pixel(s) could not be deleted from the server (permission/connection error).',
-    'msg.deleted_n': '🗑 {{n}} pixels permanently deleted.',
-    'msg.delete_conn_error': '⚠ Connection error, pixel(s) could not be deleted.',
-    'msg.bio_saved': '✓ Bio saved',
-    'msg.faction_name_required': '⚠ Enter a faction name!',
-    'msg.faction_tag_short': '⚠ Tag must be at least 2 characters!',
-    'msg.faction_tag_taken': '⚠ This tag is already taken!',
-    'msg.faction_created': '✦ {{name}} was created!',
-    'msg.faction_not_found': '⚠ Faction not found!',
-    'msg.faction_already_in': "You're already in this faction!",
-    'msg.faction_joined': '✦ Joined faction {{name}}!',
-    'msg.invite_code_required': '⚠ Enter a code!',
-    'msg.invite_code_invalid': '⚠ Invalid invite code!',
-    'msg.code_copied': '✓ Code copied!',
-    'msg.faction_disbanded': '⚑ Faction disbanded.',
-    'msg.faction_left': '🚪 You left the faction.',
-    'msg.member_kicked': '✓ {{name}} was removed from the faction.',
-    'msg.member_promoted': '✓ {{name}} was made an officer.',
-    'msg.member_demoted': '✓ {{name}} was made a member.',
-    'msg.relation_set': '✓ {{label}} relation established with [{{tag}}].',
-    'msg.new_invite_code': '✓ New invite code: {{code}}',
-    'msg.logo_updated': '✓ Faction logo updated!',
-    'msg.color_updated': '✓ Faction color updated.',
-    'msg.invalid_username': '⚠ Name can only contain letters, numbers, spaces, "-" and "_" (2-20 characters).',
-    'msg.username_updated': '✓ Name updated: {{name}}',
-    'msg.join_faction_first': '⚑ Join a faction first!',
-    'msg.join_faction_short': '⚑ Join a faction!',
-    'msg.event_refreshed': '🔄 Event duration refreshed — {{n}}min!',
-    'msg.event_started': '⚡ Pixel Event STARTED! 6 pixels per minute for {{n}} minutes.',
-    'msg.event_stopped': '⚡ Pixel Event stopped.',
-    'msg.event_ended': '⚡ Pixel Event ended — back to normal rate.',
-    'msg.went_to_moment': '🕰 Jumped to {{label}}',
-    'msg.back_to_live': '✓ Back to live view',
-    'msg.in_history_mode': "🕰 You're in history mode — you can't place pixels",
-    'msg.rollback_tool_on': '🕰 Rollback tool active — drag to select an area on the map',
-    'msg.area_too_small': '⚠ Area too small — drag a larger area',
-    'msg.selection_outside': '⚠ Selection is outside the map — try again',
-    'msg.rollback_done': '🕰 Selected area PERMANENTLY reverted to {{label}} ({{n}} pixels changed)',
-    'msg.rollback_save_failed': '⚠ Could not save rollback to the server: {{err}}',
-    'msg.unknown_error': 'unknown error',
-    'msg.rollback_reverted': '✓ Rollback undone — PERMANENTLY back to live view',
-    'msg.confirm_yes': 'Yes',
-    'msg.confirm_no': 'No',
-    'msg.you_voted': '✓ {{party}} → {{province}}',
-    // ── Faction modal — extra keys ──
-    'faction.create_section': 'CREATE A NEW FACTION',
-    'faction.color_section': 'COLOR',
-    'faction.ranking_title': 'FACTION RANKING',
-    'faction.join_code_section': 'JOIN WITH INVITE CODE',
-    'faction.no_faction_yet': "You don't have a faction yet",
-    'faction.none_exist': 'No factions exist yet',
-    'faction.be_first': 'Be the first to create one!',
-    'faction.emoji_pick_title': 'Pick an emoji',
-    'faction.invite_share_hint': 'Share this code with your friends',
-    'faction.member_count_label': 'Members',
-    'faction.allies_label': 'Allies',
-    'faction.wars_label': 'Wars',
-    'faction.founded_label': 'Founded',
-    'faction.tabs_info': 'Info',
-    'faction.tabs_chat': 'Chat',
-    'faction.tabs_diplomacy': 'Diplomacy',
-    'faction.tabs_stats': 'Stats',
-    'faction.tabs_settings': 'Settings',
-    'faction.chat_ph': 'Message your faction...',
-    'faction.no_other_factions': 'No other factions found',
-    'faction.new_invite_section': 'NEW INVITE CODE',
-    'faction.change_color_section': 'CHANGE FACTION COLOR',
-    'faction.logo_upload_title': 'Upload logo',
-    'faction.you_suffix': 'you',
-    'faction.disband_confirm': 'Are you sure you want to permanently disband this faction?',
-    'diplomacy.ally': 'Ally',
-    'diplomacy.war': 'War',
-    'diplomacy.neutral': 'Neutral',
-    'leaderboard.level_short': 'Lv',
-    'leaderboard.you': 'you',
-    'level.legendary_title': 'Legendary',
-    'xp.unit': 'XP',
-    'cd.max_short': 'max',
-    'settings.unknown': 'Unknown',
-    'stats.last_7_days': 'Last 7 Days',
-    'stats.pixel_unit_short': 'px',
-    'stats.today': 'Today',
-
-    // ── History modal ──
-    'hm.title': 'Look Back in History',
-    'hm.desc': "Travel to a moment in the map's past and see how it looked.",
-    'hm.info': '📌 The map snapshot for your selected date will be loaded. <b>Read-only mode</b> — you cannot place pixels. Press ✕ in the banner to exit.',
-    'hm.date_label': 'Select Date & Time',
-    'hm.quick_label': 'Quick Select',
-    'hm.q_1h': '1 hour ago',
-    'hm.q_6h': '6 hours ago',
-    'hm.q_12h': '12 hours ago',
-    'hm.q_1d': '1 day ago',
-    'hm.q_3d': '3 days ago',
-    'hm.q_7d': '7 days ago',
-    'hm.go_btn': '🕰 Go to That Moment',
-    'hm.loading': '⏳ Loading...',
-    'hm.err_no_date': '⚠ Please select a date.',
-    'hm.err_invalid': '⚠ Invalid date.',
-    'hm.err_future': '⚠ You cannot select a future date.',
-    'hm.err_no_data': '⚠ No pixel data found for this date.',
-    'hm.err_generic': '⚠ Error: ',
-
-    // ── Rollback modal ──
-    'rb.title': '🕰 Area Rollback',
-    'rb.info': '📌 Only the <b>selected area</b> will be reverted to the state at the chosen time. Other regions are untouched. This action is <b>permanent</b> — it changes the real server data, visible to all users even after a page refresh (F5).',
-    'rb.time_label': 'Roll Back to When?',
-    'rb.quick_label': 'Quick Select',
-    'rb.q_30m': '30 min ago',
-    'rb.q_1h': '1 hour ago',
-    'rb.q_6h': '6 hours ago',
-    'rb.q_1d': '1 day ago',
-    'rb.q_3d': '3 days ago',
-    'rb.q_7d': '7 days ago',
-    'rb.go_btn': '🕰 Run Rollback',
-    'rb.calculating': '⏳ Calculating...',
-    'rb.applying': '⏳ Applying...',
-     'rb.undo_btn': '↩ Undo Previous Rollback',
-    'rb.undo_short': '↩ Undo',
-    'rb.cancel': '✕ Cancel',
-    'rb.confirm_yes': '✅ Confirm & Apply',
-    'rb.confirm_msg': '⚠️ The area will be reverted to <b>{{label}}</b>.<br><b>{{changed}}</b> pixels will actually change (selected area: {{total}} pixels).<br><br>This action is <b>PERMANENT</b> — all users will see the change and it will persist after a page refresh (F5).<br><br>Are you sure you want to apply this rollback?',
-    'rb.banner_label': '🕰 Selected area: {{label}}',
-    'rb.banner_applied': '🕰 Selected area reverted to history',
-    'rb.err_no_date': '⚠ Please select a date and time.',
-    'rb.err_invalid': '⚠ Invalid date.',
-    'rb.err_future': '⚠ You cannot select a future date.',
-    'rb.err_no_pixels': '⚠ No pixels in this area (may be sea/border).',
-    'rb.err_write': '⚠ Could not write to server: ',
-    'rb.err_generic': '⚠ Error: ',
+  function getCtx(){
+    if(!ctx){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return null;
+      ctx = new Ctx();
+    }
+    return ctx;
   }
-};
 
-// ── Aktif dil yönetimi ──
-let _currentLang = 'tr';
-try{
-  const savedLang = localStorage.getItem('pv_lang');
-  if(savedLang === 'tr' || savedLang === 'en') _currentLang = savedLang;
-  else {
-    // İlk ziyarette tarayıcı diline göre makul bir varsayılan seç
-    const browserLang = (navigator.language || 'tr').toLowerCase();
-    _currentLang = browserLang.startsWith('tr') ? 'tr' : 'en';
+  // Tarayıcılar ilk kullanıcı etkileşiminden önce sesi engelleyebilir
+  // (autoplay policy) — context'i "suspended" durumdaysa devam ettir.
+  function ensureRunning(){
+    const c = getCtx();
+    if(!c) return null;
+    if(c.state === 'suspended'){ c.resume().catch(()=>{}); }
+    return c;
   }
-}catch(e){}
 
-// t(key, params?) — aktif dildeki metni döndürür, {{param}} yer tutucularını değiştirir
-function t(key, params){
-  let str = (I18N[_currentLang] && I18N[_currentLang][key]) || (I18N.tr && I18N.tr[key]) || key;
-  if(params){
-    Object.keys(params).forEach(k=>{
-      str = str.split('{{'+k+'}}').join(params[k]);
+  // notes: [{freq, start, dur, type, gain}]
+  function tone(notes, masterGain){
+    if(muted) return;
+    const c = ensureRunning();
+    if(!c) return;
+    const now = c.currentTime;
+    const mg = masterGain!=null ? masterGain : 0.18;
+    notes.forEach(n=>{
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      osc.type = n.type || 'sine';
+      osc.frequency.value = n.freq;
+      const peak = (n.gain!=null ? n.gain : mg);
+      gain.gain.setValueAtTime(0.0001, now+n.start);
+      gain.gain.exponentialRampToValueAtTime(peak, now+n.start+0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now+n.start+n.dur);
+      osc.connect(gain); gain.connect(c.destination);
+      osc.start(now+n.start);
+      osc.stop(now+n.start+n.dur+0.04);
     });
   }
-  return str;
-}
 
-// Sayfadaki tüm data-i18n / data-i18n-placeholder / data-i18n-title elementlerini günceller
-function applyI18n(){
-  document.documentElement.lang = _currentLang;
-  document.querySelectorAll('[data-i18n-html]').forEach(el=>{
-    el.innerHTML = t(el.getAttribute('data-i18n-html'));
-  });
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const key = el.getAttribute('data-i18n');
-    // innerHTML kullanıyoruz çünkü bazı metinlerde <b> gibi basit etiketler var
-    // (sözlükteki tüm değerler bizim kendi sabit metinlerimiz, kullanıcı girdisi değil — XSS riski yok)
-    el.innerHTML = t(key);
-  });
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
-    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
-  });
-  document.querySelectorAll('[data-i18n-title]').forEach(el=>{
-    el.title = t(el.getAttribute('data-i18n-title'));
-  });
-  // Dinamik olarak yeniden çizilmesi gereken paneller (açıksa) güncellensin
-  try{ if(typeof updateLangSettingUI==='function') updateLangSettingUI(); }catch(e){}
-  try{
-    if(document.getElementById('profile-modal')?.classList.contains('show') && typeof pcActiveTab!=='undefined'){
-      if(pcActiveTab==='seviye' && typeof renderLevelPanel==='function'){ renderLevelPanel(); renderStreakPanel(); }
-      if(pcActiveTab==='stats' && typeof renderProfileStats==='function') renderProfileStats();
-      if(pcActiveTab==='ayarlar' && typeof renderProfileSettings==='function') renderProfileSettings();
+  return {
+    // Genel buton tıklaması — kısa, hafif "tık"
+    click(){
+      tone([{freq:740, start:0, dur:0.045, type:'sine', gain:0.10}]);
+    },
+    // Piksel atma — daha dolgun, tatmin edici bir "pop"
+    pixel(){
+      tone([
+        {freq:520, start:0,    dur:0.05, type:'triangle', gain:0.16},
+        {freq:980, start:0.03, dur:0.09, type:'sine',     gain:0.14}
+      ]);
+    },
+    // Olumlu/onay sesi (ör. işlem başarılı)
+    success(){
+      tone([
+        {freq:660, start:0,    dur:0.09, type:'sine', gain:0.14},
+        {freq:990, start:0.07, dur:0.12, type:'sine', gain:0.13}
+      ]);
+    },
+    // Hata/uyarı sesi
+    error(){
+      tone([{freq:220, start:0, dur:0.16, type:'sawtooth', gain:0.10}]);
+    },
+    // Duyuru — iki notalı "ding"
+    announce(){
+      tone([
+        {freq:880,  start:0,    dur:0.16, type:'sine', gain:0.22},
+        {freq:1318, start:0.12, dur:0.22, type:'sine', gain:0.22}
+      ]);
+    },
+    // ⚔️ SAVAŞ İLANI — Derin, sert, adrenalin yükseltici fanfar
+    war(){
+      if(muted) return;
+      const c = ensureRunning();
+      if(!c) return;
+      const now = c.currentTime;
+      function drum(startT, vol){
+        const buf = c.createBuffer(1, c.sampleRate * 0.18, c.sampleRate);
+        const data = buf.getChannelData(0);
+        for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1) * Math.pow(1-(i/data.length),2.5);
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        const g = c.createGain();
+        g.gain.setValueAtTime(vol, now+startT);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+startT+0.18);
+        src.connect(g); g.connect(c.destination);
+        src.start(now+startT);
+      }
+      function brass(freq, startT, dur, vol, slide){
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq * (slide||1), now+startT);
+        osc.frequency.linearRampToValueAtTime(freq, now+startT+0.06);
+        g.gain.setValueAtTime(0.0001, now+startT);
+        g.gain.linearRampToValueAtTime(vol, now+startT+0.04);
+        g.gain.setValueAtTime(vol, now+startT+dur-0.06);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+startT+dur);
+        osc.connect(g); g.connect(c.destination);
+        osc.start(now+startT); osc.stop(now+startT+dur+0.05);
+      }
+      function alarm(freq, startT, dur, vol){
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = 'square';
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, now+startT);
+        g.gain.linearRampToValueAtTime(vol, now+startT+0.02);
+        g.gain.setValueAtTime(vol, now+startT+dur-0.04);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+startT+dur);
+        osc.connect(g); g.connect(c.destination);
+        osc.start(now+startT); osc.stop(now+startT+dur+0.03);
+      }
+      drum(0,    0.55); drum(0.18, 0.40); drum(0.32, 0.60);
+      brass(130, 0,    0.22, 0.28, 0.7);
+      brass(196, 0.20, 0.18, 0.32, 0.8);
+      brass(261, 0.35, 0.25, 0.36, 0.85);
+      brass(329, 0.55, 0.20, 0.38, 0.9);
+      brass(392, 0.72, 0.30, 0.42, 0.85);
+      alarm(440, 0.85, 0.14, 0.18); alarm(880, 0.97, 0.10, 0.14);
+      alarm(440, 1.05, 0.10, 0.16); alarm(880, 1.13, 0.10, 0.13);
+      drum(0.90, 0.50); drum(1.00, 0.55); drum(1.08, 0.65);
+      brass(523, 1.10, 0.45, 0.40, 0.9);
+      brass(392, 1.50, 0.55, 0.30, 1.0);
+      alarm(220, 1.55, 0.40, 0.12);
+    },
+    // 🤝 İTTİFAK sesi — sıcak, zafer notalı
+    ally(){
+      tone([
+        {freq:392, start:0,    dur:0.12, type:'sine', gain:0.18},
+        {freq:523, start:0.10, dur:0.14, type:'sine', gain:0.20},
+        {freq:659, start:0.22, dur:0.20, type:'sine', gain:0.22},
+        {freq:784, start:0.38, dur:0.28, type:'sine', gain:0.20}
+      ]);
+    },
+    // ☮️ BARIŞ / nötr sesi
+    peace(){
+      tone([
+        {freq:523, start:0,    dur:0.14, type:'sine', gain:0.14},
+        {freq:392, start:0.12, dur:0.18, type:'sine', gain:0.12}
+      ]);
+    },
+    setMuted(v){ muted = !!v; try{ localStorage.setItem('pv_sfx_muted', muted?'1':'0'); }catch(e){} },
+    isMuted(){ return muted; },
+    unlock(){
+      if(unlocked) return;
+      unlocked = true;
+      ensureRunning();
     }
-  }catch(e){}
-  try{ if(document.getElementById('faction-modal')?.classList.contains('show') && typeof renderFactionModal==='function') renderFactionModal(); }catch(e){}
+  };
+})();
+// Kayıtlı sessize alma tercihini yükle
+try{ SFX.setMuted(localStorage.getItem('pv_sfx_muted')==='1'); }catch(e){}
+// İlk kullanıcı etkileşiminde AudioContext'i kilidini aç (autoplay policy)
+['pointerdown','keydown','touchstart'].forEach(ev=>{
+  document.addEventListener(ev, ()=>SFX.unlock(), {once:true, passive:true});
+});
+
+// Geriye dönük uyumluluk: duyuru sistemi bu adı çağırıyordu.
+function playAnnounceSound(){ SFX.announce(); }
+
+// ── Genel buton tıklama sesi: olay delegasyonu ──
+// Tek tek her butona dinleyici eklemek yerine, document üzerinde
+// capture aşamasında dinleyip tıklanan elementin en yakın
+// button/[onclick]/.btn atasını buluyoruz. Böylece sonradan
+// eklenen butonlar da otomatik olarak ses alır.
+document.addEventListener('click', function(e){
+  const el = e.target.closest('button, [onclick], .btn, .ptbtn, .zb, .ch-tab, .pe-dur-btn, .tl-range-btn, .tl-speed-btn');
+  if(!el) return;
+  if(el.disabled) return;
+  // Piksel kanvası (#c) tıklamaları ayrı, daha belirgin "pixel" sesi
+  // alıyor (handleClick içinde) — burada tekrar genel tık sesi çalmayalım.
+  if(el.id === 'c') return;
+  SFX.click();
+}, true);
+
