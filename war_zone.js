@@ -1,98 +1,14 @@
 /* ════════════════════════════════════════════════════════════════
-   ⚔️ SAVAŞ BÖLGESİ SİSTEMİ v2
-   ─ Admin modu açılınca topbar + mobil sheet'e buton eklenir
-   ─ Haritada sürükle-bırak bölge seçimi
-   ─ Broadcast → tüm oyunculara borozoanlı şerit + ışınlan
+   ⚔️ SAVAŞ BÖLGESİ SİSTEMİ v3
+   ─ #paint-toolbar içindeki "⚔️ Savaş Bölgesi" butonuna bağlı
+   ─ Savaş seçim modali → haritada bölge çiz → broadcast
+   ─ Tüm oyunculara borozoanlı şerit + tıklayınca ışınlan
 ════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
   /* ══════════════════════════════════════════════════════════════
-     1. BUTON ENJEKTE ET
-     toggleAdmin her çağrıldığında adminMode durumuna göre
-     "⚔️ Savaş Bölgesi" butonunu topbar + mobil sheet'e ekle/gizle
-  ══════════════════════════════════════════════════════════════ */
-
-  function _injectButtons() {
-    /* ── Masaüstü topbar butonu ── */
-    if (!document.getElementById('wz-tb-btn')) {
-      const adminBtn = document.getElementById('adminbtn');
-      if (adminBtn && adminBtn.parentNode) {
-        const btn = document.createElement('button');
-        btn.id = 'wz-tb-btn';
-        btn.className = 'tb-btn';
-        btn.title = 'Savaş Bölgesi Belirle';
-        btn.style.cssText = 'background:linear-gradient(135deg,#7f1d1d,#f04a4a);display:none';
-        btn.innerHTML = `
-          <span class="tb-icon">⚔️</span>
-          <span class="tb-label">Savaş Bölgesi</span>
-        `;
-        btn.onclick = function () {
-          closeTbDesktopMenu && closeTbDesktopMenu();
-          wzOpenPickModal();
-        };
-        adminBtn.insertAdjacentElement('afterend', btn);
-      }
-    }
-
-    /* ── Mobil sheet butonu ── */
-    if (!document.getElementById('wz-ts-btn')) {
-      const adminSheet = document.getElementById('ts-adminbtn');
-      if (adminSheet && adminSheet.parentNode) {
-        const item = document.createElement('div');
-        item.id = 'wz-ts-btn';
-        item.className = 'tb-sheet-item';
-        item.style.display = 'none';
-        item.innerHTML = `
-          <div class="tb-sheet-item-icon" style="background:linear-gradient(135deg,#7f1d1d,#f04a4a);font-size:1.1rem;display:flex;align-items:center;justify-content:center;">⚔️</div>
-          <div class="tb-sheet-item-body">
-            <div class="tb-sheet-item-name">Savaş Bölgesi</div>
-            <div class="tb-sheet-item-desc">Bölge çiz &amp; yayınla</div>
-          </div>
-        `;
-        item.onclick = function () {
-          closeTbMenu && closeTbMenu();
-          wzOpenPickModal();
-        };
-        adminSheet.insertAdjacentElement('afterend', item);
-      }
-    }
-
-    /* Görünürlüğü admin moduna göre ayarla */
-    _syncButtonVisibility();
-  }
-
-  function _syncButtonVisibility() {
-    const on = (typeof adminMode !== 'undefined') && adminMode;
-    const tb = document.getElementById('wz-tb-btn');
-    const ts = document.getElementById('wz-ts-btn');
-    if (tb) tb.style.display = on ? '' : 'none';
-    if (ts) ts.style.display = on ? '' : 'none';
-  }
-
-  /* toggleAdmin hook'u */
-  (function _hookToggleAdmin() {
-    const _orig = window.toggleAdmin;
-    if (typeof _orig !== 'function') {
-      /* toggleAdmin henüz yok, biraz bekle */
-      setTimeout(_hookToggleAdmin, 400);
-      return;
-    }
-    window.toggleAdmin = function () {
-      _orig.apply(this, arguments);
-      setTimeout(() => {
-        _injectButtons();
-        _syncButtonVisibility();
-      }, 30);
-    };
-  })();
-
-  /* Sayfa yüklenince de dene (admin zaten açıksa) */
-  window.addEventListener('load', () => setTimeout(_injectButtons, 800));
-
-  /* ══════════════════════════════════════════════════════════════
-     2. SAVAŞ SEÇİM MODALI
-     Admin hangi savaşa bölge belirleyeceğini burada seçer
+     1. SAVAŞ SEÇİM MODALI
   ══════════════════════════════════════════════════════════════ */
 
   function _injectPickModal() {
@@ -111,18 +27,15 @@
           <span style="font-size:1.4rem">⚔️</span>
           <span style="font-weight:800;font-size:1rem;color:#f04a4a;letter-spacing:.04em">SAVAŞ BÖLGESİ BELİRLE</span>
           <button onclick="wzClosePickModal()" style="margin-left:auto;background:none;border:none;
-            color:rgba(255,255,255,.4);font-size:1rem;cursor:pointer;padding:2px 6px;">✕</button>
+            color:rgba(255,255,255,.4);font-size:1.1rem;cursor:pointer;padding:2px 6px;">✕</button>
         </div>
-
         <div style="font-size:.75rem;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.6">
           Hangi savaş için bölge belirleyeceğini seç, ardından haritada sürükleyerek çiz.
-          Tüm oyunculara borozoanlı bildirim gider.
+          Tüm oyunculara borozoanlı bildirim gider ve bölgeye ışınlanabilirler.
         </div>
-
         <div id="wz-modal-war-list" style="margin-bottom:14px;max-height:220px;overflow-y:auto;">
           <div style="color:rgba(255,255,255,.35);font-size:.75rem;padding:8px 0;">Yükleniyor…</div>
         </div>
-
         <button id="wz-modal-start-btn" onclick="wzStartZonePick()" disabled style="
           width:100%;padding:10px 0;border:none;border-radius:10px;
           background:linear-gradient(135deg,#f04a4a,#f97316);color:#fff;
@@ -142,17 +55,17 @@
     document.getElementById('wz-modal').style.display = 'flex';
     _loadWzWarList();
   };
+
   window.wzClosePickModal = function () {
     const m = document.getElementById('wz-modal');
     if (m) m.style.display = 'none';
   };
 
   async function _loadWzWarList() {
-    const listEl = document.getElementById('wz-modal-war-list');
+    const listEl   = document.getElementById('wz-modal-war-list');
     const startBtn = document.getElementById('wz-modal-start-btn');
     if (!listEl) return;
 
-    /* _wars global dizisi (war_overlay.js'den) */
     const wars = (typeof _wars !== 'undefined' && Array.isArray(_wars) && _wars.length > 0)
       ? _wars
       : await _fetchWarsFromDB();
@@ -170,15 +83,15 @@
       <label style="display:flex;align-items:center;gap:10px;padding:9px 12px;
                     border-radius:9px;cursor:pointer;border:1px solid rgba(255,255,255,.07);
                     margin-bottom:7px;background:rgba(255,255,255,.03);transition:background .15s;"
-             onmouseover="this.style.background='rgba(240,74,74,.08)'"
+             onmouseover="this.style.background='rgba(240,74,74,.09)'"
              onmouseout="this.style.background='rgba(255,255,255,.03)'">
         <input type="radio" name="wz-war-radio" value="${w.id}"
                onchange="wzSelectWar('${w.id}')"
-               style="accent-color:#f04a4a;width:15px;height:15px;">
+               style="accent-color:#f04a4a;width:15px;height:15px;flex-shrink:0;">
         <div style="flex:1;min-width:0;">
           <div style="font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
             <span style="color:${w.factionA?.color||'#f04a4a'}">${_wzEsc(w.factionA?.name||'A')}</span>
-            <span style="color:rgba(255,255,255,.35)"> ⚔ </span>
+            <span style="color:rgba(255,255,255,.3)"> ⚔ </span>
             <span style="color:${w.factionB?.color||'#7B61FF'}">${_wzEsc(w.factionB?.name||'B')}</span>
           </div>
           <div style="font-size:.66rem;color:rgba(255,255,255,.3);margin-top:2px;">
@@ -203,15 +116,12 @@
         factions = fd || [];
       }
       return warRows.map(r => ({
-        id: r.id,
-        name: r.name || '',
-        region: r.region || '',
-        centerX: r.center_x || 0,
-        centerY: r.center_y || 0,
-        factionA: factions.find(f => f.id === r.faction_a_id) || { name: 'A', color: '#f04a4a' },
-        factionB: factions.find(f => f.id === r.faction_b_id) || { name: 'B', color: '#7B61FF' },
+        id: r.id, name: r.name||'', region: r.region||'',
+        centerX: r.center_x||0, centerY: r.center_y||0,
+        factionA: factions.find(f => f.id === r.faction_a_id) || { name:'A', color:'#f04a4a' },
+        factionB: factions.find(f => f.id === r.faction_b_id) || { name:'B', color:'#7B61FF' },
       }));
-    } catch (e) { return []; }
+    } catch(e) { return []; }
   }
 
   window.wzSelectWar = function (warId) {
@@ -219,11 +129,11 @@
     const btn = document.getElementById('wz-modal-start-btn');
     if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
     const msg = document.getElementById('wz-modal-msg');
-    if (msg) msg.textContent = 'Hazır! Butona basıp haritada bölge çiz.';
+    if (msg) msg.textContent = '✓ Savaş seçildi. Butona bas ve haritada çiz.';
   };
 
   /* ══════════════════════════════════════════════════════════════
-     3. HARİTA ÜZERİNDE BÖLGE SEÇİM OVERLAY'İ
+     2. HARİTA ÜZERİNDE BÖLGE SEÇİM OVERLAY'İ
   ══════════════════════════════════════════════════════════════ */
 
   function _injectOverlay() {
@@ -237,18 +147,18 @@
         box-shadow:0 0 0 1px rgba(240,74,74,.25);"></div>
 
       <div style="position:fixed;top:16px;left:50%;transform:translateX(-50%);
-        background:rgba(20,5,5,.95);border:1.5px solid rgba(240,74,74,.5);
+        background:rgba(16,4,4,.96);border:1.5px solid rgba(240,74,74,.55);
         border-radius:10px;padding:10px 22px;color:#fff;font-size:.8rem;font-weight:600;
         display:flex;align-items:center;gap:12px;pointer-events:none;
         box-shadow:0 4px 24px rgba(0,0,0,.7),0 0 20px rgba(240,74,74,.2);">
         <span style="font-size:1.1rem">⚔️</span>
         <span>Savaş bölgesini <b>sürükleyerek</b> çizin</span>
-        <span id="wz-pick-dim" style="color:#f97316;font-size:.7rem;font-family:'Space Mono',monospace;"></span>
+        <span id="wz-pick-dim" style="color:#f97316;font-size:.7rem;font-family:'Space Mono',monospace;min-width:80px;"></span>
         <span style="color:rgba(255,255,255,.35);font-size:.68rem;">ESC = iptal</span>
       </div>
 
       <div id="wz-pick-actions" style="position:fixed;display:none;
-        background:rgba(20,5,5,.97);border:1.5px solid rgba(240,74,74,.55);
+        background:rgba(16,4,4,.97);border:1.5px solid rgba(240,74,74,.55);
         border-radius:10px;padding:8px 12px;gap:8px;align-items:center;
         box-shadow:0 4px 20px rgba(0,0,0,.7);">
         <button onclick="wzConfirmZone()" style="padding:8px 18px;border:none;border-radius:8px;
@@ -269,14 +179,14 @@
     if (typeof canvas === 'undefined' || !canvas) return {x:0,y:0};
     const r = canvas.getBoundingClientRect();
     const dpr = canvas.width / r.width;
-    const s = (typeof scale !== 'undefined') ? scale : 1;
+    const s  = (typeof scale !== 'undefined') ? scale : 1;
     const _ox = (typeof ox !== 'undefined') ? ox : 0;
     const _oy = (typeof oy !== 'undefined') ? oy : 0;
     const IW = (typeof IMG_W !== 'undefined') ? IMG_W : 99999;
     const IH = (typeof IMG_H !== 'undefined') ? IMG_H : 99999;
     return {
-      x: Math.max(0, Math.min(IW-1, Math.floor(((cx - r.left)*dpr - _ox) / s))),
-      y: Math.max(0, Math.min(IH-1, Math.floor(((cy - r.top )*dpr - _oy) / s)))
+      x: Math.max(0, Math.min(IW-1, Math.floor(((cx-r.left)*dpr - _ox) / s))),
+      y: Math.max(0, Math.min(IH-1, Math.floor(((cy-r.top )*dpr - _oy) / s)))
     };
   }
 
@@ -284,7 +194,7 @@
     const rect = document.getElementById('wz-pick-rect');
     const act  = document.getElementById('wz-pick-actions');
     const dim  = document.getElementById('wz-pick-dim');
-    if (!rect || !canvas) return;
+    if (!rect || typeof canvas === 'undefined' || !canvas) return;
     const x0=Math.min(_wz.sx,_wz.ex), y0=Math.min(_wz.sy,_wz.ey);
     const x1=Math.max(_wz.sx,_wz.ex), y1=Math.max(_wz.sy,_wz.ey);
     const r = canvas.getBoundingClientRect();
@@ -295,7 +205,9 @@
     const sl = r.left + (_ox + x0*s)/dpr;
     const st = r.top  + (_oy + y0*s)/dpr;
     const sw = (x1-x0)*s/dpr, sh = (y1-y0)*s/dpr;
-    rect.style.cssText += `;left:${sl}px;top:${st}px;width:${sw}px;height:${sh}px;display:${sw>3&&sh>3?'block':'none'}`;
+    rect.style.left=sl+'px'; rect.style.top=st+'px';
+    rect.style.width=sw+'px'; rect.style.height=sh+'px';
+    rect.style.display = (sw>3&&sh>3) ? 'block' : 'none';
     if (dim) dim.textContent = (x1-x0)+'×'+(y1-y0)+' px';
     if (act) {
       if (sw>30 && sh>30) {
@@ -308,8 +220,8 @@
 
   function _wzResetSel() {
     _wz.hasSel = false;
-    const rect = document.getElementById('wz-pick-rect'); if(rect) rect.style.display='none';
-    const act = document.getElementById('wz-pick-actions'); if(act) act.style.display='none';
+    const r=document.getElementById('wz-pick-rect'); if(r) r.style.display='none';
+    const a=document.getElementById('wz-pick-actions'); if(a) a.style.display='none';
   }
 
   function _wzPD(e) {
@@ -340,7 +252,8 @@
     if (!_wz.dragging) return;
     _wz.dragging=false;
     const p=_wzC2I(e.clientX,e.clientY); _wz.ex=p.x; _wz.ey=p.y;
-    if(Math.abs(_wz.ex-_wz.sx)>4&&Math.abs(_wz.ey-_wz.sy)>4){ _wz.hasSel=true; _wzDrawRect(); } else { _wzResetSel(); }
+    if(Math.abs(_wz.ex-_wz.sx)>4 && Math.abs(_wz.ey-_wz.sy)>4){ _wz.hasSel=true; _wzDrawRect(); }
+    else { _wzResetSel(); }
   }
   function _wzWheel(e) {
     e.preventDefault();
@@ -387,8 +300,7 @@
   window.wzResetZone = function () { _wzResetSel(); };
 
   window.wzCancelZonePick = function () {
-    _wzRemoveListeners();
-    _wzResetSel();
+    _wzRemoveListeners(); _wzResetSel();
     const ov=document.getElementById('wz-pick-overlay'); if(ov) ov.style.display='none';
     _wz.dragging=false; _wz.panning=false;
   };
@@ -399,24 +311,19 @@
     const x1=Math.max(_wz.sx,_wz.ex), y1=Math.max(_wz.sy,_wz.ey);
     const region = { x:x0, y:y0, w:Math.max(4,x1-x0), h:Math.max(4,y1-y0), cx:Math.round((x0+x1)/2), cy:Math.round((y0+y1)/2) };
     wzCancelZonePick();
-
     const warId = window._wzSelectedWarId;
     const wars  = window._wzWarsCache || (typeof _wars!=='undefined' ? _wars : []);
     const war   = wars.find(w => w.id === warId);
-
-    /* Supabase güncelle */
     if (typeof supabase !== 'undefined' && warId) {
       try { await supabase.from('wars').update({ center_x:region.cx, center_y:region.cy }).eq('id', warId); }
       catch(e) { console.warn('wz update:', e); }
     }
-
-    /* Broadcast + kendi ekranında göster */
     _wzBroadcast({ war, region });
     showWarZoneBanner({ war, region });
   };
 
   /* ══════════════════════════════════════════════════════════════
-     4. BROADCAST
+     3. BROADCAST
   ══════════════════════════════════════════════════════════════ */
   let _wzCh = null;
   function _getWzCh() {
@@ -438,7 +345,7 @@
   }
 
   /* ══════════════════════════════════════════════════════════════
-     5. ŞERİT BİLDİRİM
+     4. ŞERİT BİLDİRİM
   ══════════════════════════════════════════════════════════════ */
   function _injectBanner() {
     if (document.getElementById('wz-banner')) return;
@@ -449,7 +356,7 @@
       height:58px;display:flex;align-items:center;justify-content:center;gap:14px;padding:0 20px;
       background:linear-gradient(90deg,#1a0202 0%,#6b0a0a 20%,#c01e1e 50%,#6b0a0a 80%,#1a0202 100%);
       border-bottom:2px solid rgba(240,74,74,.7);
-      box-shadow:0 4px 32px rgba(240,74,74,.5),0 0 60px rgba(240,74,74,.1);
+      box-shadow:0 4px 32px rgba(240,74,74,.5);
       cursor:pointer;transition:top .45s cubic-bezier(.22,1,.36,1);overflow:hidden;user-select:none;
     `;
     el.onclick = wzJumpToZone;
@@ -457,31 +364,24 @@
       <div style="position:absolute;inset:0;background:repeating-linear-gradient(
         90deg,transparent,transparent 4px,rgba(255,255,255,.015) 4px,rgba(255,255,255,.015) 8px);
         pointer-events:none;"></div>
-      <span style="font-size:1.3rem;animation:wzSw .65s ease-in-out infinite alternate;">⚔️</span>
+      <span style="font-size:1.3rem;animation:wzSw .65s ease-in-out infinite alternate;position:relative;">⚔️</span>
       <div style="text-align:center;position:relative;z-index:1;">
         <div id="wz-banner-title" style="font-size:.9rem;font-weight:800;color:#fff;letter-spacing:.07em;
-          text-shadow:0 0 16px rgba(240,74,74,.9),0 0 4px rgba(255,200,0,.3);
-          animation:wzGl 1.3s ease-in-out infinite alternate;">⚔️ SAVAŞ BAŞLADI! ⚔️</div>
+          text-shadow:0 0 16px rgba(240,74,74,.9);animation:wzGl 1.3s ease-in-out infinite alternate;">
+          ⚔️ SAVAŞ BAŞLADI! ⚔️
+        </div>
         <div id="wz-banner-sub" style="font-size:.66rem;font-weight:600;color:rgba(255,210,170,.8);
           letter-spacing:.03em;margin-top:2px;">Tıkla → Savaş bölgesine ışınlan</div>
       </div>
-      <span style="font-size:1.3rem;animation:wzSw .65s ease-in-out infinite alternate-reverse;">⚔️</span>
-      <button onclick="event.stopPropagation();wzCloseBanner()" style="position:absolute;right:10px;top:5px;
-        background:none;border:none;color:rgba(255,255,255,.35);font-size:.72rem;cursor:pointer;
-        padding:2px 5px;border-radius:4px;">✕</button>
+      <span style="font-size:1.3rem;animation:wzSw .65s ease-in-out infinite alternate-reverse;position:relative;">⚔️</span>
+      <button onclick="event.stopPropagation();wzCloseBanner()" style="position:absolute;right:10px;top:6px;
+        background:none;border:none;color:rgba(255,255,255,.35);font-size:.72rem;cursor:pointer;padding:2px 5px;border-radius:4px;">✕</button>
     `;
     document.body.appendChild(el);
-
     const style = document.createElement('style');
     style.textContent = `
-      @keyframes wzGl {
-        from { text-shadow:0 0 10px rgba(240,74,74,.7); }
-        to   { text-shadow:0 0 24px rgba(255,120,60,1),0 0 8px rgba(255,220,80,.5); }
-      }
-      @keyframes wzSw {
-        from { transform:rotate(-18deg) scale(1); }
-        to   { transform:rotate(18deg) scale(1.18); }
-      }
+      @keyframes wzGl { from{text-shadow:0 0 10px rgba(240,74,74,.7);} to{text-shadow:0 0 24px rgba(255,120,60,1),0 0 8px rgba(255,220,80,.5);} }
+      @keyframes wzSw { from{transform:rotate(-18deg) scale(1);} to{transform:rotate(18deg) scale(1.18);} }
     `;
     document.head.appendChild(style);
   }
@@ -494,47 +394,36 @@
     window._wzActiveBanner = data;
     const war = data && data.war;
     const region = data && data.region;
-
     const title = document.getElementById('wz-banner-title');
     const sub   = document.getElementById('wz-banner-sub');
     if (title && war) {
-      const cA = war.factionA?.color||'#f04a4a', cB = war.factionB?.color||'#7B61FF';
+      const cA=war.factionA?.color||'#f04a4a', cB=war.factionB?.color||'#7B61FF';
       title.innerHTML = `⚔️ <span style="color:${cA}">${_wzEsc(war.factionA?.name||'A')}</span>`
-        + ` <span style="color:rgba(255,255,255,.4)">VS</span>`
-        + ` <span style="color:${cB}">${_wzEsc(war.factionB?.name||'B')}</span> ⚔️`;
+        +` <span style="color:rgba(255,255,255,.4)">VS</span>`
+        +` <span style="color:${cB}">${_wzEsc(war.factionB?.name||'B')}</span> ⚔️`;
     }
     if (sub && region) sub.textContent = `SAVAŞ BÖLGESİ (${region.cx}, ${region.cy}) — Tıkla → Işınlan!`;
-
-    /* Ses */
     if (typeof SFX !== 'undefined' && typeof SFX.war === 'function') SFX.war();
-
-    /* Sarsıntı */
     document.body.classList.add('war-shake');
     setTimeout(() => document.body.classList.remove('war-shake'), 600);
-
-    /* Kıvılcımlar */
     if (typeof spawnWarSparks === 'function') {
       spawnWarSparks(20);
       setTimeout(() => spawnWarSparks(16), 500);
       setTimeout(() => spawnWarSparks(12), 1000);
     }
-
-    /* Şerit aşağı in */
     const banner = document.getElementById('wz-banner');
     if (banner) banner.style.top = '0px';
-
     if (_wzBannerTimer) clearTimeout(_wzBannerTimer);
     _wzBannerTimer = setTimeout(() => wzCloseBanner(), 12000);
   };
 
   window.wzCloseBanner = function () {
-    const b = document.getElementById('wz-banner');
-    if (b) b.style.top = '-80px';
-    if (_wzBannerTimer) { clearTimeout(_wzBannerTimer); _wzBannerTimer = null; }
+    const b=document.getElementById('wz-banner'); if(b) b.style.top='-80px';
+    if (_wzBannerTimer) { clearTimeout(_wzBannerTimer); _wzBannerTimer=null; }
   };
 
   /* ══════════════════════════════════════════════════════════════
-     6. BÖLGEYE IŞINLAN
+     5. BÖLGEYE IŞINLAN
   ══════════════════════════════════════════════════════════════ */
   window.wzJumpToZone = function () {
     wzCloseBanner();
@@ -542,10 +431,9 @@
     if (!data || !data.region) return;
     const region = data.region;
     if (typeof canvas === 'undefined' || !canvas) return;
-    const padFactor = 0.72;
     const targetScale = Math.min(
-      (canvas.width  * padFactor) / Math.max(region.w, 1),
-      (canvas.height * padFactor) / Math.max(region.h, 1),
+      (canvas.width  * 0.72) / Math.max(region.w, 1),
+      (canvas.height * 0.72) / Math.max(region.h, 1),
       20
     );
     scale = targetScale;
@@ -555,17 +443,16 @@
     if (typeof positionWarBadges === 'function') positionWarBadges();
     canvas.style.transition = 'filter .18s';
     canvas.style.filter = 'brightness(1.6) saturate(1.4)';
-    setTimeout(() => { canvas.style.filter = ''; }, 220);
+    setTimeout(() => { canvas.style.filter=''; }, 220);
   };
 
   /* ══════════════════════════════════════════════════════════════
-     7. YARDIMCI
+     6. YARDIMCI
   ══════════════════════════════════════════════════════════════ */
   function _wzEsc(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  /* draw() hook: seçim kutusu zoom/pan ile güncellensin */
   (function () {
     const _od = window.draw;
     if (typeof _od === 'function') {
@@ -573,5 +460,5 @@
     }
   })();
 
-  console.log('⚔️ War Zone System v2 loaded');
+  console.log('⚔️ War Zone System v3 loaded');
 })();
