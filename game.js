@@ -2516,9 +2516,10 @@ async function loadFactionsFromSupabase(){
   if(typeof supabase === 'undefined') return false;
   try{
     const { data, error } = await supabase.from('factions').select('*');
-    if(error){ console.warn('loadFactions supabase:', error); return false; }
+    if(error){ console.error('loadFactions supabase error:', error.code, error.message, error.details); return false; }
     if(!data) return false;
     allFactions = {};
+    console.log('loadFactions: Supabase'den', data.length, 'faction yüklendi');
     data.forEach(row => {
       // Ekstra alanları ya doğrudan sütunlardan ya da data/extra jsonb'den al
       const extra = row.data || row.extra || {};
@@ -2539,6 +2540,11 @@ async function loadFactionsFromSupabase(){
     });
     // localStorage'a da yaz (offline fallback)
     try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
+    // Arama listesi açıksa güncelle
+    const searchEl = document.getElementById('fc-search-in');
+    if(searchEl && typeof filterFactionBrowse==='function') filterFactionBrowse();
+    const searchEl2 = document.getElementById('fc-browse-home-search');
+    if(searchEl2 && typeof filterFactionBrowseHome==='function') filterFactionBrowseHome();
     return true;
   }catch(e){ console.warn('loadFactions error:', e); return false; }
 }
@@ -2547,36 +2553,61 @@ async function saveFactionsToSupabase(f){
   if(typeof supabase === 'undefined') return false;
   if(!f || !f.tag) return false;
   try{
-    const payload = {
-      name:     f.name,
-      tag:      f.tag,
-      color:    f.color,
-      emoji:    f.emoji,
-      leader:   f.leader,
-      invite:   f.invite,
-      members:  f.members,
-      diplomacy:f.diplomacy,
-    };
-    if(f.logo) payload.logo = f.logo;
-    // id varsa doğrudan update, yoksa upsert (tag unique constraint üzerinden)
-    if(f.id){
-      const {error} = await supabase.from('factions').update(payload).eq('id', f.id);
-      if(error) console.warn('saveFactions update error:', error);
-    } else {
-      // Önce tag ile ara
-      const { data: existing, error: selErr } = await supabase.from('factions').select('id').eq('tag', f.tag).maybeSingle();
-      if(existing && existing.id){
-        f.id = existing.id;
-        allFactions[f.tag] = f;
-        const {error} = await supabase.from('factions').update(payload).eq('id', existing.id);
-        if(error) console.warn('saveFactions update2 error:', error);
+    // Tam payload — tüm bilinen sütunlarla
+    function _buildPayload(fat){
+      const p = {
+        name:     fat.name,
+        tag:      fat.tag,
+        color:    fat.color,
+        emoji:    fat.emoji,
+        leader:   fat.leader,
+        invite:   fat.invite,
+        members:  fat.members,
+        diplomacy:fat.diplomacy,
+      };
+      if(fat.logo) p.logo = fat.logo;
+      return p;
+    }
+    // Sütun hatası alınırsa data jsonb fallback
+    async function _doSave(id, payload){
+      if(id){
+        const {error} = await supabase.from('factions').update(payload).eq('id', id);
+        if(error && (error.code==='42703'||String(error.message).includes('column'))){
+          // Bilinmeyen sütunları data jsonb'ye taşı
+          const safePayload = { name:payload.name, tag:payload.tag, data: payload };
+          const {error:e2} = await supabase.from('factions').update(safePayload).eq('id', id);
+          if(e2) console.warn('saveFactions fallback update error:', e2);
+        } else if(error){
+          console.warn('saveFactions update error:', error);
+        }
       } else {
-        const { data: ins, error: insErr } = await supabase.from('factions').insert(payload).select('id').single();
-        if(insErr){ console.warn('saveFactions insert error:', insErr); return false; }
-        if(ins && ins.id){ f.id = ins.id; allFactions[f.tag] = f; }
+        const {data:ins,error} = await supabase.from('factions').insert(payload).select('id').single();
+        if(error && (error.code==='42703'||String(error.message).includes('column'))){
+          const safePayload = { name:payload.name, tag:payload.tag, data: payload };
+          const {data:ins2,error:e2} = await supabase.from('factions').insert(safePayload).select('id').single();
+          if(e2){ console.warn('saveFactions fallback insert error:', e2); return null; }
+          return ins2 && ins2.id;
+        } else if(error){
+          console.warn('saveFactions insert error:', error); return null;
+        }
+        return ins && ins.id;
+      }
+      return null;
+    }
+    const payload = _buildPayload(f);
+    if(f.id){
+      await _doSave(f.id, payload);
+    } else {
+      // Tag ile ara
+      const { data: existing } = await supabase.from('factions').select('id').eq('tag', f.tag).maybeSingle();
+      if(existing && existing.id){
+        f.id = existing.id; allFactions[f.tag] = f;
+        await _doSave(f.id, payload);
+      } else {
+        const newId = await _doSave(null, payload);
+        if(newId){ f.id = newId; allFactions[f.tag] = f; }
       }
     }
-    // localStorage'ı da güncelle
     try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
     return true;
   }catch(e){ console.warn('saveFactions error:', e); return false; }
@@ -2730,7 +2761,7 @@ function renderFactionCreate(body){
     <div style="border-top:1px solid var(--bdr);padding-top:.7rem;display:flex;flex-direction:column;gap:.55rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <div class="pc-label">${t('faction.ranking_title')}</div>
-        <span style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted)">${sorted.length} faction</span>
+        <span id="fc-browse-count" style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted)">${sorted.length} faction</span>
       </div>
       <div style="position:relative;">
         <input class="pc-input" id="fc-search-in" placeholder="🔍 ${t('faction.search_ph')}" maxlength="30"
@@ -2766,12 +2797,20 @@ function renderFactionCreate(body){
 
 function filterFactionBrowse(){
   const q = (document.getElementById('fc-search-in').value||'').trim().toLowerCase();
-  const list = window._fcSortedList||[];
-  const filtered = q ? list.filter(f=>
+  // Her zaman güncel allFactions'tan yeniden sırala
+  const sorted = Object.values(allFactions).sort((a,b)=>{
+    if(b.members.length !== a.members.length) return b.members.length - a.members.length;
+    return (b.totalPixels||0) - (a.totalPixels||0);
+  });
+  window._fcSortedList = sorted;
+  const filtered = q ? sorted.filter(f=>
     f.name.toLowerCase().includes(q) ||
     f.tag.toLowerCase().includes(q)
-  ) : list;
-  document.getElementById('fc-browse-list').innerHTML = window._fcRenderFactionList(filtered);
+  ) : sorted;
+  const listEl = document.getElementById('fc-browse-list');
+  const cntEl = document.getElementById('fc-browse-count');
+  if(listEl && window._fcRenderFactionList) listEl.innerHTML = window._fcRenderFactionList(filtered);
+  if(cntEl) cntEl.textContent = sorted.length + ' faction';
 }
 
 async function createFaction(){
@@ -2796,18 +2835,34 @@ async function createFaction(){
   // Supabase'e kaydet
   if(typeof supabase !== 'undefined'){
     try{
-      const { data: ins, error: ie } = await supabase.from('factions').insert({
+      // Temel payload — tüm sütunlarla dene
+      const basePayload = {
         name, tag, color, emoji, leader: username, invite,
-        members: newFaction.members, diplomacy: {}
-      }).select('id').single();
+        members: newFaction.members, diplomacy: {},
+        created_at: new Date().toISOString()
+      };
+      let { data: ins, error: ie } = await supabase.from('factions').insert(basePayload).select('id').single();
+      // members/diplomacy sütunu yoksa data jsonb'ye göm
+      if(ie && (ie.code==='42703'||ie.message&&ie.message.includes('column'))){
+        console.warn('Sütun hatası, data jsonb ile tekrar deneyin:', ie.message);
+        const { data: ins2, error: ie2 } = await supabase.from('factions').insert({
+          name, tag, color, emoji, leader: username, invite,
+          data: { members: newFaction.members, diplomacy: {}, createdAt: Date.now(), totalPixels: 0 }
+        }).select('id').single();
+        ie = ie2; ins = ins2;
+      }
       if(ie){
-        console.warn('createFaction supabase insert error:', ie);
-        showPopup('⚠️ Fraksiyon kaydedilirken hata oluştu: '+( ie.message||ie.code||'bilinmeyen hata'));
+        console.error('createFaction supabase error:', ie);
+        showPopup('⚠️ Fraksiyon kaydedilemedi: '+(ie.message||ie.code||JSON.stringify(ie)));
       } else if(ins && ins.id){
         allFactions[tag].id = ins.id;
         newFaction.id = ins.id;
+        console.log('Faction Supabase'e kaydedildi, id:', ins.id);
       }
-    }catch(e){ console.warn('createFaction supabase insert:', e); }
+    }catch(e){
+      console.error('createFaction supabase exception:', e);
+      showPopup('⚠️ Fraksiyon kaydedilirken beklenmedik hata: '+(e.message||e));
+    }
   }
   try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   try{ localStorage.setItem('pv_my_faction_'+username, tag); }catch(e){}
@@ -3680,7 +3735,14 @@ function changeFactionColor(col, el){
 }
 
 function updateFactionBtn(){
-  loadFactions();
+  // Sadece localStorage'dan senkron oku — async Supabase çekimi tetikleme
+  if(!factionData){
+    try{
+      const raw = localStorage.getItem('pv_factions');
+      if(raw) allFactions = JSON.parse(raw);
+    }catch(e){}
+    _detectMyFactionFromSupabase();
+  }
   const btn = document.getElementById('faction-sub-btn');
   const dot = document.getElementById('fsb-dot');
   const lbl = document.getElementById('fsb-label');
