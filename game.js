@@ -2599,10 +2599,11 @@ function loadFactions(){
   });
 }
 
-function saveFactions(){
+function saveFactions(explicitFaction){
   try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
-  // Supabase'e de kaydet (sadece kendi faction'ını)
-  if(factionData) saveFactionsToSupabase(factionData);
+  // Kaydedilecek faction: açıkça verilmişse onu, yoksa factionData'yı kullan
+  const toSave = explicitFaction || factionData;
+  if(toSave) saveFactionsToSupabase(toSave);
 }
 function generateCode(){
   return Math.random().toString(36).substring(2,8).toUpperCase();
@@ -2765,17 +2766,18 @@ async function createFaction(){
     members:[{name:username,role:'Lider',joined:Date.now()}],
     diplomacy:{}, createdAt:Date.now(), totalPixels:0};
   allFactions[tag] = newFaction;
-  saveFactions();
-  // Supabase'e kaydet
+  // Önce Supabase'e kaydet, sonra localStorage
   if(typeof supabase !== 'undefined'){
     try{
       const { data: ins, error: ie } = await supabase.from('factions').insert({
         name, tag, color, emoji, leader: username, invite,
         members: newFaction.members, diplomacy: {}
       }).select('id').single();
+      if(ie){ console.warn('createFaction supabase insert error:', ie); }
       if(!ie && ins && ins.id) allFactions[tag].id = ins.id;
     }catch(e){ console.warn('createFaction supabase insert:', e); }
   }
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   try{ localStorage.setItem('pv_my_faction_'+username, tag); }catch(e){}
   factionData = allFactions[tag];
   updateFactionBtn();
@@ -2791,9 +2793,11 @@ async function joinFactionByTag(tag){
   if(found.members.find(m=>m.name===username)){ showPopup(t('msg.faction_already_in')); return; }
   found.members.push({name:username,role:'Üye',joined:Date.now()});
   allFactions[found.tag] = found;
-  saveFactions();
   try{ localStorage.setItem('pv_my_faction_'+username, found.tag); }catch(e){}
   factionData = found;
+  // factionData set edildikten SONRA kaydet
+  await saveFactionsToSupabase(found);
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   updateFactionBtn();
   if(typeof updateChatFactionTab==='function') updateChatFactionTab();
   showPopup(t('msg.faction_joined', {name: found.name}));
@@ -2810,9 +2814,11 @@ async function joinFactionByCode(){
   if(found.members.find(m=>m.name===username)){ showPopup(t('msg.faction_already_in')); return; }
   found.members.push({name:username,role:'Üye',joined:Date.now()});
   allFactions[found.tag] = found;
-  saveFactions();
   try{ localStorage.setItem('pv_my_faction_'+username, found.tag); }catch(e){}
   factionData = found;
+  // factionData set edildikten SONRA kaydet
+  await saveFactionsToSupabase(found);
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   updateFactionBtn();
   if(typeof updateChatFactionTab==='function') updateChatFactionTab();
   showPopup(t('msg.faction_joined', {name: found.name}));
