@@ -2857,7 +2857,7 @@ async function createFaction(){
       } else if(ins && ins.id){
         allFactions[tag].id = ins.id;
         newFaction.id = ins.id;
-        console.log('Faction Supabase'e kaydedildi, id:', ins.id);
+        console.log("Faction Supabase'e kaydedildi, id:", ins.id);
       }
     }catch(e){
       console.error('createFaction supabase exception:', e);
