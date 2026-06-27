@@ -2544,10 +2544,8 @@ async function loadFactionsFromSupabase(){
 
 async function saveFactionsToSupabase(f){
   if(typeof supabase === 'undefined') return false;
-  if(!f) return false;
+  if(!f || !f.tag) return false;
   try{
-    // Önce bu tag var mı kontrol et
-    const { data: existing } = await supabase.from('factions').select('id').eq('tag', f.tag).maybeSingle();
     const payload = {
       name:     f.name,
       tag:      f.tag,
@@ -2558,14 +2556,54 @@ async function saveFactionsToSupabase(f){
       members:  f.members,
       diplomacy:f.diplomacy,
     };
-    if(existing && existing.id){
-      await supabase.from('factions').update(payload).eq('id', existing.id);
+    if(f.logo) payload.logo = f.logo;
+    // id varsa doğrudan update, yoksa upsert (tag unique constraint üzerinden)
+    if(f.id){
+      const {error} = await supabase.from('factions').update(payload).eq('id', f.id);
+      if(error) console.warn('saveFactions update error:', error);
     } else {
-      const { data: ins } = await supabase.from('factions').insert(payload).select('id').single();
-      if(ins && ins.id) { f.id = ins.id; allFactions[f.tag] = f; }
+      // Önce tag ile ara
+      const { data: existing, error: selErr } = await supabase.from('factions').select('id').eq('tag', f.tag).maybeSingle();
+      if(existing && existing.id){
+        f.id = existing.id;
+        allFactions[f.tag] = f;
+        const {error} = await supabase.from('factions').update(payload).eq('id', existing.id);
+        if(error) console.warn('saveFactions update2 error:', error);
+      } else {
+        const { data: ins, error: insErr } = await supabase.from('factions').insert(payload).select('id').single();
+        if(insErr){ console.warn('saveFactions insert error:', insErr); return false; }
+        if(ins && ins.id){ f.id = ins.id; allFactions[f.tag] = f; }
+      }
     }
+    // localStorage'ı da güncelle
+    try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
     return true;
   }catch(e){ console.warn('saveFactions error:', e); return false; }
+}
+
+/* Supabase members listesine bakarak kullanıcının faction'ını bul,
+   localStorage key eksikse de kurtarır */
+function _detectMyFactionFromSupabase(){
+  if(!username) return;
+  try{
+    const myTag = localStorage.getItem('pv_my_faction_'+username);
+    if(myTag && allFactions[myTag]){
+      const inMembers = allFactions[myTag].members && allFactions[myTag].members.some(m=>m.name===username);
+      if(inMembers){ factionData = allFactions[myTag]; return; }
+      // Eski/yanlış key — temizle
+      localStorage.removeItem('pv_my_faction_'+username);
+    }
+  }catch(e){}
+  // localStorage key yoksa tüm faction members'larını tara
+  const found = Object.values(allFactions).find(f=>
+    f.members && f.members.some(m=>m.name===username)
+  );
+  if(found){
+    factionData = found;
+    try{ localStorage.setItem('pv_my_faction_'+username, found.tag); }catch(e){}
+  } else {
+    factionData = null;
+  }
 }
 
 function loadFactions(){
@@ -2574,26 +2612,11 @@ function loadFactions(){
     const raw = localStorage.getItem('pv_factions');
     if(raw) allFactions = JSON.parse(raw);
   }catch(e){}
-  try{
-    const myTag = localStorage.getItem('pv_my_faction_'+username);
-    if(myTag && allFactions[myTag]){
-      factionData = allFactions[myTag];
-    } else {
-      factionData = null;
-    }
-  }catch(e){}
+  _detectMyFactionFromSupabase();
   // Arka planda Supabase'den taze veri çek
   loadFactionsFromSupabase().then(ok=>{
     if(ok){
-      // Supabase'den gelen veriden kullanıcının faction'ını güncelle
-      try{
-        const myTag = localStorage.getItem('pv_my_faction_'+username);
-        if(myTag && allFactions[myTag]){
-          factionData = allFactions[myTag];
-        } else if(factionData && allFactions[factionData.tag]){
-          factionData = allFactions[factionData.tag];
-        }
-      }catch(e){}
+      _detectMyFactionFromSupabase();
       renderFactionModal();
     }
   });
@@ -2618,10 +2641,7 @@ function openFactionModal(){
   // Supabase'den taze veri çek ve yeniden render et
   loadFactionsFromSupabase().then(ok=>{
     if(ok){
-      try{
-        const myTag = localStorage.getItem('pv_my_faction_'+username);
-        if(myTag && allFactions[myTag]) factionData = allFactions[myTag];
-      }catch(e){}
+      _detectMyFactionFromSupabase();
       renderFactionModal();
     }
   });
@@ -2766,15 +2786,20 @@ async function createFaction(){
     members:[{name:username,role:'Lider',joined:Date.now()}],
     diplomacy:{}, createdAt:Date.now(), totalPixels:0};
   allFactions[tag] = newFaction;
-  // Önce Supabase'e kaydet, sonra localStorage
+  // Supabase'e kaydet
   if(typeof supabase !== 'undefined'){
     try{
       const { data: ins, error: ie } = await supabase.from('factions').insert({
         name, tag, color, emoji, leader: username, invite,
         members: newFaction.members, diplomacy: {}
       }).select('id').single();
-      if(ie){ console.warn('createFaction supabase insert error:', ie); }
-      if(!ie && ins && ins.id) allFactions[tag].id = ins.id;
+      if(ie){
+        console.warn('createFaction supabase insert error:', ie);
+        showPopup('⚠️ Fraksiyon kaydedilirken hata oluştu: '+( ie.message||ie.code||'bilinmeyen hata'));
+      } else if(ins && ins.id){
+        allFactions[tag].id = ins.id;
+        newFaction.id = ins.id;
+      }
     }catch(e){ console.warn('createFaction supabase insert:', e); }
   }
   try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
@@ -3186,10 +3211,12 @@ async function leaveFaction(){
       try{ localStorage.removeItem('pv_my_faction_'+m.name); }catch(e){}
     });
   } else {
+    // Önce üye listesini güncelle
     allFactions[f.tag].members = allFactions[f.tag].members.filter(m=>m.name!==username);
     try{ localStorage.removeItem('pv_my_faction_'+username); }catch(e){}
-    // Supabase'e güncel üye listesini kaydet
-    saveFactions();
+    // Supabase'e güncel üye listesini kaydet (factionData henüz null olmadan)
+    await saveFactionsToSupabase(allFactions[f.tag]);
+    try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   }
   try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   factionData = null;
@@ -3203,7 +3230,8 @@ function kickMember(memberName){
   factionData.members = factionData.members.filter(m=>m.name!==memberName);
   allFactions[factionData.tag] = factionData;
   try{ localStorage.removeItem('pv_my_faction_'+memberName); }catch(e){}
-  saveFactions();
+  saveFactionsToSupabase(factionData);
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   showPopup(t('msg.member_kicked', {name: memberName}));
   renderFactionModal();
 }
@@ -3212,7 +3240,8 @@ function promoteMember(memberName){
   const m = factionData.members.find(x=>x.name===memberName);
   if(m) m.role='Yönetici';
   allFactions[factionData.tag]=factionData;
-  saveFactions();
+  saveFactionsToSupabase(factionData);
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   showPopup(t('msg.member_promoted', {name: memberName}));
   renderFactionModal();
 }
@@ -3221,7 +3250,8 @@ function demoteMember(memberName){
   const m = factionData.members.find(x=>x.name===memberName);
   if(m) m.role='Üye';
   allFactions[factionData.tag]=factionData;
-  saveFactions();
+  saveFactionsToSupabase(factionData);
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   showPopup(t('msg.member_demoted', {name: memberName}));
   renderFactionModal();
 }
@@ -3364,7 +3394,8 @@ function acceptAllyInvite(mailId, fromTag){
   if(!factionData.diplomacy) factionData.diplomacy={};
   factionData.diplomacy[fromTag] = 'ally';
   allFactions[factionData.tag] = factionData;
-  saveFactions();
+  saveFactionsToSupabase(factionData);
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   // Bekleyen daveti sil
   const invites = getAllyInvites().filter(i=>!(i.toTag===factionData.tag && i.fromTag===fromTag));
   saveAllyInvites(invites);
@@ -3460,7 +3491,8 @@ function setupMailboxListeners(){
     if(!factionData.diplomacy) factionData.diplomacy={};
     factionData.diplomacy[p.fromTag] = 'ally';
     allFactions[factionData.tag] = factionData;
-    saveFactions();
+    saveFactionsToSupabase(factionData);
+    try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
     // Bekleyen daveti sil
     const invites = getAllyInvites().filter(i=>!(i.fromTag===factionData.tag && i.toTag===p.fromTag));
     saveAllyInvites(invites);
@@ -3493,7 +3525,9 @@ function setDiplomacy(targetTag, status){
   const prevStatus = factionData.diplomacy[targetTag] || 'neutral';
   factionData.diplomacy[targetTag] = status;
   allFactions[factionData.tag] = factionData;
-  saveFactions();
+  // Kendi faction'ımızı kaydet
+  saveFactionsToSupabase(factionData);
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   const label = status==='ally'?t('diplomacy.ally'):status==='war'?t('diplomacy.war'):t('diplomacy.neutral');
   showPopup(t('msg.relation_set', {tag: targetTag, label: label}));
 
@@ -3532,7 +3566,8 @@ function regenerateInvite(){
   if(!factionData) return;
   factionData.invite = generateCode();
   allFactions[factionData.tag] = factionData;
-  saveFactions();
+  saveFactionsToSupabase(factionData);
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   showPopup(t('msg.new_invite_code', {code: factionData.invite}));
   renderFactionModal();
 }
@@ -3549,7 +3584,8 @@ function handleFactionLogo(event){
   reader.onload = e => {
     factionData.logo = e.target.result;
     allFactions[factionData.tag] = factionData;
-    saveFactions();
+    saveFactionsToSupabase(factionData);
+    try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
     showPopup(t('msg.logo_updated'));
     renderFactionModal();
   };
@@ -3621,7 +3657,8 @@ function changeFactionColor(col, el){
   if(!factionData) return;
   factionData.color = col;
   allFactions[factionData.tag] = factionData;
-  saveFactions();
+  saveFactionsToSupabase(factionData);
+  try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   document.querySelectorAll('#fc-settings-colors .fc-color-swatch').forEach(s=>s.classList.remove('sel'));
   el.classList.add('sel');
   updateFactionBtn();
