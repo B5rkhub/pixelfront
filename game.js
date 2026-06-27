@@ -2519,7 +2519,7 @@ async function loadFactionsFromSupabase(){
     if(error){ console.error('loadFactions supabase error:', error.code, error.message, error.details); return false; }
     if(!data) return false;
     allFactions = {};
-    console.log('loadFactions: Supabase'den', data.length, 'faction yüklendi');
+    console.log("loadFactions: Supabase'den", data.length, 'faction yüklendi');
     data.forEach(row => {
       // Ekstra alanları ya doğrudan sütunlardan ya da data/extra jsonb'den al
       const extra = row.data || row.extra || {};
