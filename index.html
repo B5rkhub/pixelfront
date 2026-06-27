@@ -516,7 +516,187 @@
   </div>
 </div>
 
+<!-- mailbox-modal -->
+<div id="mailbox-modal" style="display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;width:460px;max-width:95vw;padding:1.8rem;display:flex;flex-direction:column;gap:1.1rem;box-shadow:0 24px 64px rgba(0,0,0,.8);max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#c026d3);display:flex;align-items:center;justify-content:center;font-size:1rem;">✉</div>
+        <h2 style="font-size:1.05rem;font-weight:800;color:var(--txt);">Posta Kutusu</h2>
+      </div>
+      <button onclick="closeMailbox()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;">✕</button>
+    </div>
+    <div id="mailbox-list" style="display:flex;flex-direction:column;gap:.6rem;">
+      <div style="font-size:.8rem;color:var(--muted);text-align:center;padding:1rem;">Yükleniyor...</div>
+    </div>
+  </div>
+</div>
+
+<!-- history-modal -->
+<div id="history-modal" style="display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;width:460px;max-width:95vw;padding:1.8rem;display:flex;flex-direction:column;gap:1.1rem;box-shadow:0 24px 64px rgba(0,0,0,.8);max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#0a6660,#0257a0);display:flex;align-items:center;justify-content:center;font-size:1rem;">🕐</div>
+        <h2 style="font-size:1.05rem;font-weight:800;color:var(--txt);">Geçmiş</h2>
+      </div>
+      <button onclick="closeHistoryModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.8rem;">
+      <label style="font-size:.75rem;color:var(--muted);">Tarih & Saat Seç</label>
+      <input id="history-modal-dt" type="datetime-local" style="background:var(--bg);border:1px solid var(--bdr2);border-radius:10px;padding:.65rem .9rem;color:var(--txt);font-size:.85rem;outline:none;width:100%;">
+      <button onclick="goToHistoryFromModal()" style="background:linear-gradient(135deg,#0a6660,#0257a0);color:#fff;border:none;border-radius:10px;padding:.7rem;font-weight:700;cursor:pointer;">Geçmişe Git</button>
+    </div>
+  </div>
+</div>
+
+<!-- template-editor -->
+<div id="template-editor" style="display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;width:460px;max-width:95vw;padding:1.8rem;display:flex;flex-direction:column;gap:1.1rem;box-shadow:0 24px 64px rgba(0,0,0,.8);max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#c026d3);display:flex;align-items:center;justify-content:center;font-size:1rem;">✏</div>
+        <h2 style="font-size:1.05rem;font-weight:800;color:var(--txt);">Şablon Editörü</h2>
+      </div>
+      <button onclick="closeTemplateEditor()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;">✕</button>
+    </div>
+    <div id="template-editor-content" style="display:flex;flex-direction:column;gap:.8rem;">
+      <div style="font-size:.8rem;color:var(--muted);text-align:center;padding:1rem;">Şablon editörü yükleniyor...</div>
+    </div>
+  </div>
+</div>
+
+<!-- announce-modal -->
+<div id="announce-modal" style="display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;width:460px;max-width:95vw;padding:1.8rem;display:flex;flex-direction:column;gap:1.1rem;box-shadow:0 24px 64px rgba(0,0,0,.8);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#dc2626,#b91c1c);display:flex;align-items:center;justify-content:center;font-size:1rem;">📢</div>
+        <h2 style="font-size:1.05rem;font-weight:800;color:var(--txt);">Duyuru Yaz</h2>
+      </div>
+      <button onclick="closeAnnounceModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.8rem;">
+      <textarea id="announce-text" placeholder="Duyuru metni..." rows="4" style="background:var(--bg);border:1px solid var(--bdr2);border-radius:10px;padding:.65rem .9rem;color:var(--txt);font-size:.85rem;outline:none;resize:vertical;width:100%;box-sizing:border-box;"></textarea>
+      <input id="announce-duration" type="number" min="5" max="300" value="60" placeholder="Süre (saniye)" style="background:var(--bg);border:1px solid var(--bdr2);border-radius:10px;padding:.65rem .9rem;color:var(--txt);font-size:.85rem;outline:none;width:100%;box-sizing:border-box;">
+      <div id="announce-modal-msg" style="font-size:.74rem;color:var(--muted);min-height:1rem;"></div>
+      <button onclick="sendAnnouncement()" style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;border:none;border-radius:10px;padding:.7rem;font-weight:700;cursor:pointer;">Duyuruyu Gönder</button>
+    </div>
+  </div>
+</div>
+
+<!-- pixel-event-modal -->
+<div id="pixel-event-modal" style="display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;width:460px;max-width:95vw;padding:1.8rem;display:flex;flex-direction:column;gap:1.1rem;box-shadow:0 24px 64px rgba(0,0,0,.8);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:1rem;">⚡</div>
+        <h2 style="font-size:1.05rem;font-weight:800;color:var(--txt);">Piksel Etkinliği</h2>
+      </div>
+      <button onclick="closePixelEventModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.8rem;">
+      <div id="pe-active-info" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:.8rem;font-size:.85rem;color:var(--txt);display:none;"></div>
+      <label style="font-size:.75rem;color:var(--muted);">Etkinlik Süresi (dakika)</label>
+      <input id="pe-duration" type="number" min="5" max="1440" value="60" style="background:var(--bg);border:1px solid var(--bdr2);border-radius:10px;padding:.65rem .9rem;color:var(--txt);font-size:.85rem;outline:none;width:100%;box-sizing:border-box;">
+      <label style="font-size:.75rem;color:var(--muted);">Dakikada Piksel Sayısı</label>
+      <input id="pe-rate" type="number" min="1" max="60" value="6" style="background:var(--bg);border:1px solid var(--bdr2);border-radius:10px;padding:.65rem .9rem;color:var(--txt);font-size:.85rem;outline:none;width:100%;box-sizing:border-box;">
+      <div id="pe-modal-msg" style="font-size:.74rem;color:var(--muted);min-height:1rem;"></div>
+      <div style="display:flex;gap:.6rem;">
+        <button onclick="startPixelEvent()" style="flex:1;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:10px;padding:.7rem;font-weight:700;cursor:pointer;">Başlat</button>
+        <button onclick="stopPixelEvent()" style="flex:1;background:var(--surf2);border:1px solid rgba(220,38,38,.4);color:#ff7373;border-radius:10px;padding:.7rem;font-weight:700;cursor:pointer;">Durdur</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- rollback-modal -->
+<div id="rollback-modal" style="display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;width:460px;max-width:95vw;padding:1.8rem;display:flex;flex-direction:column;gap:1.1rem;box-shadow:0 24px 64px rgba(0,0,0,.8);">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#0a6660,#0f766e);display:flex;align-items:center;justify-content:center;font-size:1rem;">↩</div>
+        <h2 style="font-size:1.05rem;font-weight:800;color:var(--txt);">Rollback Onayı</h2>
+      </div>
+      <button onclick="closeRollbackModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.8rem;">
+      <div id="rollback-modal-info" style="background:rgba(20,184,166,.08);border:1px solid rgba(20,184,166,.25);border-radius:10px;padding:.8rem;font-size:.85rem;color:var(--txt);line-height:1.5;"></div>
+      <div id="rollback-modal-msg" style="font-size:.74rem;color:var(--muted);min-height:1rem;"></div>
+      <div style="display:flex;gap:.6rem;">
+        <button onclick="confirmRollback()" style="flex:1;background:linear-gradient(135deg,#0a6660,#0f766e);color:#fff;border:none;border-radius:10px;padding:.7rem;font-weight:700;cursor:pointer;">Onayla & Geri Al</button>
+        <button onclick="closeRollbackModal()" style="flex:1;background:var(--surf2);border:1px solid var(--bdr2);color:var(--muted);border-radius:10px;padding:.7rem;font-weight:700;cursor:pointer;">İptal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Timelapse Modal -->
+<div id="timelapse-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);align-items:center;justify-content:center;">
+  <div style="background:var(--bg,#1a1a2e);border:1px solid rgba(139,92,246,.3);border-radius:16px;padding:28px;max-width:480px;width:92%;color:var(--text,#e2e8f0);position:relative;">
+    <button onclick="closeTimelapseModal()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted,#94a3b8);font-size:1.4rem;cursor:pointer;">✕</button>
+    <h2 style="margin:0 0 16px;font-size:1.2rem;">🎬 Timelapse Oluştur</h2>
+    <div id="tl-daily-info" style="padding:12px;border-radius:10px;border:1px solid rgba(139,92,246,.3);margin-bottom:16px;font-size:.85rem;line-height:1.5;background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.08));"></div>
+    <div id="tl-form">
+      <div style="margin-bottom:14px;">
+        <div style="font-size:.8rem;color:var(--muted,#94a3b8);margin-bottom:8px;">Zaman Aralığı</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="tl-range-btn tl-sel" onclick="selectTLRange(this,1)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(139,92,246,.4);background:rgba(139,92,246,.2);color:var(--text,#e2e8f0);cursor:pointer;font-size:.82rem;">Son 1 Saat</button>
+          <button class="tl-range-btn" onclick="selectTLRange(this,6)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(100,100,120,.3);background:rgba(100,100,120,.1);color:var(--text,#e2e8f0);cursor:pointer;font-size:.82rem;">Son 6 Saat</button>
+          <button class="tl-range-btn" onclick="selectTLRange(this,24)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(100,100,120,.3);background:rgba(100,100,120,.1);color:var(--text,#e2e8f0);cursor:pointer;font-size:.82rem;">Son 24 Saat</button>
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:.8rem;color:var(--muted,#94a3b8);margin-bottom:8px;">Hız</div>
+        <div style="display:flex;gap:8px;">
+          <button class="tl-speed-btn" onclick="selectTLSpeed(this,1)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(100,100,120,.3);background:rgba(100,100,120,.1);color:var(--text,#e2e8f0);cursor:pointer;font-size:.82rem;">Yavaş</button>
+          <button class="tl-speed-btn tl-ssel" onclick="selectTLSpeed(this,2)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(139,92,246,.4);background:rgba(139,92,246,.2);color:var(--text,#e2e8f0);cursor:pointer;font-size:.82rem;">Normal</button>
+          <button class="tl-speed-btn" onclick="selectTLSpeed(this,4)" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(100,100,120,.3);background:rgba(100,100,120,.1);color:var(--text,#e2e8f0);cursor:pointer;font-size:.82rem;">Hızlı</button>
+        </div>
+      </div>
+      <div id="tl-preview-info" style="font-size:.8rem;color:var(--muted,#94a3b8);margin-bottom:16px;"></div>
+      <button id="tl-start-btn" onclick="startTimelapse()" style="width:100%;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-size:.95rem;font-weight:600;cursor:pointer;">▶ Oluştur</button>
+    </div>
+    <div id="tl-progress" style="display:none;">
+      <canvas id="tl-canvas" style="display:none;width:100%;border-radius:8px;margin-bottom:12px;"></canvas>
+      <div id="tl-status-text" style="font-size:.85rem;color:var(--muted,#94a3b8);margin-bottom:8px;text-align:center;"></div>
+      <div style="background:rgba(100,100,120,.2);border-radius:6px;height:8px;overflow:hidden;margin-bottom:16px;">
+        <div id="tl-prog-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#3b82f6,#9b7fff);border-radius:6px;transition:width .3s;"></div>
+      </div>
+      <div id="tl-download-wrap" style="display:none;justify-content:center;">
+        <a id="tl-download-link" download="timelapse.webm" style="padding:10px 24px;border-radius:10px;background:linear-gradient(135deg,#10b981,#3b82f6);color:#fff;text-decoration:none;font-weight:600;">⬇ İndir</a>
+      </div>
+      <button onclick="resetTimelapse()" style="margin-top:12px;width:100%;padding:8px;border-radius:8px;border:1px solid rgba(100,100,120,.3);background:transparent;color:var(--muted,#94a3b8);cursor:pointer;font-size:.85rem;">← Geri</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quest Panel -->
+<div id="quest-panel" style="position:fixed;top:0;right:-380px;width:360px;height:100vh;background:var(--bg,#1a1a2e);border-left:1px solid rgba(139,92,246,.2);z-index:800;transition:right .3s;overflow-y:auto;padding:20px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <h2 style="margin:0;font-size:1.1rem;color:var(--text,#e2e8f0);">🎯 Görevler</h2>
+    <button onclick="closeQuestPanel()" style="background:none;border:none;color:var(--muted,#94a3b8);font-size:1.3rem;cursor:pointer;">✕</button>
+  </div>
+  <div style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);border-radius:10px;padding:12px;margin-bottom:16px;display:flex;gap:16px;font-size:.85rem;color:var(--text,#e2e8f0);">
+    <span>✅ <b id="q-sum-done">0</b>/<span id="q-sum-total">0</span></span>
+    <span>⭐ <b id="q-sum-xp">0</b> XP</span>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;">
+    <button id="qtab-daily" class="active" onclick="switchQuestTab('daily')" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.15);color:var(--text,#e2e8f0);cursor:pointer;font-size:.82rem;">Günlük</button>
+    <button id="qtab-weekly" onclick="switchQuestTab('weekly')" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(100,100,120,.2);background:transparent;color:var(--muted,#94a3b8);cursor:pointer;font-size:.82rem;">Haftalık</button>
+    <button id="qtab-milestone" onclick="switchQuestTab('milestone')" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(100,100,120,.2);background:transparent;color:var(--muted,#94a3b8);cursor:pointer;font-size:.82rem;">Kilometre</button>
+  </div>
+  <div id="quest-list"></div>
+</div>
+
+<!-- Quest Complete Notification -->
+<div id="quest-complete-notif" style="display:none;position:fixed;bottom:80px;right:20px;background:linear-gradient(135deg,#10b981,#3b82f6);color:#fff;border-radius:12px;padding:14px 18px;z-index:9000;max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,.3);">
+  <div style="font-weight:700;margin-bottom:4px;">🎯 Görev Tamamlandı!</div>
+  <div id="qcn-name" style="font-size:.9rem;margin-bottom:4px;"></div>
+  <div id="qcn-reward" style="font-size:.82rem;opacity:.85;"></div>
+</div>
+
 <script src="i18n.js"></script>
 <script src="game.js"></script>
 <script src="quest.js"></script>
@@ -526,5 +706,59 @@
 <script src="template.js"></script>
 <script src="patch.js"></script>
 <script src="war_overlay.js"></script>
+<script>
+// Modal open/close helpers — eksik fonksiyonlar için fallback
+function _modalShow(id){ var m=document.getElementById(id); if(m){ m.style.display='flex'; } }
+function _modalHide(id){ var m=document.getElementById(id); if(m){ m.style.display='none'; } }
+
+if(typeof openMailbox==='undefined') window.openMailbox = function(){ _modalShow('mailbox-modal'); };
+if(typeof closeMailbox==='undefined') window.closeMailbox = function(){ _modalHide('mailbox-modal'); };
+
+if(typeof openHistoryModal==='undefined') window.openHistoryModal = function(){ _modalShow('history-modal'); };
+if(typeof closeHistoryModal==='undefined') window.closeHistoryModal = function(){ _modalHide('history-modal'); };
+if(typeof goToHistoryFromModal==='undefined') window.goToHistoryFromModal = function(){
+  var dt = document.getElementById('history-modal-dt');
+  if(dt && dt.value && typeof loadHistoryAt==='function') { loadHistoryAt(new Date(dt.value).getTime()); closeHistoryModal(); }
+};
+
+if(typeof openTemplateEditor==='undefined') window.openTemplateEditor = function(){ _modalShow('template-editor'); };
+if(typeof closeTemplateEditor==='undefined') window.closeTemplateEditor = function(){ _modalHide('template-editor'); };
+
+if(typeof openAnnounceModal==='undefined') window.openAnnounceModal = function(){ _modalShow('announce-modal'); };
+if(typeof closeAnnounceModal==='undefined') window.closeAnnounceModal = function(){ _modalHide('announce-modal'); };
+if(typeof sendAnnouncement==='undefined') window.sendAnnouncement = function(){
+  var txt = (document.getElementById('announce-text')||{}).value||'';
+  var dur = parseInt((document.getElementById('announce-duration')||{}).value||60);
+  var msg = document.getElementById('announce-modal-msg');
+  if(!txt.trim()){ if(msg) msg.textContent='Metin boş olamaz.'; return; }
+  if(typeof broadcastAnnouncement==='function') broadcastAnnouncement(txt, dur);
+  if(msg) msg.textContent='Gönderildi.';
+  setTimeout(closeAnnounceModal, 900);
+};
+
+if(typeof openPixelEventModal==='undefined') window.openPixelEventModal = function(){ _modalShow('pixel-event-modal'); };
+if(typeof closePixelEventModal==='undefined') window.closePixelEventModal = function(){ _modalHide('pixel-event-modal'); };
+if(typeof startPixelEvent==='undefined') window.startPixelEvent = function(){
+  var dur = parseInt((document.getElementById('pe-duration')||{}).value||60);
+  var rate = parseInt((document.getElementById('pe-rate')||{}).value||6);
+  if(typeof activatePixelEvent==='function') activatePixelEvent(dur, rate);
+  closePixelEventModal();
+};
+if(typeof stopPixelEvent==='undefined') window.stopPixelEvent = function(){
+  if(typeof deactivatePixelEvent==='function') deactivatePixelEvent();
+  closePixelEventModal();
+};
+
+if(typeof openRollbackModal==='undefined') window.openRollbackModal = function(info){
+  var el = document.getElementById('rollback-modal-info');
+  if(el) el.textContent = info||'Seçili alan geri alınacak.';
+  _modalShow('rollback-modal');
+};
+if(typeof closeRollbackModal==='undefined') window.closeRollbackModal = function(){ _modalHide('rollback-modal'); };
+if(typeof confirmRollback==='undefined') window.confirmRollback = function(){
+  if(typeof executeRollback==='function') executeRollback();
+  closeRollbackModal();
+};
+</script>
 </body>
 </html>
