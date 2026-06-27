@@ -828,3 +828,122 @@ function applyI18n(){
   }catch(e){}
   try{ if(document.getElementById('faction-modal')?.classList.contains('show') && typeof renderFactionModal==='function') renderFactionModal(); }catch(e){}
 }
+
+// Dili değiştirir, kaydeder ve arayüzü anında günceller
+function setLanguage(lang){
+  if(lang!=='tr' && lang!=='en') return;
+  _currentLang = lang;
+  try{ localStorage.setItem('pv_lang', lang); }catch(e){}
+  applyI18n();
+}
+
+// Ayarlar panelindeki TR/EN dil seçici butonlarının aktif durumunu günceller
+function updateLangSettingUI(){
+  const trBtn = document.getElementById('pca-lang-tr');
+  const enBtn = document.getElementById('pca-lang-en');
+  if(trBtn && enBtn){
+    trBtn.classList.toggle('active', _currentLang==='tr');
+    enBtn.classList.toggle('active', _currentLang==='en');
+  }
+  const loginTrBtn = document.getElementById('login-lang-tr');
+  const loginEnBtn = document.getElementById('login-lang-en');
+  if(loginTrBtn && loginEnBtn){
+    loginTrBtn.classList.toggle('active', _currentLang==='tr');
+    loginEnBtn.classList.toggle('active', _currentLang==='en');
+  }
+}
+// İlk yüklemede de senkronize et
+updateLangSettingUI();
+
+// ── Gerçek dokunmatik girdi tespiti ──────────────────────────────────────
+// SADECE pencere genişliğine bakmak yanıltıcı: masaüstünde tarayıcı penceresi
+// 768px altına düşerse (yarım ekran, küçük laptop, zoomlu tarayıcı) mouse
+// kullanan kullanıcı yanlışlıkla "mobil" sayılıp mobil drawer/overlay
+// arayüzüne düşüyordu. Bu fonksiyon genişliğe EK OLARAK cihazın gerçekten
+// kaba/dokunmatik (coarse) bir işaretçiye sahip olup olmadığını da kontrol
+// eder. Gerçek telefon/tablet için davranış birebir aynı kalır (onlar zaten
+// hem dar hem dokunmatik); sadece "dar ama mouse" masaüstü artık mobil
+// sayılmıyor.
+function _isTouchCapableDevice(){
+  try{
+    if(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return true;
+  }catch(e){}
+  return ('ontouchstart' in window) || (navigator.maxTouchPoints>0);
+}
+
+(function(){
+  const isMob = ()=> window.innerWidth <= 768 && _isTouchCapableDevice();
+
+  // 1. iOS Safari: chat input açıkken ekranın kaymasını önle
+  //    input focus olunca scroll pozisyonunu kilitle
+  document.addEventListener('focusin', e=>{
+    if(!isMob()) return;
+    const tag = e.target.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'){
+      // Küçük gecikmeyle scroll sıfırla (iOS keyboard animasyonu sonrası)
+      setTimeout(()=>{ window.scrollTo(0,0); document.body.scrollTop=0; },300);
+    }
+  });
+
+  // 2. Yatay scroll tamamen kapat
+  document.addEventListener('touchmove', e=>{
+    // Chat panel, sidebar gibi scroll edilebilir alanlar hariç
+    const scrollable = e.target.closest('#chat-messages,#sidebar,#profile-card,#faction-card,#ptoolbar');
+    if(!scrollable && isMob()){
+      // Canvas dışındaysa yatay kaydırmayı engelle
+      if(!e.target.closest('canvas')){
+        if(Math.abs(e.touches[0]?.clientX - (e.target._touchStartX||0)) >
+           Math.abs(e.touches[0]?.clientY - (e.target._touchStartY||0))){
+          e.preventDefault();
+        }
+      }
+    }
+  },{passive:false});
+
+  document.addEventListener('touchstart', e=>{
+    if(e.target && !e.target.closest('canvas')){
+      e.target._touchStartX = e.touches[0]?.clientX;
+      e.target._touchStartY = e.touches[0]?.clientY;
+    }
+  },{passive:true});
+
+  // 3. Android Chrome: klavye açılınca viewport yüksekliğini güncelle
+  //    (visual viewport API varsa kullan)
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',()=>{
+      if(!isMob()) return;
+      const chatPanel = document.getElementById('chat-panel');
+      if(chatPanel && chatPanel.classList.contains('open')){
+        const vvh = window.visualViewport.height;
+        chatPanel.style.maxHeight = Math.round(vvh * 0.75) + 'px';
+      }
+    });
+  }
+
+  // 4. Çift dokunma ile canvas zoom engelle (iOS)
+  let lastTapTime=0;
+  document.addEventListener('touchend', e=>{
+    if(e.target.closest('canvas')) return; // Canvas kendi zoom'unu yönetir
+    const now = Date.now();
+    if(now - lastTapTime < 350){
+      e.preventDefault(); // Çift tap zoom'unu engelle
+    }
+    lastTapTime = now;
+  },{passive:false});
+
+  // 5. Popup 320px ekranlarda taşmasın
+  const origShowPopup = window.showPopup;
+  if(origShowPopup){
+    window.showPopup = function(msg){
+      origShowPopup(msg);
+      const p = document.getElementById('popup');
+      if(p && isMob()){
+        p.style.maxWidth = (window.innerWidth - 32)+'px';
+        p.style.whiteSpace = 'normal';
+        p.style.textAlign = 'center';
+      }
+    };
+  }
+})();
+
+// ── SUPABASE ENTEGRASYONU ──
