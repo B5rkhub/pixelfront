@@ -2498,6 +2498,7 @@ function closeProfileModal(){
 // ═══════════════════════════════════════════════════════
 let factionData = null;    // bu kullanıcının faction'ı
 let allFactions = {};      // tüm factionlar: {tag: {name,tag,color,emoji,leader,members:[],diplomacy:{}}}
+let _fcRenderLock = false; // createFaction/join sonrası arka plan render'ını engelle
 let fcActiveTab = 'info';
 
 const FC_COLORS = [
@@ -2615,7 +2616,7 @@ function loadFactions(){
   _detectMyFactionFromSupabase();
   // Arka planda Supabase'den taze veri çek
   loadFactionsFromSupabase().then(ok=>{
-    if(ok){
+    if(ok && !_fcRenderLock){
       _detectMyFactionFromSupabase();
       renderFactionModal();
     }
@@ -2635,16 +2636,22 @@ function generateCode(){
 function openFactionModal(){
   fcActiveTab = 'info';
   document.getElementById('faction-modal').classList.add('open');
-  // Önce localStorage'dan anlık render
-  loadFactions();
+  // localStorage'dan anlık render
+  try{
+    const raw = localStorage.getItem('pv_factions');
+    if(raw) allFactions = JSON.parse(raw);
+  }catch(e){}
+  _detectMyFactionFromSupabase();
   renderFactionModal();
-  // Supabase'den taze veri çek ve yeniden render et
-  loadFactionsFromSupabase().then(ok=>{
-    if(ok){
-      _detectMyFactionFromSupabase();
-      renderFactionModal();
-    }
-  });
+  // Supabase'den taze veri çek — ama sadece factionData yoksa ya da kilitsizse
+  if(!_fcRenderLock){
+    loadFactionsFromSupabase().then(ok=>{
+      if(ok && !_fcRenderLock){
+        _detectMyFactionFromSupabase();
+        renderFactionModal();
+      }
+    });
+  }
 }
 function closeFactionModal(){
   document.getElementById('faction-modal').classList.remove('open');
@@ -2805,10 +2812,12 @@ async function createFaction(){
   try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
   try{ localStorage.setItem('pv_my_faction_'+username, tag); }catch(e){}
   factionData = allFactions[tag];
+  _fcRenderLock = true;  // arka plan Supabase render'ını engelle
   updateFactionBtn();
   if(typeof updateChatFactionTab==='function') updateChatFactionTab();
   showPopup(t('msg.faction_created', {name: name}));
   renderFactionModal();
+  setTimeout(()=>{ _fcRenderLock = false; }, 3000); // 3s sonra kilidi aç
 }
 
 async function joinFactionByTag(tag){
@@ -2823,10 +2832,12 @@ async function joinFactionByTag(tag){
   // factionData set edildikten SONRA kaydet
   await saveFactionsToSupabase(found);
   try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
+  _fcRenderLock = true;
   updateFactionBtn();
   if(typeof updateChatFactionTab==='function') updateChatFactionTab();
   showPopup(t('msg.faction_joined', {name: found.name}));
   renderFactionModal();
+  setTimeout(()=>{ _fcRenderLock = false; }, 3000);
 }
 
 async function joinFactionByCode(){
@@ -2844,10 +2855,12 @@ async function joinFactionByCode(){
   // factionData set edildikten SONRA kaydet
   await saveFactionsToSupabase(found);
   try{ localStorage.setItem('pv_factions', JSON.stringify(allFactions)); }catch(e){}
+  _fcRenderLock = true;
   updateFactionBtn();
   if(typeof updateChatFactionTab==='function') updateChatFactionTab();
   showPopup(t('msg.faction_joined', {name: found.name}));
   renderFactionModal();
+  setTimeout(()=>{ _fcRenderLock = false; }, 3000);
 }
 
 function joinFaction(){
