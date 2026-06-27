@@ -463,7 +463,7 @@ canvas.addEventListener('mousemove',e=>{
   const tip=document.getElementById('tip');
   const preview=document.getElementById('hover-preview');
 
-  if(flat>=0 && !adminMode){
+  if(flat>=0 && !adminMode && FLAT_TO_PROV){
     const pi=FLAT_TO_PROV[flat];
     const isOnProvince=pi>=0 && !WHITE_SET.has(flat);
 
@@ -703,6 +703,7 @@ async function handleClick(mx,my){
   }
   const flat=canvasToFlat(mx,my);
   if(flat<0) return;
+  if(!FLAT_TO_PROV){ showPopup(t('msg.map_loading')); return; }
   if(WHITE_SET.has(flat)){showPopup(t('msg.click_border'));return;}
   const pi=FLAT_TO_PROV[flat];
   if(pi<0){showPopup(t('msg.click_province'));return;}
@@ -1521,6 +1522,7 @@ function paintPixel(mx,my){
   if(!_isAdmin){ showPopup(t('msg.no_admin')); return; }
   const flat=canvasToFlat(mx,my);
   if(flat<0||flat>=IMG_W*IMG_H) return;
+  if(!FLAT_TO_PROV) return;
   const px=flat%IMG_W, py=Math.floor(flat/IMG_W);
   // Find which province owns this flat pixel and remove votes at this exact pixel
   const pi=FLAT_TO_PROV[flat];
