@@ -1,398 +1,189 @@
-// ══════════════════════════════════════════════════════════
-// 📋 GÖREV (QUEST) SİSTEMİ
-// Günlük, Haftalık ve Kilometre Taşı görevleri.
-// Veriler localStorage'da tutulur. Piksel basıldığında,
-// streak kazanıldığında ve fraksiyon kurulduğunda güncellenir.
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// 🔊 SFX — Merkezi Ses Efekti Motoru
+// Oyundaki tüm butonlar ve önemli aksiyonlar (piksel atma,
+// duyuru vb.) için kısa, dosya gerektirmeyen WebAudio sesleri.
+// Tek bir AudioContext paylaşılır (her çalışta yeni context
+// açıp kapatmak hem yavaş hem de bazı tarayıcılarda ardışık
+// seslerin kesilmesine yol açabiliyordu).
+// ══════════════════════════════════════════════════════
+const SFX = (()=>{
+  let ctx = null;
+  let unlocked = false;
+  let muted = false;
 
-/* ── Görev Tanımları ── */
-const QUEST_DEFS = {
-  daily: [
-    { id:'d_place5',    icon:'🎯', name:'İlk Adım',        desc:'Bugün 5 piksel bas.',                          type:'place',  target:5,  xp:8,   pixels:2 },
-    { id:'d_place20',   icon:'🖌',  name:'Çizici',          desc:'Bugün 20 piksel bas.',                         type:'place',  target:20, xp:18,  pixels:4 },
-    { id:'d_place50',   icon:'⚡',  name:'Fırtına',         desc:'Bugün 50 piksel bas.',                         type:'place',  target:50, xp:35,  pixels:7 },
-    { id:'d_login',     icon:'🔥',  name:'Günlük Giriş',    desc:'Bugün giriş yaparak haritayı ziyaret et.',     type:'login',  target:1,  xp:5,   pixels:1 },
-    { id:'d_3prov',     icon:'🗺', name:'Gezgin',           desc:'Bugün 3 farklı ile piksel bas.',               type:'provinces', target:3, xp:12, pixels:3 },
-  ],
-  weekly: [
-    { id:'w_place100',  icon:'🌟', name:'Haftalık Çizici',  desc:'Bu hafta 100 piksel bas.',                     type:'place',  target:100, xp:40,  pixels:8  },
-    { id:'w_place300',  icon:'💎', name:'Piksel Ustası',    desc:'Bu hafta 300 piksel bas.',                     type:'place',  target:300, xp:90,  pixels:18 },
-    { id:'w_streak3',   icon:'🔥', name:'3 Günlük Seri',    desc:'3 gün üst üste giriş yap.',                   type:'streak', target:3,  xp:30,  pixels:6  },
-    { id:'w_streak7',   icon:'👑', name:'Tam Seri',          desc:'7 gün üst üste giriş yap.',                   type:'streak', target:7,  xp:70,  pixels:14 },
-    { id:'w_5prov',     icon:'🗺', name:'Harita Gezgini',   desc:'Bu hafta 5 farklı ile piksel bas.',            type:'provinces', target:5, xp:25, pixels:5 },
-    { id:'w_faction',   icon:'🏴', name:'Fraksiyoncu',      desc:'Bir fraksiyona katıl veya kur.',               type:'faction', target:1, xp:20,  pixels:4  },
-  ],
-  milestone: [
-    { id:'m_place10',   icon:'🌱', name:'Başlangıç',        desc:'Toplamda 10 piksel bas.',                      type:'total_place', target:10,   xp:15,  pixels:3  },
-    { id:'m_place50',   icon:'🌿', name:'Büyüyor',          desc:'Toplamda 50 piksel bas.',                      type:'total_place', target:50,   xp:30,  pixels:6  },
-    { id:'m_place200',  icon:'🌳', name:'Kök Saldı',        desc:'Toplamda 200 piksel bas.',                     type:'total_place', target:200,  xp:60,  pixels:12 },
-    { id:'m_place500',  icon:'🏅', name:'Deneyimli',        desc:'Toplamda 500 piksel bas.',                     type:'total_place', target:500,  xp:100, pixels:20 },
-    { id:'m_place1000', icon:'🥇', name:'Efsane Pikselci',  desc:'Toplamda 1000 piksel bas.',                    type:'total_place', target:1000, xp:200, pixels:35 },
-    { id:'m_place5000', icon:'👑', name:'Haritanın Efendisi',desc:'Toplamda 5000 piksel bas.',                   type:'total_place', target:5000, xp:500, pixels:80 },
-    { id:'m_lv5',       icon:'⭐', name:'Seviye 5',          desc:'5. seviyeye ulaş.',                            type:'level',  target:5,   xp:25,  pixels:5  },
-    { id:'m_lv10',      icon:'💫', name:'Seviye 10',         desc:'10. seviyeye ulaş.',                           type:'level',  target:10,  xp:50,  pixels:10 },
-    { id:'m_streak7',   icon:'🔥', name:'Haftalık Seri',    desc:'İlk 7 gün serisini tamamla.',                  type:'streak', target:7,   xp:40,  pixels:8  },
-  ]
-};
+  function getCtx(){
+    if(!ctx){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if(!Ctx) return null;
+      ctx = new Ctx();
+    }
+    return ctx;
+  }
 
-/* ── Görev State Yönetimi ── */
-let _questState = null; // { date:str, week:str, daily:{id:progress}, weekly:{id:progress}, claimed:{id:true} }
-let _questTab = 'daily';
+  // Tarayıcılar ilk kullanıcı etkileşiminden önce sesi engelleyebilir
+  // (autoplay policy) — context'i "suspended" durumdaysa devam ettir.
+  function ensureRunning(){
+    const c = getCtx();
+    if(!c) return null;
+    if(c.state === 'suspended'){ c.resume().catch(()=>{}); }
+    return c;
+  }
 
-function _weekStr(){ // Bu haftanın ISO yıl+hafta kodu
-  const d = new Date();
-  const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const dayNum = (tmp.getUTCDay() + 6) % 7; // Pzt=0
-  tmp.setUTCDate(tmp.getUTCDate() - dayNum + 3);
-  const firstThursday = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 4));
-  const weekNum = 1 + Math.round(((tmp - firstThursday) / 86400000 - 3 + (firstThursday.getUTCDay() + 6) % 7) / 7);
-  return `${tmp.getUTCFullYear()}-W${String(weekNum).padStart(2,'0')}`;
-}
-function _todayStr(){
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-function loadQuestState(){
-  const key = 'pv_quests_' + (typeof username !== 'undefined' ? username : '_guest');
-  let s = {};
-  try{ s = JSON.parse(localStorage.getItem(key) || '{}'); }catch(e){}
-  const today = _todayStr();
-  const week = _weekStr();
-  // Günlük sıfırlama
-  if(s.date !== today){ s.date = today; s.daily = {}; }
-  // Haftalık sıfırlama
-  if(s.week !== week){ s.week = week; s.weekly = {}; s.wkClaimed = {}; }
-  if(!s.daily) s.daily = {};
-  if(!s.weekly) s.weekly = {};
-  if(!s.claimed) s.claimed = {}; // milestone'lar hiç sıfırlanmaz
-  if(!s.wkClaimed) s.wkClaimed = {};
-  if(!s.totalXP) s.totalXP = 0;
-  _questState = s;
-}
-
-function saveQuestState(){
-  if(!_questState) return;
-  const key = 'pv_quests_' + (typeof username !== 'undefined' ? username : '_guest');
-  try{ localStorage.setItem(key, JSON.stringify(_questState)); }catch(e){}
-}
-
-/* ── Görev İlerleme Güncelleyici ── */
-function questProgress(type, value, extra){
-  if(!_questState) return;
-  const today = _todayStr();
-  const week = _weekStr();
-  if(_questState.date !== today){ _questState.date = today; _questState.daily = {}; }
-  if(_questState.week !== week){ _questState.week = week; _questState.weekly = {}; _questState.wkClaimed = {}; }
-
-  const update = (bucket, defs) => {
-    defs.forEach(q => {
-      if(q.type !== type) return;
-      const cur = bucket[q.id] || 0;
-      if(cur >= q.target) return; // zaten tamamlandı
-      let next = cur;
-      if(type === 'place' || type === 'total_place'){ next = Math.min(cur + (value||1), q.target); }
-      else if(type === 'login'){ next = 1; }
-      else if(type === 'streak'){ next = value || 0; }
-      else if(type === 'level'){ next = value || 0; }
-      else if(type === 'provinces'){
-        const provId = extra;
-        if(provId){
-          const setKey = q.id + '_provs';
-          if(!bucket[setKey]) bucket[setKey] = [];
-          if(!bucket[setKey].includes(provId)){
-            bucket[setKey].push(provId);
-            next = bucket[setKey].length;
-          } else { next = (bucket[setKey]||[]).length; }
-        }
-      }
-      else if(type === 'faction'){ next = 1; }
-      bucket[q.id] = Math.min(next, q.target);
+  // notes: [{freq, start, dur, type, gain}]
+  function tone(notes, masterGain){
+    if(muted) return;
+    const c = ensureRunning();
+    if(!c) return;
+    const now = c.currentTime;
+    const mg = masterGain!=null ? masterGain : 0.18;
+    notes.forEach(n=>{
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      osc.type = n.type || 'sine';
+      osc.frequency.value = n.freq;
+      const peak = (n.gain!=null ? n.gain : mg);
+      gain.gain.setValueAtTime(0.0001, now+n.start);
+      gain.gain.exponentialRampToValueAtTime(peak, now+n.start+0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now+n.start+n.dur);
+      osc.connect(gain); gain.connect(c.destination);
+      osc.start(now+n.start);
+      osc.stop(now+n.start+n.dur+0.04);
     });
-  };
-
-  update(_questState.daily, QUEST_DEFS.daily);
-  update(_questState.weekly, QUEST_DEFS.weekly);
-  // Milestone her zaman totalPlaced ya da global değerle beslenir
-  if(type === 'total_place' || type === 'level' || type === 'streak' || type === 'faction'){
-    update(_questState, QUEST_DEFS.milestone); // milestone doğrudan _questState'te
   }
-  saveQuestState();
-  updateQuestBadge();
-}
 
-/* Topbar/hamburger rozeti (!) */
-function updateQuestBadge(){
-  if(!_questState) return;
-  const hasClaimable = checkAnyClaimable();
-  const badge = document.getElementById('quest-badge');
-  if(badge) badge.style.display = hasClaimable ? 'flex' : 'none';
-  // Sheet'teki öğeyi de güncelle
-  const shBadge = document.getElementById('ts-quest-badge');
-  if(shBadge) shBadge.style.display = hasClaimable ? 'flex' : 'none';
-}
-
-function checkAnyClaimable(){
-  if(!_questState) return false;
-  const check = (bucket, claimBucket, defs) => defs.some(q => {
-    const prog = bucket[q.id] || 0;
-    return prog >= q.target && !claimBucket[q.id];
-  });
-  return check(_questState.daily, _questState.daily, QUEST_DEFS.daily) ||
-         check(_questState.weekly, _questState.wkClaimed, QUEST_DEFS.weekly) ||
-         check(_questState, _questState.claimed, QUEST_DEFS.milestone);
-}
-
-/* ── UI ── */
-function openQuestPanel(){
-  if(!_questState) loadQuestState();
-  // Günlük giriş görevini tetikle
-  questProgress('login');
-  // Total placed'ı milestone'lara yaz
-  const total = (typeof profileData !== 'undefined' && profileData.totalPlaced) || 0;
-  QUEST_DEFS.milestone.forEach(q => {
-    if(q.type === 'total_place'){
-      if(!_questState[q.id] || _questState[q.id] < total){
-        _questState[q.id] = Math.min(total, q.target);
+  return {
+    // Genel buton tıklaması — kısa, hafif "tık"
+    click(){
+      tone([{freq:740, start:0, dur:0.045, type:'sine', gain:0.10}]);
+    },
+    // Piksel atma — daha dolgun, tatmin edici bir "pop"
+    pixel(){
+      tone([
+        {freq:520, start:0,    dur:0.05, type:'triangle', gain:0.16},
+        {freq:980, start:0.03, dur:0.09, type:'sine',     gain:0.14}
+      ]);
+    },
+    // Olumlu/onay sesi (ör. işlem başarılı)
+    success(){
+      tone([
+        {freq:660, start:0,    dur:0.09, type:'sine', gain:0.14},
+        {freq:990, start:0.07, dur:0.12, type:'sine', gain:0.13}
+      ]);
+    },
+    // Hata/uyarı sesi
+    error(){
+      tone([{freq:220, start:0, dur:0.16, type:'sawtooth', gain:0.10}]);
+    },
+    // Duyuru — iki notalı "ding"
+    announce(){
+      tone([
+        {freq:880,  start:0,    dur:0.16, type:'sine', gain:0.22},
+        {freq:1318, start:0.12, dur:0.22, type:'sine', gain:0.22}
+      ]);
+    },
+    // ⚔️ SAVAŞ İLANI — Derin, sert, adrenalin yükseltici fanfar
+    war(){
+      if(muted) return;
+      const c = ensureRunning();
+      if(!c) return;
+      const now = c.currentTime;
+      function drum(startT, vol){
+        const buf = c.createBuffer(1, c.sampleRate * 0.18, c.sampleRate);
+        const data = buf.getChannelData(0);
+        for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1) * Math.pow(1-(i/data.length),2.5);
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        const g = c.createGain();
+        g.gain.setValueAtTime(vol, now+startT);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+startT+0.18);
+        src.connect(g); g.connect(c.destination);
+        src.start(now+startT);
       }
-    }
-    if(q.type === 'level'){
-      const lv = (typeof profileData !== 'undefined' && profileData.level) || 1;
-      if(!_questState[q.id] || _questState[q.id] < lv) _questState[q.id] = lv;
-    }
-    if(q.type === 'streak'){
-      const str = (typeof profileData !== 'undefined' && profileData.streak) || 0;
-      if(!_questState[q.id] || _questState[q.id] < str) _questState[q.id] = str;
-    }
-  });
-  saveQuestState();
-  renderQuestPanel();
-  document.getElementById('quest-panel').classList.add('open');
-}
-
-function closeQuestPanel(){
-  document.getElementById('quest-panel').classList.remove('open');
-}
-
-function switchQuestTab(tab){
-  _questTab = tab;
-  ['daily','weekly','milestone'].forEach(t => {
-    document.getElementById('qtab-'+t).classList.toggle('active', t===tab);
-  });
-  renderQuestList();
-}
-
-function renderQuestPanel(){
-  renderQuestSummary();
-  renderQuestList();
-}
-
-function renderQuestSummary(){
-  if(!_questState) return;
-  let done = 0, xpEarned = 0;
-  const countDone = (bucket, claimBucket, defs) => defs.forEach(q => {
-    if(claimBucket[q.id]){ done++; xpEarned += q.xp; }
-  });
-  countDone(_questState.daily, _questState.daily, QUEST_DEFS.daily);
-  countDone(_questState.weekly, _questState.wkClaimed, QUEST_DEFS.weekly);
-  countDone(_questState, _questState.claimed, QUEST_DEFS.milestone);
-  const total = QUEST_DEFS.daily.length + QUEST_DEFS.weekly.length + QUEST_DEFS.milestone.length;
-  document.getElementById('q-sum-done').textContent = done;
-  document.getElementById('q-sum-total').textContent = total;
-  document.getElementById('q-sum-xp').textContent = (_questState.totalXP || 0);
-}
-
-function renderQuestList(){
-  if(!_questState) return;
-  const container = document.getElementById('quest-list');
-  if(!container) return;
-
-  let defs, bucket, claimBucket;
-  if(_questTab === 'daily'){
-    defs = QUEST_DEFS.daily; bucket = _questState.daily; claimBucket = _questState.daily;
-  } else if(_questTab === 'weekly'){
-    defs = QUEST_DEFS.weekly; bucket = _questState.weekly; claimBucket = _questState.wkClaimed;
-  } else {
-    defs = QUEST_DEFS.milestone; bucket = _questState; claimBucket = _questState.claimed;
-  }
-
-  container.innerHTML = defs.map(q => {
-    const prog = Math.min(bucket[q.id] || 0, q.target);
-    const pct = Math.round(prog / q.target * 100);
-    const isDone = prog >= q.target;
-    const isClaimed = claimBucket[q.id] && (isDone); // claimed sadece done iken geçerli
-
-    const claimLabel = isClaimed ? '✓ Alındı' : isDone ? 'Al →' : `${prog}/${q.target}`;
-    const claimClass = isClaimed ? 'claimed-lbl' : isDone ? 'ready' : 'not-ready';
-
-    return `<div class="qcard${isDone?' done':''}${isClaimed?' claimed':''}">
-      ${isClaimed ? '<div class="qcard-done-badge">✓</div>' : ''}
-      <div class="qcard-icon">${q.icon}</div>
-      <div class="qcard-body">
-        <div class="qcard-name">${q.name}</div>
-        <div class="qcard-desc">${q.desc}</div>
-        <div class="qcard-reward">+${q.xp} XP · +${q.pixels} Piksel</div>
-        <div class="qcard-bar-wrap">
-          <div class="qcard-bar" style="width:${pct}%"></div>
-        </div>
-        <div class="qcard-prog-label">${prog} / ${q.target}</div>
-      </div>
-      <button class="qcard-claim ${claimClass}" onclick="claimQuest('${q.id}','${_questTab}')">
-        ${claimLabel}
-      </button>
-    </div>`;
-  }).join('');
-}
-
-function claimQuest(qid, tab){
-  if(!_questState) return;
-  let defs, bucket, claimBucket;
-  if(tab === 'daily'){
-    defs = QUEST_DEFS.daily; bucket = _questState.daily; claimBucket = _questState.daily;
-  } else if(tab === 'weekly'){
-    defs = QUEST_DEFS.weekly; bucket = _questState.weekly; claimBucket = _questState.wkClaimed;
-  } else {
-    defs = QUEST_DEFS.milestone; bucket = _questState; claimBucket = _questState.claimed;
-  }
-
-  const q = defs.find(x => x.id === qid);
-  if(!q) return;
-  const prog = bucket[q.id] || 0;
-  if(prog < q.target || claimBucket[q.id]) return;
-
-  // Ödülü ver
-  claimBucket[q.id] = true;
-  _questState.totalXP = (_questState.totalXP || 0) + q.xp;
-  saveQuestState();
-
-  // XP + Piksel ver
-  if(typeof gainXP === 'function') gainXP(q.xp);
-  if(typeof _setPixLeft === 'function' && typeof _getPixLeft === 'function'){
-    const LIMIT = (typeof PIXEL_LIMIT !== 'undefined') ? PIXEL_LIMIT : 49;
-    _setPixLeft(Math.min(_getPixLeft() + q.pixels, LIMIT));
-    if(typeof updateDots === 'function') updateDots();
-    try{ localStorage.setItem('pv_px_'+(typeof username !== 'undefined'?username:''), _getPixLeft()); }catch(e){}
-  }
-
-  // SFX
-  if(typeof SFX !== 'undefined') SFX.success();
-
-  // Bildirim
-  showQuestComplete(q);
-  updateQuestBadge();
-  renderQuestPanel();
-}
-
-let _qcnTimer = null;
-function showQuestComplete(q){
-  const el = document.getElementById('quest-complete-notif');
-  if(!el) return;
-  document.getElementById('qcn-name').textContent = q.name;
-  document.getElementById('qcn-reward').textContent = `+${q.xp} XP · +${q.pixels} Piksel`;
-  el.classList.add('show');
-  clearTimeout(_qcnTimer);
-  _qcnTimer = setTimeout(() => el.classList.remove('show'), 3200);
-}
-
-/* ── Piksel basıldığında tetikle ── */
-// gainXP her piksel basıldığında çağrılıyor — onu hook'luyoruz
-const _origGainXPForQuests = window.gainXP;
-window.gainXP = function(amount){
-  if(typeof _origGainXPForQuests === 'function') _origGainXPForQuests.apply(this, arguments);
-  // Quest ilerlemesi zaten handleClick'te ayrıca yapılıyor
-};
-
-// handleClick'i hook'la — piksel basımını yakala
-const _qOrigHandleClick = window.handleClick;
-window.handleClick = async function(mx, my){
-  const prePix = (typeof _getPixLeft === 'function') ? _getPixLeft() : 0;
-  await _qOrigHandleClick.apply(this, arguments);
-  const postPix = (typeof _getPixLeft === 'function') ? _getPixLeft() : 0;
-  if(postPix < prePix){ // gerçekten piksel harcandı (sunucu onayladı)
-    if(!_questState) loadQuestState();
-    // İl adını bul
-    const flat = typeof canvasToFlat === 'function' ? canvasToFlat(mx, my) : -1;
-    const provId = flat >= 0 && typeof FLAT_TO_PROV !== 'undefined' && typeof PROV_IDS !== 'undefined'
-      ? PROV_IDS[FLAT_TO_PROV[flat]] : null;
-    questProgress('place', 1);
-    const total = (typeof profileData !== 'undefined' && profileData.totalPlaced) || 0;
-    questProgress('total_place', total);
-    if(provId) questProgress('provinces', 1, provId);
-  }
-};
-
-// Streak değişince güncelle
-const _origCheckDailyStreakForQuests = window.checkDailyStreak;
-window.checkDailyStreak = function(){
-  if(typeof _origCheckDailyStreakForQuests === 'function') _origCheckDailyStreakForQuests.apply(this, arguments);
-  setTimeout(() => {
-    if(!_questState) loadQuestState();
-    const str = (typeof profileData !== 'undefined' && profileData.streak) || 0;
-    questProgress('streak', str);
-  }, 200);
-};
-
-// Fraksiyon kurma/katılma hook
-const _origLoadFactions = window.loadFactions;
-window.loadFactions = function(){
-  if(typeof _origLoadFactions === 'function') _origLoadFactions.apply(this, arguments);
-  setTimeout(() => {
-    if(!_questState) loadQuestState();
-    if(typeof factionData !== 'undefined' && factionData) questProgress('faction');
-  }, 300);
-};
-
-// Sayfa açılışında state'i yükle (kullanıcı giriş yaptıktan sonra)
-const _origActivateUserForQuests = window._activateUser;
-// _activateUser inline tanımlandığı için direkt initMapWithoutLogin sonrasını yakalıyoruz
-document.addEventListener('DOMContentLoaded', () => {
-  // Quest panelini giriş yapınca göster
-  const origActivate = window._activateUser;
-  if(origActivate){
-    window._activateUser = function(v){
-      origActivate.apply(this, arguments);
-      loadQuestState();
-      questProgress('login');
-      // Quest butonunu göster
-      const qb = document.getElementById('quest-btn');
-      if(qb) qb.style.display = '';
-      const tsQb = document.getElementById('ts-questbtn');
-      if(tsQb) tsQb.style.display = '';
-      updateQuestBadge();
-    };
-  }
-});
-
-// Topbar hamburger sheet senkronizasyonuna quest'i ekle
-const _origSyncTbSheet = window.syncTbSheet;
-window.syncTbSheet = function(){
-  if(typeof _origSyncTbSheet === 'function') _origSyncTbSheet.apply(this, arguments);
-  // Quest butonunu da eşle
-  const qb = document.getElementById('quest-btn');
-  const tsQb = document.getElementById('ts-questbtn');
-  if(qb && tsQb){
-    tsQb.style.display = qb.style.display === 'none' ? 'none' : '';
-  }
-};
-
-// Otomatik giriş (session var) için de quest'i aç
-(function patchAutoLogin(){
-  const origInitMap = window.initMapWithoutLogin;
-  // initMapWithoutLogin async IIFE — hook'layamayız direkt.
-  // Bunun yerine afterLoad benzeri bir gözlem yapalım.
-  // checkAdminStatus çağrısı afterLoad'da oluyor; onu hook'larız.
-  const _origCheckAdmin = window.checkAdminStatus;
-  window.checkAdminStatus = async function(){
-    if(typeof _origCheckAdmin === 'function') await _origCheckAdmin.apply(this, arguments);
-    if(typeof username !== 'undefined' && username){
-      loadQuestState();
-      questProgress('login');
-      // Quest butonunu göster
-      const qb = document.getElementById('quest-btn');
-      if(qb) qb.style.display = '';
-      const tsQb = document.getElementById('ts-questbtn');
-      if(tsQb) tsQb.style.display = '';
-      updateQuestBadge();
+      function brass(freq, startT, dur, vol, slide){
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq * (slide||1), now+startT);
+        osc.frequency.linearRampToValueAtTime(freq, now+startT+0.06);
+        g.gain.setValueAtTime(0.0001, now+startT);
+        g.gain.linearRampToValueAtTime(vol, now+startT+0.04);
+        g.gain.setValueAtTime(vol, now+startT+dur-0.06);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+startT+dur);
+        osc.connect(g); g.connect(c.destination);
+        osc.start(now+startT); osc.stop(now+startT+dur+0.05);
+      }
+      function alarm(freq, startT, dur, vol){
+        const osc = c.createOscillator();
+        const g = c.createGain();
+        osc.type = 'square';
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, now+startT);
+        g.gain.linearRampToValueAtTime(vol, now+startT+0.02);
+        g.gain.setValueAtTime(vol, now+startT+dur-0.04);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+startT+dur);
+        osc.connect(g); g.connect(c.destination);
+        osc.start(now+startT); osc.stop(now+startT+dur+0.03);
+      }
+      drum(0,    0.55); drum(0.18, 0.40); drum(0.32, 0.60);
+      brass(130, 0,    0.22, 0.28, 0.7);
+      brass(196, 0.20, 0.18, 0.32, 0.8);
+      brass(261, 0.35, 0.25, 0.36, 0.85);
+      brass(329, 0.55, 0.20, 0.38, 0.9);
+      brass(392, 0.72, 0.30, 0.42, 0.85);
+      alarm(440, 0.85, 0.14, 0.18); alarm(880, 0.97, 0.10, 0.14);
+      alarm(440, 1.05, 0.10, 0.16); alarm(880, 1.13, 0.10, 0.13);
+      drum(0.90, 0.50); drum(1.00, 0.55); drum(1.08, 0.65);
+      brass(523, 1.10, 0.45, 0.40, 0.9);
+      brass(392, 1.50, 0.55, 0.30, 1.0);
+      alarm(220, 1.55, 0.40, 0.12);
+    },
+    // 🤝 İTTİFAK sesi — sıcak, zafer notalı
+    ally(){
+      tone([
+        {freq:392, start:0,    dur:0.12, type:'sine', gain:0.18},
+        {freq:523, start:0.10, dur:0.14, type:'sine', gain:0.20},
+        {freq:659, start:0.22, dur:0.20, type:'sine', gain:0.22},
+        {freq:784, start:0.38, dur:0.28, type:'sine', gain:0.20}
+      ]);
+    },
+    // ☮️ BARIŞ / nötr sesi
+    peace(){
+      tone([
+        {freq:523, start:0,    dur:0.14, type:'sine', gain:0.14},
+        {freq:392, start:0.12, dur:0.18, type:'sine', gain:0.12}
+      ]);
+    },
+    setMuted(v){ muted = !!v; try{ localStorage.setItem('pv_sfx_muted', muted?'1':'0'); }catch(e){} },
+    isMuted(){ return muted; },
+    unlock(){
+      if(unlocked) return;
+      unlocked = true;
+      ensureRunning();
     }
   };
 })();
+// Kayıtlı sessize alma tercihini yükle
+try{ SFX.setMuted(localStorage.getItem('pv_sfx_muted')==='1'); }catch(e){}
+// İlk kullanıcı etkileşiminde AudioContext'i kilidini aç (autoplay policy)
+['pointerdown','keydown','touchstart'].forEach(ev=>{
+  document.addEventListener(ev, ()=>SFX.unlock(), {once:true, passive:true});
+});
+
+// Geriye dönük uyumluluk: duyuru sistemi bu adı çağırıyordu.
+function playAnnounceSound(){ SFX.announce(); }
+
+// ── Genel buton tıklama sesi: olay delegasyonu ──
+// Tek tek her butona dinleyici eklemek yerine, document üzerinde
+// capture aşamasında dinleyip tıklanan elementin en yakın
+// button/[onclick]/.btn atasını buluyoruz. Böylece sonradan
+// eklenen butonlar da otomatik olarak ses alır.
+document.addEventListener('click', function(e){
+  const el = e.target.closest('button, [onclick], .btn, .ptbtn, .zb, .ch-tab, .pe-dur-btn, .tl-range-btn, .tl-speed-btn');
+  if(!el) return;
+  if(el.disabled) return;
+  // Piksel kanvası (#c) tıklamaları ayrı, daha belirgin "pixel" sesi
+  // alıyor (handleClick içinde) — burada tekrar genel tık sesi çalmayalım.
+  if(el.id === 'c') return;
+  SFX.click();
+}, true);
+

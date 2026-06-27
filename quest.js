@@ -1,232 +1,398 @@
-/* syncTbSheet'e template ekle */
-(function(){
-  const _orig=window.syncTbSheet;
-  window.syncTbSheet=function(){
-    if(typeof _orig==='function') _orig.apply(this,arguments);
-    const tb=document.getElementById('template-btn');
-    const ts=document.getElementById('ts-templatebtn');
-    if(tb&&ts) ts.style.display=tb.style.display==='none'?'none':'';
-  };
-})();
+// ══════════════════════════════════════════════════════════
+// 📋 GÖREV (QUEST) SİSTEMİ
+// Günlük, Haftalık ve Kilometre Taşı görevleri.
+// Veriler localStorage'da tutulur. Piksel basıldığında,
+// streak kazanıldığında ve fraksiyon kurulduğunda güncellenir.
+// ══════════════════════════════════════════════════════════
 
-/* ══════════════════════════════════════════════════════════
-   BÖLGE SEÇİM SİSTEMİ v3
-══════════════════════════════════════════════════════════ */
-(function(){
-
-let _rsx=0,_rsy=0,_rex=0,_rey=0;
-let _rDragging=false, _rHasSel=false;
-let _rPanning=false, _rPanLast={x:0,y:0};
-/* Bekleyen bölge — confirm'den sonra openTemplateEditor içinde okunur */
-let _pendingRegion=null;
-
-/* ── client → IMG koordinat ── */
-function _c2i(cx,cy){
-  if(typeof ox==='undefined'||!canvas) return {x:0,y:0};
-  const r=canvas.getBoundingClientRect(), dpr=canvas.width/r.width;
-  return {
-    x:Math.max(0,Math.min(IMG_W-1,Math.floor(((cx-r.left)*dpr-ox)/scale))),
-    y:Math.max(0,Math.min(IMG_H-1,Math.floor(((cy-r.top )*dpr-oy)/scale)))
-  };
-}
-
-/* ── Seçim kutusunu ekrana yansıt ── */
-function _drawRect(){
-  if(!canvas) return;
-  const r=canvas.getBoundingClientRect(), dpr=canvas.width/r.width;
-  const x0=Math.min(_rsx,_rex),y0=Math.min(_rsy,_rey);
-  const x1=Math.max(_rsx,_rex),y1=Math.max(_rsy,_rey);
-  const sl=r.left+(ox+x0*scale)/dpr, st=r.top+(oy+y0*scale)/dpr;
-  const sw=(x1-x0)*scale/dpr,       sh=(y1-y0)*scale/dpr;
-  const el=document.getElementById('tpl-region-rect');
-  if(el){ el.style.cssText+=`;left:${sl}px;top:${st}px;width:${sw}px;height:${sh}px;display:${sw>2&&sh>2?'block':'none'}`; }
-  const dim=document.getElementById('tpl-ri-dim-text');
-  if(dim){ dim.style.display='block'; dim.textContent=(x1-x0)+'×'+(y1-y0)+' piksel'; }
-  const act=document.getElementById('tpl-region-actions');
-  if(act){ sw>8&&sh>8 ? act.classList.add('visible') : act.classList.remove('visible'); }
-}
-
-function _resetSel(){
-  _rHasSel=false;
-  const el=document.getElementById('tpl-region-rect'); if(el) el.style.display='none';
-  const act=document.getElementById('tpl-region-actions'); if(act) act.classList.remove('visible');
-  const dim=document.getElementById('tpl-ri-dim-text'); if(dim) dim.style.display='none';
-}
-
-/* ── Public: HTML onclick'lerden çağrılır ── */
-window._tplRegionReset=function(){ _resetSel(); };
-
-window._tplRegionCancel=function(){
-  _regionClose();
+/* ── Görev Tanımları ── */
+const QUEST_DEFS = {
+  daily: [
+    { id:'d_place5',    icon:'🎯', name:'İlk Adım',        desc:'Bugün 5 piksel bas.',                          type:'place',  target:5,  xp:8,   pixels:2 },
+    { id:'d_place20',   icon:'🖌',  name:'Çizici',          desc:'Bugün 20 piksel bas.',                         type:'place',  target:20, xp:18,  pixels:4 },
+    { id:'d_place50',   icon:'⚡',  name:'Fırtına',         desc:'Bugün 50 piksel bas.',                         type:'place',  target:50, xp:35,  pixels:7 },
+    { id:'d_login',     icon:'🔥',  name:'Günlük Giriş',    desc:'Bugün giriş yaparak haritayı ziyaret et.',     type:'login',  target:1,  xp:5,   pixels:1 },
+    { id:'d_3prov',     icon:'🗺', name:'Gezgin',           desc:'Bugün 3 farklı ile piksel bas.',               type:'provinces', target:3, xp:12, pixels:3 },
+  ],
+  weekly: [
+    { id:'w_place100',  icon:'🌟', name:'Haftalık Çizici',  desc:'Bu hafta 100 piksel bas.',                     type:'place',  target:100, xp:40,  pixels:8  },
+    { id:'w_place300',  icon:'💎', name:'Piksel Ustası',    desc:'Bu hafta 300 piksel bas.',                     type:'place',  target:300, xp:90,  pixels:18 },
+    { id:'w_streak3',   icon:'🔥', name:'3 Günlük Seri',    desc:'3 gün üst üste giriş yap.',                   type:'streak', target:3,  xp:30,  pixels:6  },
+    { id:'w_streak7',   icon:'👑', name:'Tam Seri',          desc:'7 gün üst üste giriş yap.',                   type:'streak', target:7,  xp:70,  pixels:14 },
+    { id:'w_5prov',     icon:'🗺', name:'Harita Gezgini',   desc:'Bu hafta 5 farklı ile piksel bas.',            type:'provinces', target:5, xp:25, pixels:5 },
+    { id:'w_faction',   icon:'🏴', name:'Fraksiyoncu',      desc:'Bir fraksiyona katıl veya kur.',               type:'faction', target:1, xp:20,  pixels:4  },
+  ],
+  milestone: [
+    { id:'m_place10',   icon:'🌱', name:'Başlangıç',        desc:'Toplamda 10 piksel bas.',                      type:'total_place', target:10,   xp:15,  pixels:3  },
+    { id:'m_place50',   icon:'🌿', name:'Büyüyor',          desc:'Toplamda 50 piksel bas.',                      type:'total_place', target:50,   xp:30,  pixels:6  },
+    { id:'m_place200',  icon:'🌳', name:'Kök Saldı',        desc:'Toplamda 200 piksel bas.',                     type:'total_place', target:200,  xp:60,  pixels:12 },
+    { id:'m_place500',  icon:'🏅', name:'Deneyimli',        desc:'Toplamda 500 piksel bas.',                     type:'total_place', target:500,  xp:100, pixels:20 },
+    { id:'m_place1000', icon:'🥇', name:'Efsane Pikselci',  desc:'Toplamda 1000 piksel bas.',                    type:'total_place', target:1000, xp:200, pixels:35 },
+    { id:'m_place5000', icon:'👑', name:'Haritanın Efendisi',desc:'Toplamda 5000 piksel bas.',                   type:'total_place', target:5000, xp:500, pixels:80 },
+    { id:'m_lv5',       icon:'⭐', name:'Seviye 5',          desc:'5. seviyeye ulaş.',                            type:'level',  target:5,   xp:25,  pixels:5  },
+    { id:'m_lv10',      icon:'💫', name:'Seviye 10',         desc:'10. seviyeye ulaş.',                           type:'level',  target:10,  xp:50,  pixels:10 },
+    { id:'m_streak7',   icon:'🔥', name:'Haftalık Seri',    desc:'İlk 7 gün serisini tamamla.',                  type:'streak', target:7,   xp:40,  pixels:8  },
+  ]
 };
 
-window._tplRegionConfirm=function(){
-  if(!_rHasSel) return;
-  const x0=Math.min(_rsx,_rex),y0=Math.min(_rsy,_rey);
-  const x1=Math.max(_rsx,_rex),y1=Math.max(_rsy,_rey);
-  const rw=Math.max(4,x1-x0), rh=Math.max(4,y1-y0);
-  _pendingRegion={x:x0,y:y0,w:rw,h:rh};
-  _regionClose();
-  /* DÜZELTME: _origOpen() bölge mantığını bilmiyordu, _pendingRegion hiç
-     okunmuyordu. window.openTemplateEditor (aşağıdaki override) bölgeyi
-     işleyen fonksiyon — doğrusu onu çağırmak. */
-  window.openTemplateEditor();
-};
+/* ── Görev State Yönetimi ── */
+let _questState = null; // { date:str, week:str, daily:{id:progress}, weekly:{id:progress}, claimed:{id:true} }
+let _questTab = 'daily';
 
-/* ── Overlay kapat + event temizle ── */
-function _regionClose(){
-  _resetSel(); _rDragging=false; _rPanning=false;
-  const ov=document.getElementById('tpl-region-overlay');
-  if(ov){ ov.classList.remove('active'); }
-  document.removeEventListener('keydown',_onKey);
-  const ov2=document.getElementById('tpl-region-overlay');
-  if(ov2){
-    ov2.removeEventListener('pointerdown',_onPD);
-    ov2.removeEventListener('pointermove',_onPM);
-    ov2.removeEventListener('pointerup',_onPU);
-    ov2.removeEventListener('pointercancel',_onPU);
-    ov2.removeEventListener('wheel',_onWheel);
-    ov2.removeEventListener('contextmenu',_noCtx);
-  }
+function _weekStr(){ // Bu haftanın ISO yıl+hafta kodu
+  const d = new Date();
+  const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = (tmp.getUTCDay() + 6) % 7; // Pzt=0
+  tmp.setUTCDate(tmp.getUTCDate() - dayNum + 3);
+  const firstThursday = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 4));
+  const weekNum = 1 + Math.round(((tmp - firstThursday) / 86400000 - 3 + (firstThursday.getUTCDay() + 6) % 7) / 7);
+  return `${tmp.getUTCFullYear()}-W${String(weekNum).padStart(2,'0')}`;
+}
+function _todayStr(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-/* ── Pointer events ── */
-function _onPD(e){
-  /* Aksiyon barına tıklanmışsa overlay event'i yutma */
-  if(e.target.closest('#tpl-region-actions')||e.target.closest('#tpl-region-info')) return;
-  if(e.button===1||e.button===2){ e.preventDefault(); _rPanning=true; _rPanLast={x:e.clientX,y:e.clientY}; return; }
-  if(e.button!==0) return;
-  e.preventDefault();
-  _rDragging=true; _rHasSel=false;
-  const p=_c2i(e.clientX,e.clientY);
-  _rsx=_rex=p.x; _rsy=_rey=p.y;
-  _resetSel();
+function loadQuestState(){
+  const key = 'pv_quests_' + (typeof username !== 'undefined' ? username : '_guest');
+  let s = {};
+  try{ s = JSON.parse(localStorage.getItem(key) || '{}'); }catch(e){}
+  const today = _todayStr();
+  const week = _weekStr();
+  // Günlük sıfırlama
+  if(s.date !== today){ s.date = today; s.daily = {}; }
+  // Haftalık sıfırlama
+  if(s.week !== week){ s.week = week; s.weekly = {}; s.wkClaimed = {}; }
+  if(!s.daily) s.daily = {};
+  if(!s.weekly) s.weekly = {};
+  if(!s.claimed) s.claimed = {}; // milestone'lar hiç sıfırlanmaz
+  if(!s.wkClaimed) s.wkClaimed = {};
+  if(!s.totalXP) s.totalXP = 0;
+  _questState = s;
 }
-function _onPM(e){
-  if(_rPanning){
-    if(!canvas) return;
-    const dpr=canvas.width/canvas.getBoundingClientRect().width;
-    ox+=(e.clientX-_rPanLast.x)*dpr; oy+=(e.clientY-_rPanLast.y)*dpr;
-    _rPanLast={x:e.clientX,y:e.clientY};
-    if(typeof draw==='function') draw();
-    if(_rHasSel) _drawRect();
-    return;
-  }
-  if(!_rDragging) return;
-  e.preventDefault();
-  const p=_c2i(e.clientX,e.clientY); _rex=p.x; _rey=p.y; _drawRect();
-}
-function _onPU(e){
-  if(_rPanning){ _rPanning=false; return; }
-  if(!_rDragging) return;
-  _rDragging=false;
-  const p=_c2i(e.clientX,e.clientY); _rex=p.x; _rey=p.y;
-  const rw=Math.abs(_rex-_rsx), rh=Math.abs(_rey-_rsy);
-  if(rw>3&&rh>3){ _rHasSel=true; _drawRect(); } else { _resetSel(); }
-}
-function _onWheel(e){
-  e.preventDefault();
-  if(typeof scale==='undefined'||!canvas) return;
-  const r=canvas.getBoundingClientRect(), dpr=canvas.width/r.width;
-  const mx=(e.clientX-r.left)*dpr, my=(e.clientY-r.top)*dpr;
-  const ns=Math.max(0.3,Math.min(40,scale*(e.deltaY<0?1.15:1/1.15)));
-  ox=mx-(mx-ox)*(ns/scale); oy=my-(my-oy)*(ns/scale); scale=ns;
-  if(typeof draw==='function') draw();
-  if(_rHasSel) _drawRect();
-}
-function _noCtx(e){ e.preventDefault(); }
-function _onKey(e){ if(e.key==='Escape'){ _regionClose(); } }
 
-/* ── openTemplateEditor override ── */
-const _origOpen=window.openTemplateEditor;
-window.openTemplateEditor=function(){
-  /* Eğer _pendingRegion varsa: orijinali çağır, sonra düzelt */
-  if(_pendingRegion){
-    const reg=_pendingRegion; _pendingRegion=null;
-    /* Orijinal fonksiyonu çağır — kendi let scope'undaki değişkenleri set eder */
-    if(typeof _origOpen==='function') _origOpen.call(this);
-    /* Şimdi bölge boyutlarını ve bitmap'i düzelt */
-    const rw=reg.w, rh=reg.h;
-    _editorW=rw; _editorH=rh;
-    window._tplRegion=reg;
-    /* Bitmap'i yeniden oluştur — bölge boyutunda, harita piksellerini arka plan yap.
-       DÜZELTME: sadece pixelCanvas (oyuncuların bastığı seyrek pikseller) kopyalanıyordu,
-       haritanın asıl renkli zemini (baseCanvas) hiç kopyalanmıyordu — bu yüzden editör
-       neredeyse tamamen boş/şeffaf görünüyordu. İkisini de _tplExportPNG ile aynı
-       sırada çiziyoruz. */
-    const nb=document.createElement('canvas'); nb.width=rw; nb.height=rh;
-    const nctx=nb.getContext('2d'); nctx.imageSmoothingEnabled=false;
-    if(typeof baseCanvas!=='undefined'&&baseCanvas){
-      try{ nctx.drawImage(baseCanvas,reg.x,reg.y,rw,rh,0,0,rw,rh); }catch(e){}
-    }
-    if(typeof pixelCanvas!=='undefined'&&pixelCanvas){
-      try{ nctx.drawImage(pixelCanvas,reg.x,reg.y,rw,rh,0,0,rw,rh); }catch(e){}
-    }
-    _tplBitmap=nb; _tplBitmapCtx=nctx; _tplData=new Map();
-    /* Canvas'ı doğru boyuta yeniden init et */
-    _editorW=rw; _editorH=rh;
-    _editorInitCanvas();
-    _editorSyncFromBitmap();
-    _editorRender();
-    _editorUpdateNavPreview();
-    const sz=document.getElementById('tpl-stat-size');
-    if(sz) sz.textContent=rw+'×'+rh;
-    return;
-  }
-  /* Normal yol: bölge seçim overlay'ini aç */
-  if(typeof username==='undefined'||!username){
-    if(typeof showPopup==='function') showPopup('Şablon aracı için giriş yapman gerekiyor.');
-    return;
-  }
-  if(typeof _tplActive!=='undefined'&&_tplActive) return;
-  if(typeof IMG_W==='undefined'){
-    if(typeof showPopup==='function') showPopup('Harita henüz yüklenmedi.');
-    return;
-  }
-  const ov=document.getElementById('tpl-region-overlay');
-  if(!ov){ if(typeof _origOpen==='function') _origOpen.call(this); return; }
-  _resetSel(); _rDragging=false; _rPanning=false; _rHasSel=false;
-  ov.classList.add('active');
-  ov.addEventListener('pointerdown',_onPD);
-  ov.addEventListener('pointermove',_onPM);
-  ov.addEventListener('pointerup',_onPU);
-  ov.addEventListener('pointercancel',_onPU);
-  ov.addEventListener('wheel',_onWheel,{passive:false});
-  ov.addEventListener('contextmenu',_noCtx);
-  document.addEventListener('keydown',_onKey);
-};
+function saveQuestState(){
+  if(!_questState) return;
+  const key = 'pv_quests_' + (typeof username !== 'undefined' ? username : '_guest');
+  try{ localStorage.setItem(key, JSON.stringify(_questState)); }catch(e){}
+}
 
-/* ── draw() hook: zoom/pan sonrası seçim kutusunu güncelle ── */
-(function(){
-  const _od=window.draw;
-  if(typeof _od==='function'){
-    window.draw=function(){
-      _od.apply(this,arguments);
-      if(_rHasSel){
-        const ov=document.getElementById('tpl-region-overlay');
-        if(ov&&ov.classList.contains('active')) _drawRect();
+/* ── Görev İlerleme Güncelleyici ── */
+function questProgress(type, value, extra){
+  if(!_questState) return;
+  const today = _todayStr();
+  const week = _weekStr();
+  if(_questState.date !== today){ _questState.date = today; _questState.daily = {}; }
+  if(_questState.week !== week){ _questState.week = week; _questState.weekly = {}; _questState.wkClaimed = {}; }
+
+  const update = (bucket, defs) => {
+    defs.forEach(q => {
+      if(q.type !== type) return;
+      const cur = bucket[q.id] || 0;
+      if(cur >= q.target) return; // zaten tamamlandı
+      let next = cur;
+      if(type === 'place' || type === 'total_place'){ next = Math.min(cur + (value||1), q.target); }
+      else if(type === 'login'){ next = 1; }
+      else if(type === 'streak'){ next = value || 0; }
+      else if(type === 'level'){ next = value || 0; }
+      else if(type === 'provinces'){
+        const provId = extra;
+        if(provId){
+          const setKey = q.id + '_provs';
+          if(!bucket[setKey]) bucket[setKey] = [];
+          if(!bucket[setKey].includes(provId)){
+            bucket[setKey].push(provId);
+            next = bucket[setKey].length;
+          } else { next = (bucket[setKey]||[]).length; }
+        }
       }
+      else if(type === 'faction'){ next = 1; }
+      bucket[q.id] = Math.min(next, q.target);
+    });
+  };
+
+  update(_questState.daily, QUEST_DEFS.daily);
+  update(_questState.weekly, QUEST_DEFS.weekly);
+  // Milestone her zaman totalPlaced ya da global değerle beslenir
+  if(type === 'total_place' || type === 'level' || type === 'streak' || type === 'faction'){
+    update(_questState, QUEST_DEFS.milestone); // milestone doğrudan _questState'te
+  }
+  saveQuestState();
+  updateQuestBadge();
+}
+
+/* Topbar/hamburger rozeti (!) */
+function updateQuestBadge(){
+  if(!_questState) return;
+  const hasClaimable = checkAnyClaimable();
+  const badge = document.getElementById('quest-badge');
+  if(badge) badge.style.display = hasClaimable ? 'flex' : 'none';
+  // Sheet'teki öğeyi de güncelle
+  const shBadge = document.getElementById('ts-quest-badge');
+  if(shBadge) shBadge.style.display = hasClaimable ? 'flex' : 'none';
+}
+
+function checkAnyClaimable(){
+  if(!_questState) return false;
+  const check = (bucket, claimBucket, defs) => defs.some(q => {
+    const prog = bucket[q.id] || 0;
+    return prog >= q.target && !claimBucket[q.id];
+  });
+  return check(_questState.daily, _questState.daily, QUEST_DEFS.daily) ||
+         check(_questState.weekly, _questState.wkClaimed, QUEST_DEFS.weekly) ||
+         check(_questState, _questState.claimed, QUEST_DEFS.milestone);
+}
+
+/* ── UI ── */
+function openQuestPanel(){
+  if(!_questState) loadQuestState();
+  // Günlük giriş görevini tetikle
+  questProgress('login');
+  // Total placed'ı milestone'lara yaz
+  const total = (typeof profileData !== 'undefined' && profileData.totalPlaced) || 0;
+  QUEST_DEFS.milestone.forEach(q => {
+    if(q.type === 'total_place'){
+      if(!_questState[q.id] || _questState[q.id] < total){
+        _questState[q.id] = Math.min(total, q.target);
+      }
+    }
+    if(q.type === 'level'){
+      const lv = (typeof profileData !== 'undefined' && profileData.level) || 1;
+      if(!_questState[q.id] || _questState[q.id] < lv) _questState[q.id] = lv;
+    }
+    if(q.type === 'streak'){
+      const str = (typeof profileData !== 'undefined' && profileData.streak) || 0;
+      if(!_questState[q.id] || _questState[q.id] < str) _questState[q.id] = str;
+    }
+  });
+  saveQuestState();
+  renderQuestPanel();
+  document.getElementById('quest-panel').classList.add('open');
+}
+
+function closeQuestPanel(){
+  document.getElementById('quest-panel').classList.remove('open');
+}
+
+function switchQuestTab(tab){
+  _questTab = tab;
+  ['daily','weekly','milestone'].forEach(t => {
+    document.getElementById('qtab-'+t).classList.toggle('active', t===tab);
+  });
+  renderQuestList();
+}
+
+function renderQuestPanel(){
+  renderQuestSummary();
+  renderQuestList();
+}
+
+function renderQuestSummary(){
+  if(!_questState) return;
+  let done = 0, xpEarned = 0;
+  const countDone = (bucket, claimBucket, defs) => defs.forEach(q => {
+    if(claimBucket[q.id]){ done++; xpEarned += q.xp; }
+  });
+  countDone(_questState.daily, _questState.daily, QUEST_DEFS.daily);
+  countDone(_questState.weekly, _questState.wkClaimed, QUEST_DEFS.weekly);
+  countDone(_questState, _questState.claimed, QUEST_DEFS.milestone);
+  const total = QUEST_DEFS.daily.length + QUEST_DEFS.weekly.length + QUEST_DEFS.milestone.length;
+  document.getElementById('q-sum-done').textContent = done;
+  document.getElementById('q-sum-total').textContent = total;
+  document.getElementById('q-sum-xp').textContent = (_questState.totalXP || 0);
+}
+
+function renderQuestList(){
+  if(!_questState) return;
+  const container = document.getElementById('quest-list');
+  if(!container) return;
+
+  let defs, bucket, claimBucket;
+  if(_questTab === 'daily'){
+    defs = QUEST_DEFS.daily; bucket = _questState.daily; claimBucket = _questState.daily;
+  } else if(_questTab === 'weekly'){
+    defs = QUEST_DEFS.weekly; bucket = _questState.weekly; claimBucket = _questState.wkClaimed;
+  } else {
+    defs = QUEST_DEFS.milestone; bucket = _questState; claimBucket = _questState.claimed;
+  }
+
+  container.innerHTML = defs.map(q => {
+    const prog = Math.min(bucket[q.id] || 0, q.target);
+    const pct = Math.round(prog / q.target * 100);
+    const isDone = prog >= q.target;
+    const isClaimed = claimBucket[q.id] && (isDone); // claimed sadece done iken geçerli
+
+    const claimLabel = isClaimed ? '✓ Alındı' : isDone ? 'Al →' : `${prog}/${q.target}`;
+    const claimClass = isClaimed ? 'claimed-lbl' : isDone ? 'ready' : 'not-ready';
+
+    return `<div class="qcard${isDone?' done':''}${isClaimed?' claimed':''}">
+      ${isClaimed ? '<div class="qcard-done-badge">✓</div>' : ''}
+      <div class="qcard-icon">${q.icon}</div>
+      <div class="qcard-body">
+        <div class="qcard-name">${q.name}</div>
+        <div class="qcard-desc">${q.desc}</div>
+        <div class="qcard-reward">+${q.xp} XP · +${q.pixels} Piksel</div>
+        <div class="qcard-bar-wrap">
+          <div class="qcard-bar" style="width:${pct}%"></div>
+        </div>
+        <div class="qcard-prog-label">${prog} / ${q.target}</div>
+      </div>
+      <button class="qcard-claim ${claimClass}" onclick="claimQuest('${q.id}','${_questTab}')">
+        ${claimLabel}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function claimQuest(qid, tab){
+  if(!_questState) return;
+  let defs, bucket, claimBucket;
+  if(tab === 'daily'){
+    defs = QUEST_DEFS.daily; bucket = _questState.daily; claimBucket = _questState.daily;
+  } else if(tab === 'weekly'){
+    defs = QUEST_DEFS.weekly; bucket = _questState.weekly; claimBucket = _questState.wkClaimed;
+  } else {
+    defs = QUEST_DEFS.milestone; bucket = _questState; claimBucket = _questState.claimed;
+  }
+
+  const q = defs.find(x => x.id === qid);
+  if(!q) return;
+  const prog = bucket[q.id] || 0;
+  if(prog < q.target || claimBucket[q.id]) return;
+
+  // Ödülü ver
+  claimBucket[q.id] = true;
+  _questState.totalXP = (_questState.totalXP || 0) + q.xp;
+  saveQuestState();
+
+  // XP + Piksel ver
+  if(typeof gainXP === 'function') gainXP(q.xp);
+  if(typeof _setPixLeft === 'function' && typeof _getPixLeft === 'function'){
+    const LIMIT = (typeof PIXEL_LIMIT !== 'undefined') ? PIXEL_LIMIT : 49;
+    _setPixLeft(Math.min(_getPixLeft() + q.pixels, LIMIT));
+    if(typeof updateDots === 'function') updateDots();
+    try{ localStorage.setItem('pv_px_'+(typeof username !== 'undefined'?username:''), _getPixLeft()); }catch(e){}
+  }
+
+  // SFX
+  if(typeof SFX !== 'undefined') SFX.success();
+
+  // Bildirim
+  showQuestComplete(q);
+  updateQuestBadge();
+  renderQuestPanel();
+}
+
+let _qcnTimer = null;
+function showQuestComplete(q){
+  const el = document.getElementById('quest-complete-notif');
+  if(!el) return;
+  document.getElementById('qcn-name').textContent = q.name;
+  document.getElementById('qcn-reward').textContent = `+${q.xp} XP · +${q.pixels} Piksel`;
+  el.classList.add('show');
+  clearTimeout(_qcnTimer);
+  _qcnTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+/* ── Piksel basıldığında tetikle ── */
+// gainXP her piksel basıldığında çağrılıyor — onu hook'luyoruz
+const _origGainXPForQuests = window.gainXP;
+window.gainXP = function(amount){
+  if(typeof _origGainXPForQuests === 'function') _origGainXPForQuests.apply(this, arguments);
+  // Quest ilerlemesi zaten handleClick'te ayrıca yapılıyor
+};
+
+// handleClick'i hook'la — piksel basımını yakala
+const _qOrigHandleClick = window.handleClick;
+window.handleClick = async function(mx, my){
+  const prePix = (typeof _getPixLeft === 'function') ? _getPixLeft() : 0;
+  await _qOrigHandleClick.apply(this, arguments);
+  const postPix = (typeof _getPixLeft === 'function') ? _getPixLeft() : 0;
+  if(postPix < prePix){ // gerçekten piksel harcandı (sunucu onayladı)
+    if(!_questState) loadQuestState();
+    // İl adını bul
+    const flat = typeof canvasToFlat === 'function' ? canvasToFlat(mx, my) : -1;
+    const provId = flat >= 0 && typeof FLAT_TO_PROV !== 'undefined' && typeof PROV_IDS !== 'undefined'
+      ? PROV_IDS[FLAT_TO_PROV[flat]] : null;
+    questProgress('place', 1);
+    const total = (typeof profileData !== 'undefined' && profileData.totalPlaced) || 0;
+    questProgress('total_place', total);
+    if(provId) questProgress('provinces', 1, provId);
+  }
+};
+
+// Streak değişince güncelle
+const _origCheckDailyStreakForQuests = window.checkDailyStreak;
+window.checkDailyStreak = function(){
+  if(typeof _origCheckDailyStreakForQuests === 'function') _origCheckDailyStreakForQuests.apply(this, arguments);
+  setTimeout(() => {
+    if(!_questState) loadQuestState();
+    const str = (typeof profileData !== 'undefined' && profileData.streak) || 0;
+    questProgress('streak', str);
+  }, 200);
+};
+
+// Fraksiyon kurma/katılma hook
+const _origLoadFactions = window.loadFactions;
+window.loadFactions = function(){
+  if(typeof _origLoadFactions === 'function') _origLoadFactions.apply(this, arguments);
+  setTimeout(() => {
+    if(!_questState) loadQuestState();
+    if(typeof factionData !== 'undefined' && factionData) questProgress('faction');
+  }, 300);
+};
+
+// Sayfa açılışında state'i yükle (kullanıcı giriş yaptıktan sonra)
+const _origActivateUserForQuests = window._activateUser;
+// _activateUser inline tanımlandığı için direkt initMapWithoutLogin sonrasını yakalıyoruz
+document.addEventListener('DOMContentLoaded', () => {
+  // Quest panelini giriş yapınca göster
+  const origActivate = window._activateUser;
+  if(origActivate){
+    window._activateUser = function(v){
+      origActivate.apply(this, arguments);
+      loadQuestState();
+      questProgress('login');
+      // Quest butonunu göster
+      const qb = document.getElementById('quest-btn');
+      if(qb) qb.style.display = '';
+      const tsQb = document.getElementById('ts-questbtn');
+      if(tsQb) tsQb.style.display = '';
+      updateQuestBadge();
     };
   }
-})();
+});
 
-/* ── _tplRenderOverlay patch: şablon doğru bölgeye çizilsin ── */
-(function(){
-  const _or=window._tplRenderOverlay;
-  window._tplRenderOverlay=function(){
-    if(window._tplRegion&&typeof _tplBitmap!=='undefined'&&_tplBitmap&&typeof _tplData!=='undefined'&&_tplData.size>0){
-      const tc=document.getElementById('template-canvas');
-      if(!tc||!canvas) return;
-      if(tc.width!==canvas.width||tc.height!==canvas.height){tc.width=canvas.width;tc.height=canvas.height;}
-      const tctx=tc.getContext('2d');
-      tctx.clearRect(0,0,tc.width,tc.height);
-      if(typeof ox!=='undefined'){
-        const reg=window._tplRegion;
-        tctx.imageSmoothingEnabled=false;
-        tctx.drawImage(_tplBitmap,ox+reg.x*scale,oy+reg.y*scale,reg.w*scale,reg.h*scale);
-      }
-    } else if(typeof _or==='function'){ _or.apply(this,arguments); }
+// Topbar hamburger sheet senkronizasyonuna quest'i ekle
+const _origSyncTbSheet = window.syncTbSheet;
+window.syncTbSheet = function(){
+  if(typeof _origSyncTbSheet === 'function') _origSyncTbSheet.apply(this, arguments);
+  // Quest butonunu da eşle
+  const qb = document.getElementById('quest-btn');
+  const tsQb = document.getElementById('ts-questbtn');
+  if(qb && tsQb){
+    tsQb.style.display = qb.style.display === 'none' ? 'none' : '';
+  }
+};
+
+// Otomatik giriş (session var) için de quest'i aç
+(function patchAutoLogin(){
+  const origInitMap = window.initMapWithoutLogin;
+  // initMapWithoutLogin async IIFE — hook'layamayız direkt.
+  // Bunun yerine afterLoad benzeri bir gözlem yapalım.
+  // checkAdminStatus çağrısı afterLoad'da oluyor; onu hook'larız.
+  const _origCheckAdmin = window.checkAdminStatus;
+  window.checkAdminStatus = async function(){
+    if(typeof _origCheckAdmin === 'function') await _origCheckAdmin.apply(this, arguments);
+    if(typeof username !== 'undefined' && username){
+      loadQuestState();
+      questProgress('login');
+      // Quest butonunu göster
+      const qb = document.getElementById('quest-btn');
+      if(qb) qb.style.display = '';
+      const tsQb = document.getElementById('ts-questbtn');
+      if(tsQb) tsQb.style.display = '';
+      updateQuestBadge();
+    }
   };
 })();
-
-})(); /* end bölge seçim sistemi v3 */
