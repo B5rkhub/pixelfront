@@ -10,7 +10,7 @@
 // ── Kullanıcı tercihi: overlay açık mı? (localStorage'dan okunur)
 let _warOverlayEnabled = true;
 try {
-  const saved = localStorage.getItem('pv_war_overlay');
+  const saved = localStorage.getItem(CONFIG.storageKeys.warOverlay);
   if (saved !== null) _warOverlayEnabled = (saved === '1');
 } catch(e) {}
 
@@ -19,7 +19,7 @@ let _wars = [];           // [{ id, name, factionA, factionB, region, centerX, c
 let _warPopupOpenId = null;
 
 // ── Zoom eşiği: bu scale değerinin üzerinde badge kaybolur
-const WAR_BADGE_HIDE_SCALE = 3.5;
+const WAR_BADGE_HIDE_SCALE = CONFIG.ui.warBadgeHideScale;
 
 // ── Badge DOM referansları
 let _warBadgeEls = {}; // warId → DOM element
@@ -389,6 +389,19 @@ function showWarDeclaration(war) {
   document.getElementById('wdb-faction-b').style.color = war.factionB?.color || '#7B61FF';
 
   document.getElementById('war-declaration-banner').style.display = 'flex';
+
+  // Ses + sarsıntı + kıvılcımlar
+  try {
+    const snd = document.getElementById('war-declare-sound');
+    if(snd){ snd.currentTime = 0; snd.volume = 0.85; snd.play().catch(()=>{}); }
+  } catch(e){}
+  document.body.classList.add('war-shake');
+  setTimeout(() => document.body.classList.remove('war-shake'), 520);
+  if (typeof spawnWarSparks === 'function') {
+    spawnWarSparks(18);
+    setTimeout(() => spawnWarSparks(14), 400);
+    setTimeout(() => spawnWarSparks(12), 900);
+  }
 }
 
 function closeWarDeclaration() {
@@ -401,10 +414,36 @@ function closeWarDeclaration() {
 function _handleNewWarInsert(row) {
   // Zaten bilinen bir savaş mı?
   if (_wars.find(w => w.id === row.id)) return;
-  // Yeni savaş → veriyi yükle → banner göster
+  // Yeni savaş → veriyi yükle → bildirim göster
   loadWars().then(() => {
     const war = _wars.find(w => w.id === row.id);
-    if (war) showWarDeclaration(war);
+    if (!war) return;
+
+    // Kullanıcının faction'ı savaşa dahil mi?
+    const myTag = (typeof factionData !== 'undefined' && factionData) ? factionData.tag : null;
+    const aTag = war.factionA && war.factionA.tag ? war.factionA.tag : '';
+    const bTag = war.factionB && war.factionB.tag ? war.factionB.tag : '';
+    const isInvolved = myTag && (myTag === aTag || myTag === bTag);
+
+    if (isInvolved) {
+      // Tam banner göster
+      showWarDeclaration(war);
+    } else {
+      // Küçük toast
+      if (typeof showWarToast === 'function') {
+        // Savaş sesi (düşük volume)
+        try {
+          const snd = document.getElementById('war-declare-sound');
+          if(snd){ snd.currentTime = 0; snd.volume = 0.45; snd.play().catch(()=>{}); }
+        } catch(e){}
+        showWarToast(
+          war.factionA && war.factionA.name ? war.factionA.name : 'A',
+          war.factionA && war.factionA.color ? war.factionA.color : '#f04a4a',
+          war.factionB && war.factionB.name ? war.factionB.name : 'B',
+          war.factionB && war.factionB.color ? war.factionB.color : '#7B61FF'
+        );
+      }
+    }
   });
 }
 
@@ -434,7 +473,7 @@ function _handleNewWarInsert(row) {
 /* ── Kullanıcı tercihi: overlay toggle ──────────────────────── */
 function setWarOverlay(enabled) {
   _warOverlayEnabled = enabled;
-  try { localStorage.setItem('pv_war_overlay', enabled ? '1' : '0'); } catch(e) {}
+  try { localStorage.setItem(CONFIG.storageKeys.warOverlay, enabled ? '1' : '0'); } catch(e) {}
   positionWarBadges();
   if (!enabled) {
     Object.values(_warBadgeEls).forEach(el => {
@@ -562,3 +601,4 @@ window.endWar = async function(warId, winner) {
 };
 
 console.log('⚔️ War Overlay System loaded');
+

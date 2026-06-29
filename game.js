@@ -1,5 +1,5 @@
-const SUPABASE_URL = 'https://pwpnjjfeojebqzhduqsc.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3cG5qamZlb2plYnF6aGR1cXNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDY3OTAsImV4cCI6MjA5NzI4Mjc5MH0.KIeYbr1XsZyYcp4KHwpwLNH1mXalGJrfSqdCJDUH-lk';
+const SUPABASE_URL = CONFIG.supabase.url;
+const SUPABASE_KEY = CONFIG.supabase.key;
 // ÖNEMLİ: <script src="...supabase-js@2"> zaten global bir "supabase" değişkeni
 // oluşturuyor (window.supabase = { createClient, ... }). Burada "let/const supabase"
 // ile YENİDEN tanımlamak "Identifier 'supabase' has already been declared" SyntaxError'ı
@@ -95,11 +95,11 @@ const REGIONS={
   southeastern: {label:'Güneydoğu Anadolu', color:'#f97316'},
 };
 const REGION_ORDER=['marmara','aegean','mediterranean','central','blacksea','eastern','southeastern'];
-const PIXEL_LIMIT=49;      // max stockpile
-let PIXELS_PER_BATCH=7;  // earned each cooldown (pixel event sırasında değişebilir)
-let COOLDOWN_MS=3*60*1000; // 3 min per batch (pixel event sırasında değişebilir)
-const DEFAULT_PIXELS_PER_BATCH=7;
-const DEFAULT_COOLDOWN_MS=3*60*1000;
+const PIXEL_LIMIT             = CONFIG.game.pixelStockpileLimit;
+const DEFAULT_PIXELS_PER_BATCH = CONFIG.game.defaultPixelsPerBatch;
+const DEFAULT_COOLDOWN_MS      = CONFIG.game.defaultCooldownMs;
+let PIXELS_PER_BATCH = DEFAULT_PIXELS_PER_BATCH;
+let COOLDOWN_MS      = DEFAULT_COOLDOWN_MS;
 
 // ── HİLE ÖNLEME (Anti-Cheat) ──────────────────────────────────────────
 // pixLeft değeri artık Object.defineProperty ile korunuyor.
@@ -108,7 +108,7 @@ const DEFAULT_COOLDOWN_MS=3*60*1000;
 let _pixLeftInternal = PIXEL_LIMIT;
 let _pixLeftToken = _generateToken(PIXEL_LIMIT); // integrity token
 let _lastPixelTime = 0; // rate limiting için
-const _MIN_PIXEL_INTERVAL_MS = 800; // 800ms'den hızlı piksel basılamaz
+const _MIN_PIXEL_INTERVAL_MS = CONFIG.game.minPixelIntervalMs;
 
 function _generateToken(val) {
   // Basit HMAC benzeri token: değer + gizli salt + zaman dilimi
@@ -365,7 +365,7 @@ function togglePenMode(){
 // piksel basımı vb). Aşağıdaki bayrak SADECE bunu önlüyor; mobil dokunma
 // akışının kendisine hiç dokunulmuyor.
 let _lastTouchTS = 0;
-const _TOUCH_GUARD_MS = 500;
+const _TOUCH_GUARD_MS = CONFIG.game.touchGuardMs;
 function _recentTouch(){ return (Date.now() - _lastTouchTS) < _TOUCH_GUARD_MS; }
 
 // ── Sağ/orta tık ile pan sırasında context menüsünü engelleme ──────────────
@@ -1133,6 +1133,48 @@ function _activateUser(v){
   loadCD(); updateDots();
   loadProfile();
   loadXPFromSupabase().then(()=>{ updateXPUI(); renderLevelLeaderboard(); checkDailyStreak(); });
+  if(typeof maybeShowTutorial==='function') setTimeout(maybeShowTutorial, 400);
+}
+
+// ── TUTORIAL (ilk giriş rehberi) ───────────────────────────────────────
+// Oyuncu tarayıcısında ilk kez harita açıldığında basit, adım adım bir
+// tanıtım gösterir. localStorage'daki 'pv_tutorial_seen' bayrağıyla
+// sadece bir defa gösterilir; "Atla" ile her an kapatılabilir.
+const TUTORIAL_STEPS=[
+  {icon:'🗺️', title:'PixelFront\'a Hoş Geldin!', desc:'Harita üzerinde herkesin birlikte boyadığı canlı bir piksel dünyası. Topraklarını genişlet, bölgeni renklendir!'},
+  {icon:'🖌️', title:'Piksel Bas', desc:'Haritada bir kareye dokun/tıkla, rengini seç ve bas. Her piksel senin bayrağın olsun.'},
+  {icon:'⏳', title:'Bekleme Süresi', desc:'Her piksel sonrası kısa bir bekleme (cooldown) süresi vardır. Bu süre dolunca tekrar piksel basabilirsin.'},
+  {icon:'⭐', title:'Seviye ve XP', desc:'Bastığın her piksel sana XP kazandırır. Seviye yükselt, ödüller kazan ve profilindeki sıralamanı yükselt.'},
+  {icon:'🏅', title:'Lider Tablosu', desc:'Profil → Seviye sekmesinde en yüksek seviyeli oyuncuları görebilir, kendi sıranı takip edebilirsin.'},
+  {icon:'🚀', title:'Hazırsın!', desc:'Artık haritaya çıkabilirsin. İyi oyunlar!'},
+];
+let _tutStep=0;
+function maybeShowTutorial(){
+  try{ if(localStorage.getItem('pv_tutorial_seen')==='1') return; }catch(e){}
+  _tutStep=0;
+  renderTutorialStep();
+  const ov=document.getElementById('tutorial-overlay');
+  if(ov) ov.classList.add('show');
+}
+function renderTutorialStep(){
+  const s=TUTORIAL_STEPS[_tutStep];
+  const isLast=_tutStep===TUTORIAL_STEPS.length-1;
+  document.getElementById('tut-icon').textContent=s.icon;
+  document.getElementById('tut-title').textContent=s.title;
+  document.getElementById('tut-desc').textContent=s.desc;
+  document.getElementById('tut-next').textContent=isLast?'Anladım, Başla! 🎉':'İleri →';
+  document.getElementById('tut-dots').innerHTML=TUTORIAL_STEPS.map((_,i)=>
+    `<span class="tut-dot${i===_tutStep?' active':''}"></span>`).join('');
+}
+function tutorialNext(){
+  if(_tutStep>=TUTORIAL_STEPS.length-1){ closeTutorial(); return; }
+  _tutStep++;
+  renderTutorialStep();
+}
+function closeTutorial(){
+  try{ localStorage.setItem('pv_tutorial_seen','1'); }catch(e){}
+  const ov=document.getElementById('tutorial-overlay');
+  if(ov) ov.classList.remove('show');
 }
 
 // ── AUTH SEKME GEÇİŞİ (Kayıt Ol / Giriş Yap) ──────────────────────────
@@ -1306,6 +1348,7 @@ document.addEventListener('keyup',e=>{if(e.key==='Shift'&&!_brushActive)canvas.s
         if(typeof loadFactions==='function') loadFactions();
         if(typeof updateChatFactionTab==='function') updateChatFactionTab();
         if(typeof loadChat==='function') loadChat();
+        if(typeof maybeShowTutorial==='function') setTimeout(maybeShowTutorial, 500);
         try{
           if(username){
             localStorage.setItem('pv_profile_'+username,JSON.stringify(profileData));
@@ -3510,7 +3553,7 @@ function rejectAllyInvite(mailId, fromTag){
 }
 
 // ── SAVAŞ LİMİTİ KONTROLÜ ──────────────────────────────────────────────
-const MAX_WARS = 2;
+const MAX_WARS = CONFIG.game.maxActiveWars;
 
 function getActiveWarCount(){
   if(!factionData) return 0;
@@ -3616,8 +3659,26 @@ function setDiplomacy(targetTag, status){
       defenderColor: targetColor,
       defenderEmoji: targetEmoji
     });
-    // Supabase broadcast ile TÜM oyunculara ilet
-    broadcastWarDeclaration(factionData, targetFaction || {name:targetTag, color:targetColor, emoji:targetEmoji, tag:targetTag});
+
+    // Karşı faction'ın diplomacy'sini de otomatik "war" yap
+    // (Karşı tarafın tekrar savaş açmasına gerek kalmasın)
+    (async function() {
+      if (typeof supabase === 'undefined') return;
+      try {
+        const { data: tf } = await supabase.from('factions').select('id,diplomacy').eq('tag', targetTag).single();
+        if (tf) {
+          const newDiplo = Object.assign({}, tf.diplomacy || {});
+          newDiplo[factionData.tag] = 'war';
+          await supabase.from('factions').update({ diplomacy: newDiplo }).eq('id', tf.id);
+        }
+      } catch(e) { console.warn('auto-war diplo update failed:', e); }
+    })();
+
+    // Supabase broadcast ile ilet — faction tag bilgilerini de ekle
+    broadcastWarDeclaration(
+      Object.assign({}, factionData, { tag: factionData.tag }),
+      Object.assign({}, targetFaction || {name:targetTag, color:targetColor, emoji:targetEmoji}, { tag: targetTag })
+    );
   } else if(status === 'ally'){
     if(typeof SFX !== 'undefined') SFX.ally();
     showAllyBanner({
@@ -4274,9 +4335,9 @@ let pixelEventEndTime = 0; // ms epoch — etkinliğin biteceği an
 let _peSelectedMinutes = 5; // admin modalında seçilen süre
 let _peTickInterval = null;
 
-const PE_RATE_PIXELS = 6;       // etkinlik sırasında verilen piksel miktarı
-const PE_RATE_MS = 60*1000;     // etkinlik sırasında cooldown süresi (1 dk)
-const PE_STATE_KEY = 'pv_pixel_event_end'; // 0 = kapalı, >Date.now() = açık ve bitiş zamanı
+const PE_RATE_PIXELS = CONFIG.game.pixelEventRatePixels;
+const PE_RATE_MS     = CONFIG.game.pixelEventCooldownMs;
+const PE_STATE_KEY   = CONFIG.storageKeys.pixelEventEnd;
 
 // Ripple animation state
 const rippleCanvas = document.getElementById('ripple-canvas');
@@ -4563,7 +4624,7 @@ setInterval(()=>{
 
 // Store pixel placement events for other players to see ripples
 // We write to localStorage when placing, and poll to replay ripples from others
-const RIPPLE_LOG_KEY = 'pv_ripple_log';
+const RIPPLE_LOG_KEY = CONFIG.storageKeys.rippleLog;
 let lastRippleSeen = 0;
 
 function broadcastRipple(screenX, screenY, color){
@@ -4623,7 +4684,7 @@ resizeRippleCanvas();
 // TİMELAPSE SİSTEMİ
 // ══════════════════════════════════════════════════════════
 
-const TL_DAILY_KEY = 'pv_timelapse_day';
+const TL_DAILY_KEY = CONFIG.storageKeys.timelapseDay;
 let tlSelectedHours = 1;
 let tlSelectedFPS = 2;
 let tlRecorder = null;
@@ -5771,3 +5832,4 @@ window.toggleAdmin = function(){
     if(btn){ btn.textContent = t('rb.toggle_off'); btn.classList.remove('event-on'); }
   }
 };
+

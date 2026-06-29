@@ -93,14 +93,29 @@ function getWarChannel(){
   _warChannel.on('broadcast', { event:'war' }, (payload)=>{
     const p = payload && payload.payload;
     if(!p) return;
-    showWarBanner({
-      attackerName: p.attackerName || '?',
-      attackerColor: p.attackerColor || '#f04a4a',
-      attackerEmoji: p.attackerEmoji || '⚑',
-      defenderName: p.defenderName || '?',
-      defenderColor: p.defenderColor || '#6366f1',
-      defenderEmoji: p.defenderEmoji || '⚑'
-    });
+
+    // Bu kullanıcının faction tag'i
+    const myTag = (typeof factionData !== 'undefined' && factionData) ? factionData.tag : null;
+    const isInvolved = myTag && (myTag === p.attackerTag || myTag === p.defenderTag);
+
+    if (isInvolved) {
+      // Savaşan faction üyesi → tam banner + ses + sarsıntı
+      showWarBanner({
+        attackerName: p.attackerName || '?',
+        attackerColor: p.attackerColor || '#f04a4a',
+        attackerEmoji: p.attackerEmoji || '⚑',
+        defenderName: p.defenderName || '?',
+        defenderColor: p.defenderColor || '#6366f1',
+        defenderEmoji: p.defenderEmoji || '⚑'
+      });
+    } else {
+      // Dışarıdaki oyuncu → sadece üstten küçük toast bildirimi + savaş sesi
+      try {
+        const snd = document.getElementById('war-declare-sound');
+        if(snd){ snd.currentTime = 0; snd.volume = 0.45; snd.play().catch(()=>{}); }
+      } catch(e){}
+      showWarToast(p.attackerName || '?', p.attackerColor || '#f04a4a', p.defenderName || '?', p.defenderColor || '#6366f1');
+    }
   });
   _warChannel.on('broadcast', { event:'ally' }, (payload)=>{
     const p = payload && payload.payload;
@@ -121,7 +136,9 @@ function broadcastWarDeclaration(attacker, defender){
   try{
     getWarChannel().send({ type:'broadcast', event:'war', payload:{
       attackerName: attacker.name, attackerColor: attacker.color, attackerEmoji: attacker.emoji||'⚑',
-      defenderName: defender.name, defenderColor: defender.color, defenderEmoji: defender.emoji||'⚑'
+      attackerTag: attacker.tag || '',
+      defenderName: defender.name, defenderColor: defender.color, defenderEmoji: defender.emoji||'⚑',
+      defenderTag: defender.tag || ''
     }});
   }catch(e){}
 }
@@ -135,6 +152,53 @@ function broadcastAllyDeclaration(f1, f2){
   }catch(e){}
 }
 
+
+
+/* ── Dışarıdaki oyuncular için küçük üst bildirim (toast) ── */
+function showWarToast(attackerName, attackerColor, defenderName, defenderColor) {
+  // Varsa eski toast'u kaldır
+  const old = document.getElementById('war-toast-notif');
+  if (old) old.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'war-toast-notif';
+  toast.style.cssText = [
+    'position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:800;',
+    'background:rgba(15,10,25,.92);backdrop-filter:blur(10px);',
+    'border:1px solid rgba(240,74,74,.4);border-radius:12px;',
+    'padding:.55rem 1rem;display:flex;align-items:center;gap:.55rem;',
+    'font-family:"Outfit",sans-serif;font-size:.8rem;color:#fff;',
+    'box-shadow:0 4px 20px rgba(0,0,0,.6);',
+    'animation:warToastIn .3s ease;pointer-events:none;white-space:nowrap;'
+  ].join('');
+
+  toast.innerHTML = `
+    <span style="font-size:1rem;">⚔️</span>
+    <span>
+      <b style="color:${attackerColor}">${attackerName}</b>
+      <span style="color:rgba(255,255,255,.5)"> vs </span>
+      <b style="color:${defenderColor}">${defenderName}</b>
+      <span style="color:rgba(255,255,255,.4)"> — Savaş başladı!</span>
+    </span>
+  `;
+
+  // CSS animasyonu yoksa ekle
+  if (!document.getElementById('war-toast-style')) {
+    const style = document.createElement('style');
+    style.id = 'war-toast-style';
+    style.textContent = `
+      @keyframes warToastIn {
+        from { opacity:0; transform:translateX(-50%) translateY(-10px); }
+        to   { opacity:1; transform:translateX(-50%) translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.body.appendChild(toast);
+  // 5 saniye sonra kaldır
+  setTimeout(() => toast && toast.remove(), 5000);
+}
 /* ESC ile kapat */
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape'){
@@ -142,3 +206,4 @@ document.addEventListener('keydown', e => {
     closeAllyBanner();
   }
 });
+

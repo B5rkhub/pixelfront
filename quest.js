@@ -54,7 +54,7 @@ function _todayStr(){
 }
 
 function loadQuestState(){
-  const key = 'pv_quests_' + (typeof username !== 'undefined' ? username : '_guest');
+  const key = CONFIG.storageKeys.quests + (typeof username !== 'undefined' ? username : '_guest');
   let s = {};
   try{ s = JSON.parse(localStorage.getItem(key) || '{}'); }catch(e){}
   const today = _todayStr();
@@ -73,7 +73,7 @@ function loadQuestState(){
 
 function saveQuestState(){
   if(!_questState) return;
-  const key = 'pv_quests_' + (typeof username !== 'undefined' ? username : '_guest');
+  const key = CONFIG.storageKeys.quests + (typeof username !== 'undefined' ? username : '_guest');
   try{ localStorage.setItem(key, JSON.stringify(_questState)); }catch(e){}
 }
 
