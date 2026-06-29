@@ -1114,46 +1114,7 @@ function _activateUser(v){
   if(typeof maybeShowTutorial==='function') setTimeout(maybeShowTutorial, 400);
 }
 
-// ── TUTORIAL (ilk giriş rehberi) ───────────────────────────────────────
-// Oyuncu tarayıcısında ilk kez harita açıldığında basit, adım adım bir
-// tanıtım gösterir. localStorage'daki CONFIG.storageKeys.tutorialSeen bayrağıyla
-// sadece bir defa gösterilir; "Atla" ile her an kapatılabilir.
-const TUTORIAL_STEPS=[
-  {icon:'🗺️', title:'PixelFront\'a Hoş Geldin!', desc:'Harita üzerinde herkesin birlikte boyadığı canlı bir piksel dünyası. Topraklarını genişlet, bölgeni renklendir!'},
-  {icon:'🖌️', title:'Piksel Bas', desc:'Haritada bir kareye dokun/tıkla, rengini seç ve bas. Her piksel senin bayrağın olsun.'},
-  {icon:'⏳', title:'Bekleme Süresi', desc:'Her piksel sonrası kısa bir bekleme (cooldown) süresi vardır. Bu süre dolunca tekrar piksel basabilirsin.'},
-  {icon:'⭐', title:'Seviye ve XP', desc:'Bastığın her piksel sana XP kazandırır. Seviye yükselt, ödüller kazan ve profilindeki sıralamanı yükselt.'},
-  {icon:'🏅', title:'Lider Tablosu', desc:'Profil → Seviye sekmesinde en yüksek seviyeli oyuncuları görebilir, kendi sıranı takip edebilirsin.'},
-  {icon:'🚀', title:'Hazırsın!', desc:'Artık haritaya çıkabilirsin. İyi oyunlar!'},
-];
-let _tutStep=0;
-function maybeShowTutorial(){
-  try{ if(localStorage.getItem(CONFIG.storageKeys.tutorialSeen)==='1') return; }catch(e){}
-  _tutStep=0;
-  renderTutorialStep();
-  const ov=document.getElementById('tutorial-overlay');
-  if(ov) ov.classList.add('show');
-}
-function renderTutorialStep(){
-  const s=TUTORIAL_STEPS[_tutStep];
-  const isLast=_tutStep===TUTORIAL_STEPS.length-1;
-  document.getElementById('tut-icon').textContent=s.icon;
-  document.getElementById('tut-title').textContent=s.title;
-  document.getElementById('tut-desc').textContent=s.desc;
-  document.getElementById('tut-next').textContent=isLast?'Anladım, Başla! 🎉':'İleri →';
-  document.getElementById('tut-dots').innerHTML=TUTORIAL_STEPS.map((_,i)=>
-    `<span class="tut-dot${i===_tutStep?' active':''}"></span>`).join('');
-}
-function tutorialNext(){
-  if(_tutStep>=TUTORIAL_STEPS.length-1){ closeTutorial(); return; }
-  _tutStep++;
-  renderTutorialStep();
-}
-function closeTutorial(){
-  try{ localStorage.setItem(CONFIG.storageKeys.tutorialSeen,'1'); }catch(e){}
-  const ov=document.getElementById('tutorial-overlay');
-  if(ov) ov.classList.remove('show');
-}
+// tutorial.js dosyasında — maybeShowTutorial, tutorialNext, closeTutorial
 
 // ── AUTH SEKME GEÇİŞİ (Kayıt Ol / Giriş Yap) ──────────────────────────
 let _authMode = 'signup'; // 'signup' | 'signin'

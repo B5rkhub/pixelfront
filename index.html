@@ -23,13 +23,17 @@
 <body>
 <!-- ── Tutorial overlay (ilk giriş rehberi) ── -->
 <div id="tutorial-overlay">
+  <div id="tut-spotlight"></div>
   <div class="tut-card">
-    <div class="tut-icon" id="tut-icon">🗺️</div>
+    <div class="tut-header">
+      <div class="tut-icon" id="tut-icon">🗺️</div>
+      <span id="tut-progress" class="tut-progress">1 / 8</span>
+    </div>
     <div class="tut-title" id="tut-title">Hoş geldin!</div>
     <div class="tut-desc" id="tut-desc"></div>
     <div class="tut-dots" id="tut-dots"></div>
     <div class="tut-actions">
-      <button class="tut-skip" onclick="closeTutorial()">Atla</button>
+      <button class="tut-skip" onclick="closeTutorial()">Atla <kbd>Esc</kbd></button>
       <button class="tut-next" id="tut-next" onclick="tutorialNext()">İleri →</button>
     </div>
   </div>
@@ -481,7 +485,7 @@
     <!-- PANEL: Ayarlar -->
     <div class="pc-panel" id="pcpanel-ayarlar">
       <div class="pca-section-title" data-i18n="settings.appearance">Görünüm</div>
-      <div class="pca-row" style="cursor:pointer" onclick="try{localStorage.removeItem('pv_tutorial_seen');}catch(e){} maybeShowTutorial()">
+      <div class="pca-row" style="cursor:pointer" onclick="try{localStorage.removeItem(CONFIG.storageKeys.tutorialSeen);}catch(e){} maybeShowTutorial()">
         <div class="pca-row-info">
           <div class="pca-row-title">🧭 Tanıtımı Tekrar Göster</div>
           <div class="pca-row-desc">Oyuna başlangıç rehberini yeniden aç</div>
@@ -1408,6 +1412,7 @@
 
 <script src="config.js"></script>
 <script src="map-data.js"></script>
+<script src="tutorial.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="i18n.js"></script>
 <script src="game.js"></script>
