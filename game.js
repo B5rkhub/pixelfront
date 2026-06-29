@@ -99,27 +99,13 @@ let _pixLeftToken = _generateToken(PIXEL_LIMIT); // integrity token
 let _lastPixelTime = 0; // rate limiting için
 const _MIN_PIXEL_INTERVAL_MS = CONFIG.game.minPixelIntervalMs;
 
-/**
- * İstemci tarafı anti-hile token'ı üretir.
- * Salt = UserAgent uzunluğu × sabit dize; slot = dakika granülanlığında zaman.
- * Server-side doğrulama YERİNE GEÇMEZ — RLS asıl güvenceyi sağlar.
- * @param {number} val - Token'lanacak sayısal değer
- * @returns {string} Base64 token (padding olmadan)
- */
+// istemci tarafı pixLeft koruma — RLS asıl güvence, bu sadece konsol manipülasyonunu zorlaştırır
 function _generateToken(val) {
   const SALT = 'pv_' + navigator.userAgent.length + '_salt_9f2k';
   const slot = Math.floor(Date.now() / 60000); // her dakika yenilenir
   return btoa(SALT + '|' + val + '|' + slot).replace(/=/g,'');
 }
-
-/**
- * Token'ı mevcut ve önceki 2 dakika slotuna karşı doğrular.
- * 2 dakika toleransı: dakika sınırında false-positive'i önler.
- * @param {number} val - Doğrulanacak değer
- * @param {string} token - _generateToken ile üretilmiş token
- * @returns {boolean}
- */
-function _validateToken(val, token) {
+function _validateToken(val, token) { // 2 dakika toleransı: sınırda false-positive önler
   const SALT = 'pv_' + navigator.userAgent.length + '_salt_9f2k';
   const slot = Math.floor(Date.now() / 60000);
   for (let d = 0; d <= 2; d++) {
@@ -174,12 +160,7 @@ setInterval(() => {
 }, 30000);
 // ─────────────────────────────────────────────────────────────────────
 
-/**
- * Kullanıcı kontrollü değerleri innerHTML'e basmadan önce kaçışlar (XSS önleme).
- * Kullanıcı adı, faction adı, URL gibi her harici veri bu fonksiyondan geçmeli.
- * @param {*} str - Kaçışlanacak değer
- * @returns {string} HTML-güvenli string
- */
+// kullanıcı verisi innerHTML'e girmeden önce buradan geçmeli (stored XSS önleme)
 function _esc(str){
   if(str===null || str===undefined) return '';
   return String(str)
@@ -189,13 +170,7 @@ function _esc(str){
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#39;');
 }
-/**
- * Kullanıcı sağlayan URL'leri <img src=""> için doğrular.
- * Yalnızca http(s):// veya data:image/ şemalarına izin verir;
- * javascript: ve diğer tehlikeli şemaları boş string dönerek reddeder.
- * @param {string} url - Doğrulanacak URL
- * @returns {string} Güvenli URL ya da ''
- */
+// javascript: gibi tehlikeli şemaları reddeder, yalnızca http(s) ve data:image/ geçer
 function _safeImgSrc(url){
   if(!url || typeof url!=='string') return '';
   const u=url.trim();

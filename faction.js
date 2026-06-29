@@ -317,11 +317,6 @@ function filterFactionBrowse(){
   if(cntEl) cntEl.textContent = sorted.length + ' faction';
 }
 
-/**
- * Form girdilerinden yeni bir faction oluşturur ve Supabase'e kaydeder.
- * Lider olarak oturum açmış `username`'i atar.
- * Tag çakışması durumunda Supabase'i önce kontrol eder, localStorage'ı yedek kullanır.
- */
 async function createFaction(){
   const name = (document.getElementById('fc-name-in').value||'').trim();
   const tag = (document.getElementById('fc-tag-in').value||'').trim().toUpperCase().replace(/[^A-ZÇĞİÖŞÜ0-9]/gi,'');
@@ -383,11 +378,6 @@ async function createFaction(){
   setTimeout(()=>{ _fcRenderLock = false; }, 3000); // 3s sonra kilidi aç
 }
 
-/**
- * Verilen tag'e sahip fraction'a katılır.
- * Önce Supabase'den taze veri çeker; üye listesi her iki depoya da yazılır.
- * @param {string} tag - Büyük harfli faction tag (örn. "TRK")
- */
 async function joinFactionByTag(tag){
   await loadFactionsFromSupabase();
   const found = allFactions[tag];
@@ -776,11 +766,6 @@ function openDiplomacyFor(tag){
   },120);
 }
 
-/**
- * Aktif faction'dan ayrılır.
- * Lider ayrılırsa faction tamamen dağıtılır (Supabase kaydı silinir, tüm üyelerin
- * myFaction localStorage anahtarı temizlenir). Normal üye sadece listeden çıkar.
- */
 async function leaveFaction(){
   const f = factionData;
   const isLeader = f.leader === username;
@@ -811,10 +796,6 @@ async function leaveFaction(){
   renderFactionModal();
 }
 
-/**
- * Üyeyi faction'dan atar (sadece lider çağırabilir).
- * @param {string} memberName - Atılacak kullanıcı adı
- */
 function kickMember(memberName){
   if(!factionData) return;
   factionData.members = factionData.members.filter(m=>m.name!==memberName);
