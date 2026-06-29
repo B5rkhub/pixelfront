@@ -99,15 +99,27 @@ let _pixLeftToken = _generateToken(PIXEL_LIMIT); // integrity token
 let _lastPixelTime = 0; // rate limiting için
 const _MIN_PIXEL_INTERVAL_MS = CONFIG.game.minPixelIntervalMs;
 
+/**
+ * İstemci tarafı anti-hile token'ı üretir.
+ * Salt = UserAgent uzunluğu × sabit dize; slot = dakika granülanlığında zaman.
+ * Server-side doğrulama YERİNE GEÇMEZ — RLS asıl güvenceyi sağlar.
+ * @param {number} val - Token'lanacak sayısal değer
+ * @returns {string} Base64 token (padding olmadan)
+ */
 function _generateToken(val) {
-  // Basit HMAC benzeri token: değer + gizli salt + zaman dilimi
   const SALT = 'pv_' + navigator.userAgent.length + '_salt_9f2k';
   const slot = Math.floor(Date.now() / 60000); // her dakika yenilenir
   return btoa(SALT + '|' + val + '|' + slot).replace(/=/g,'');
 }
 
+/**
+ * Token'ı mevcut ve önceki 2 dakika slotuna karşı doğrular.
+ * 2 dakika toleransı: dakika sınırında false-positive'i önler.
+ * @param {number} val - Doğrulanacak değer
+ * @param {string} token - _generateToken ile üretilmiş token
+ * @returns {boolean}
+ */
 function _validateToken(val, token) {
-  // Mevcut ve önceki 2 dakika slotu için kontrol et (dakika sınırında false-positive önleme)
   const SALT = 'pv_' + navigator.userAgent.length + '_salt_9f2k';
   const slot = Math.floor(Date.now() / 60000);
   for (let d = 0; d <= 2; d++) {
@@ -162,14 +174,12 @@ setInterval(() => {
 }, 30000);
 // ─────────────────────────────────────────────────────────────────────
 
-// ── GÜVENLİK: HTML escape yardımcı fonksiyonu ──────────────────────────
-// Kullanıcı adı, faction adı/tag'i, profil fotoğrafı URL'i gibi kullanıcı
-// tarafından girilen hiçbir alanda HTML/JS karakteri filtrelenmiyordu;
-// bunlar template literal'lar içinde doğrudan innerHTML'e gömülüyordu
-// (stored XSS). Bu fonksiyon, kullanıcı verisi HTML'e basılmadan önce
-// özel karakterleri kaçışlayarak tarayıcının onu kod olarak değil düz
-// metin olarak yorumlamasını sağlar. Her yerde kullanıcı kontrollü bir
-// değer bir template literal içine konacaksa bu fonksiyondan geçirilmeli.
+/**
+ * Kullanıcı kontrollü değerleri innerHTML'e basmadan önce kaçışlar (XSS önleme).
+ * Kullanıcı adı, faction adı, URL gibi her harici veri bu fonksiyondan geçmeli.
+ * @param {*} str - Kaçışlanacak değer
+ * @returns {string} HTML-güvenli string
+ */
 function _esc(str){
   if(str===null || str===undefined) return '';
   return String(str)
@@ -179,9 +189,13 @@ function _esc(str){
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#39;');
 }
-// Profil/üye fotoğrafı gibi kullanıcı tarafından sağlanan URL'leri <img src="">
-// içine basmadan önce doğrular — sadece http(s):// veya data:image/ ile başlayan
-// değerlere izin verir. javascript: gibi tehlikeli şemaları reddeder.
+/**
+ * Kullanıcı sağlayan URL'leri <img src=""> için doğrular.
+ * Yalnızca http(s):// veya data:image/ şemalarına izin verir;
+ * javascript: ve diğer tehlikeli şemaları boş string dönerek reddeder.
+ * @param {string} url - Doğrulanacak URL
+ * @returns {string} Güvenli URL ya da ''
+ */
 function _safeImgSrc(url){
   if(!url || typeof url!=='string') return '';
   const u=url.trim();

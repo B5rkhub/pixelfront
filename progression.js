@@ -52,10 +52,17 @@ const STREAK_REWARDS = {
     7: { icon:'👑', xp:50, pixels:12, label:'FULL 7-DAY STREAK! Big reward!' }
   }
 };
+/** @param {number} cyclePos - 1..7 arası 7-günlük döngü pozisyonu */
 function getStreakRewardBase(cyclePos){
   const set = STREAK_REWARDS[_currentLang] || STREAK_REWARDS.tr;
   return set[cyclePos];
 }
+/**
+ * Belirli bir seri gününün ödülünü hesaplar.
+ * Her 7 gün tamamlandığında ödüller %25 çarpanla büyür.
+ * @param {number} day - Seri günü (1'den başlar)
+ * @returns {{ icon: string, label: string, xp: number, pixels: number }}
+ */
 function getStreakReward(day){
   const cyclePos = ((day - 1) % 7) + 1; // 1..7 döngüsü
   const cycleNum = Math.floor((day - 1) / 7); // kaçıncı 7-gün turu (0,1,2...)
@@ -91,12 +98,15 @@ function getXPReward(lvl){
   return rewards[lvl];
 }
 
-// Her seviye için gereken kümülatif XP
+/**
+ * Bir seviyeye ulaşmak için gereken kümülatif XP.
+ * Formül: Σ floor(10 × 1.5^(i-1)) for i=1..lvl-1
+ * Eşikler: LV2=10, LV3=25, LV4=47, LV5=80, LV6=130, LV7=205, LV8=318
+ * @param {number} lvl - Hedef seviye (1-tabanlı)
+ * @returns {number} Kümülatif XP miktarı
+ */
 function xpForLevel(lvl){
-  // 1: 0 XP (başlangıç), her seviye bir öncekinden %20 daha fazla
-  // LV1→LV2: 10, LV2→LV3: 25, LV3→LV4: 50, LV4→LV5: 100 ...
   if(lvl <= 1) return 0;
-  // Kümülatif XP: sum of floor(10 * 1.5^(i-1)) for i=1 to lvl-1
   let total = 0;
   for(let i = 1; i < lvl; i++){
     total += Math.floor(10 * Math.pow(1.5, i - 1));
@@ -104,10 +114,19 @@ function xpForLevel(lvl){
   return total;
 }
 
+/**
+ * @param {number} lvl - Mevcut seviye
+ * @returns {number} Bir sonraki seviyeye geçmek için gereken XP delta
+ */
 function xpNeededForNextLevel(lvl){
   return xpForLevel(lvl + 1) - xpForLevel(lvl);
 }
 
+/**
+ * Toplam XP'den mevcut seviyeyi türetir.
+ * @param {number} xp - Kümülatif XP
+ * @returns {number} Seviye numarası (en az 1)
+ */
 function getLevelFromXP(xp){
   let lvl = 1;
   while(xpForLevel(lvl + 1) <= xp) lvl++;
@@ -202,6 +221,11 @@ async function loadXPFromSupabase(){
   }catch(e){}
 }
 
+/**
+ * Kullanıcıya XP ekler, gerekirse seviye atlar ve UI'ı günceller.
+ * Supabase sync'i bloklamadan arka planda gönderir.
+ * @param {number} amount - Eklenecek XP (negatif değer kabul edilmez)
+ */
 function gainXP(amount){
   const prevLevel = profileData.level || 1;
   profileData.xp = (profileData.xp || 0) + amount;
@@ -235,6 +259,7 @@ function gainXP(amount){
 // "Bugün" ve "dün" kullanıcının kendi saat dilimine göre hesaplanır
 // (UTC değil) ki gece yarısı sınırı oyuncu için doğal hissettirsin.
 // ═══════════════════════════════════════════════════════
+/** @returns {string} Kullanıcının yerel saat dilimine göre 'YYYY-MM-DD' */
 function _todayLocalStr(){
   const d = new Date();
   const y = d.getFullYear();
@@ -242,8 +267,13 @@ function _todayLocalStr(){
   const day = String(d.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
+/**
+ * İki 'YYYY-MM-DD' tarihi arasındaki tam gün farkını döner (b - a).
+ * @param {string} a - Başlangıç tarihi
+ * @param {string} b - Bitiş tarihi
+ * @returns {number} Gün farkı (negatif olabilir)
+ */
 function _daysBetweenLocalStr(a, b){
-  // a, b: 'YYYY-MM-DD' — gün farkını hesaplar (b - a)
   const da = new Date(a+'T00:00:00');
   const db = new Date(b+'T00:00:00');
   return Math.round((db - da) / 86400000);
