@@ -95,7 +95,7 @@ async function renderChatMessages(){
         log=data.map(r=>({user:r.username,text:r.message,t:new Date(r.created_at).getTime(),photo:'',frame:'none'}));
         // DB'ye yazılamayıp localStorage'a düşmüş mesajlar varsa onları da ekle (kaybolmasınlar)
         try{
-          const r=localStorage.getItem('pv_chat');
+          const r=localStorage.getItem(CONFIG.storageKeys.chat);
           if(r){
             const pending=JSON.parse(r);
             const dbKeys=new Set(log.map(e=>e.user+'|'+e.text+'|'+Math.floor(e.t/1000)));
@@ -108,11 +108,11 @@ async function renderChatMessages(){
         }catch(e){}
       } else {
         if(error) console.error('[chat] Supabase select hatası, mesajlar DB\'den çekilemedi:', error);
-        try{ const r=localStorage.getItem('pv_chat'); if(r) log=JSON.parse(r); }catch(e){}
+        try{ const r=localStorage.getItem(CONFIG.storageKeys.chat); if(r) log=JSON.parse(r); }catch(e){}
       }
     }catch(e){
       console.error('[chat] Supabase select exception:', e);
-      try{ const r=localStorage.getItem('pv_chat'); if(r) log=JSON.parse(r); }catch(e2){}
+      try{ const r=localStorage.getItem(CONFIG.storageKeys.chat); if(r) log=JSON.parse(r); }catch(e2){}
     } finally {
       _chatRendering=false;
     }
@@ -137,12 +137,12 @@ async function renderChatMessages(){
     // Faction chat - localStorage'da kalsın
     if(!factionData){ box.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">⚑ Faction\'a katıl</div>'; return; }
     let log=[];
-    try{ const r=localStorage.getItem('pv_fc_chat_'+factionData.tag); if(r) log=JSON.parse(r); }catch(e){}
+    try{ const r=localStorage.getItem(CONFIG.storageKeys.factionChat + factionData.tag); if(r) log=JSON.parse(r); }catch(e){}
     if(!log.length){ box.innerHTML=`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">💬 Henüz mesaj yok.<br><span style="font-size:.65rem;opacity:.6">[${factionData.tag}] kanalı</span></div>`; return; }
     log.slice(-40).forEach(entry=>{
       const isMe=entry.user===uname;
       let memberProf={};
-      try{ memberProf=JSON.parse(localStorage.getItem('pv_profile_'+entry.user)||'{}'); }catch(e){}
+      try{ memberProf=JSON.parse(localStorage.getItem(CONFIG.storageKeys.profile + entry.user)||'{}'); }catch(e){}
       const fEntry={...entry, photo:memberProf.photo||entry.photo||'', frame:entry.frame||'none'};
       const borderCol=factionData.color;
       const el=document.createElement('div');
@@ -180,7 +180,7 @@ async function sendChatMsg(){
     if(!factionData){ showPopup(t('msg.join_faction_short')); return; }
     const entry={user:uname, text:msg, t:Date.now(), photo:profileData.photo||'', frame:profileData.frame||'none'};
     try{
-      const key='pv_fc_chat_'+factionData.tag;
+      const key=CONFIG.storageKeys.factionChat + factionData.tag;
       const raw=localStorage.getItem(key);
       const log=raw?JSON.parse(raw):[];
       log.push(entry);
@@ -258,7 +258,7 @@ window.startGame=async function(){
   // Register this session's profile under username key
   try{
     if(username){
-      localStorage.setItem('pv_profile_'+username,JSON.stringify(profileData));
+      localStorage.setItem(CONFIG.storageKeys.profile + username,JSON.stringify(profileData));
     }
   }catch(e){}
   updateProfileBtn();

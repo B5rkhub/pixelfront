@@ -121,7 +121,7 @@ function getLevelTitle(lvl){
 
 function saveXPData(){
   try{
-    localStorage.setItem('pv_xp_' + username, JSON.stringify({
+    localStorage.setItem(CONFIG.storageKeys.xp + username, JSON.stringify({
       xp: profileData.xp || 0,
       level: profileData.level || 1
     }));
@@ -157,7 +157,7 @@ async function syncStreakToSupabase(){
 
 function saveStreakData(){
   try{
-    localStorage.setItem('pv_streak_' + username, JSON.stringify({
+    localStorage.setItem(CONFIG.storageKeys.streak + username, JSON.stringify({
       streak: profileData.streak || 0,
       streakBest: profileData.streakBest || 0,
       lastLoginDate: profileData.lastLoginDate || ''
@@ -184,7 +184,7 @@ async function loadXPFromSupabase(){
   }catch(e){}
   // localStorage yedek
   try{
-    const raw = localStorage.getItem('pv_xp_' + username);
+    const raw = localStorage.getItem(CONFIG.storageKeys.xp + username);
     if(raw){
       const d = JSON.parse(raw);
       profileData.xp = d.xp || 0;
@@ -192,7 +192,7 @@ async function loadXPFromSupabase(){
     }
   }catch(e){}
   try{
-    const rawS = localStorage.getItem('pv_streak_' + username);
+    const rawS = localStorage.getItem(CONFIG.storageKeys.streak + username);
     if(rawS){
       const ds = JSON.parse(rawS);
       profileData.streak = ds.streak || 0;
@@ -291,7 +291,7 @@ function checkDailyStreak(){
   const overflowPixels = reward.pixels - grantedPixels;
   if(grantedPixels > 0){
     _setPixLeft(_getPixLeft() + grantedPixels);
-    try{ localStorage.setItem('pv_px_' + username, _getPixLeft()); }catch(e){}
+    try{ localStorage.setItem(CONFIG.storageKeys.pixels + username, _getPixLeft()); }catch(e){}
   }
   const totalXP = reward.xp + overflowPixels; // taşan piksel başına 1 XP telafi
   gainXP(totalXP);

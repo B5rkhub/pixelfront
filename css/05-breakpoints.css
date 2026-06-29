@@ -1,0 +1,146 @@
+/* ════════════════════════════════════════════════════════════════
+   TABLET KATMANI: 769px – 1024px (iPad, Android tabletler, dikey+yatay)
+   ────────────────────────────────────────────────────────────────
+   Önceden bu aralık hiç ele alınmıyordu: 768px altı "mobil" (bottom-
+   drawer sidebar, FAB butonlar) ve 769px üstü dümdüz "masaüstü"
+   (290px sabit yan sidebar, küçük ikon butonlar, fare boyutunda
+   dokunma hedefleri) muamelesi görüyordu. Tabletlerde bu iki uçtan
+   hiçbiri ideal değil: masaüstü tasarımı dar tablet genişliğinde
+   haritayı gereksiz daraltıyor (290px sabit sidebar + köşe butonları)
+   ve dokunma hedefleri parmak için küçük kalıyordu.
+
+   Bu katman masaüstünün GENEL YAPISINI korur (sabit yan sidebar,
+   köşe konumlu butonlar — bottom-drawer'a geçmez), sadece:
+   1) --sidebar-w değişkenini küçültür → harita daha fazla alan kazanır
+      (tüm bağımlı elementler: #ptoolbar, #sidebar-toggle, JS getSidebarW()
+      otomatik senkron kalır, tek satır değişikliği yeterli).
+   2) Dokunma hedeflerini büyütür — SADECE gerçek dokunmatik girişte
+      (hover:none and pointer:coarse), fare+tablet hibrit cihazları
+      (Surface gibi) etkilemez.
+   3) Köşe butonlarının iç boşluğunu hafifçe artırır, parmakla
+      kullanılabilirliği iyileştirir.
+════════════════════════════════════════════════════════════════ */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Sidebar daha dar — harita alanından daha fazla pay alır.
+     Tek değişken değiştiği için #ptoolbar (right:calc(var(--sidebar-w)+12px)),
+     #sidebar-toggle (JS getSidebarW()) ve grid kolon genişliği (#main)
+     hepsi otomatik doğru hizalanır; ayrı ayrı override gerekmez. */
+  :root { --sidebar-w: 0px; } /* sidebar kaldırıldı */
+
+  .scard h3      { font-size: .56rem; }
+  .prtop, .pi    { font-size: .72rem; }
+
+  /* Köşe butonları (faction/profile) — biraz daha ferah dokunma alanı */
+  #faction-btn   { top: 10px; left: 10px; }
+  #profile-btn   { padding: .45rem .75rem; }
+  #faction-sub-btn { padding: .32rem .65rem; }
+
+  /* Zoom FAB grubu — masaüstü köşe konumunu korur, sadece boyut artar */
+  #zbtn { bottom: 84px; left: 12px; gap: 6px; }
+
+  /* Renk paleti toggle dairesi — dokunma için biraz büyür */
+  #palette-toggle { width: 30px; height: 30px; }
+}
+
+/* Sadece GERÇEK dokunmatik girişte (fare yok) dokunma hedeflerini
+   büyüt — bu kural tablet aralığıyla kesişir ama bağımsızdır, çünkü
+   bazı 769-1024px cihazlar fare/trackpad ile kullanılır (örn. küçük
+   pencereli masaüstü) ve onlarda küçük hassas hedefler tercih edilir. */
+@media (min-width: 769px) and (max-width: 1024px) and (hover: none) and (pointer: coarse) {
+  .tb-btn        { min-height: 36px; padding: .38rem .75rem; font-size: .7rem; }
+  .zb            { width: 40px; height: 40px; font-size: 1.1rem; }
+  .psw           { width: 28px; height: 28px; }
+  #palette-toggle{ width: 32px; height: 32px; }
+  .pc-tab, .fc-tab { min-height: 38px; padding: .4rem .75rem; }
+  .ptbtn         { min-height: 36px; padding: .4rem .7rem; }
+  /* Sidebar toggle tab — parmakla tutması kolay */
+  #sidebar-toggle{ width: 26px; height: 60px; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   KÜÇÜK EKRANLAR: 375px ve altı (iPhone SE, Galaxy A, vb.)
+════════════════════════════════════════════════════════════════ */
+@media (max-width: 375px) {
+  #topbar h1    { max-width: 60px; font-size: .75rem; }
+  #ubadge       { max-width: 72px; }
+  .lbox h1      { font-size: 1.3rem; }
+  .lbox p       { font-size: .78rem; }
+  #sidebar      { height: 58vh; }
+  #chat-panel   { height: 64vh !important; }
+  .cm-text      { font-size: .72rem; }
+  /* Palette & chat butonu yakınlaştır */
+  #ptoolbar     { left: 54px !important; right: 50px !important; bottom: 18px !important; }
+  .psw          { width: 27px !important; height: 27px !important; }
+  #chat-btn     { width: 36px !important; height: 36px !important; font-size: .9rem !important; bottom: 12px !important; left: 8px !important; }
+  #zbtn         { right: 8px !important; }
+  .zb           { width: 42px !important; height: 42px !important; }
+  #zbtn .zb:last-child { width: 36px !important; height: 36px !important; }
+  /* Profil kartı: dar ekranda isim alanı daralır, taşma engellenir */
+  #profile-btn .pb-name { max-width: 78px !important; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   EN KÜÇÜK: 320px (iPhone 5, eski cihazlar)
+════════════════════════════════════════════════════════════════ */
+@media (max-width: 320px) {
+  #topbar h1    { display: none; }
+  #ubadge       { max-width: 60px; font-size: .55rem; }
+  #ptoolbar     { left: 50px !important; right: 46px !important; bottom: 16px !important; }
+  .psw          { width: 24px !important; height: 24px !important; }
+  #chat-btn     { width: 34px !important; height: 34px !important; font-size: .8rem !important; }
+  .zb           { width: 40px !important; height: 40px !important; }
+  #zbtn .zb:last-child { width: 34px !important; height: 34px !important; }
+  .scard        { padding: .5rem .6rem; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SAFE AREA (iPhone çentik / Dynamic Island / PWA)
+════════════════════════════════════════════════════════════════ */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px), (max-height: 600px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+    #topbar {
+      padding-top: env(safe-area-inset-top, 0px) !important;
+      height: calc(40px + env(safe-area-inset-top, 0px)) !important;
+      padding-left: calc(.6rem + env(safe-area-inset-left)) !important;
+      padding-right: calc(.6rem + env(safe-area-inset-right)) !important;
+    }
+    #cwrap {
+      height: calc(100dvh - 40px - env(safe-area-inset-top, 0px)) !important;
+    }
+    #ptoolbar {
+      bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+      left: calc(56px + env(safe-area-inset-left)) !important;
+      right: calc(54px + env(safe-area-inset-right)) !important;
+    }
+    #sidebar-toggle {
+      bottom: env(safe-area-inset-bottom, 0px) !important;
+    }
+    #zbtn {
+      right: calc(10px + env(safe-area-inset-right)) !important;
+    }
+    #chat-btn {
+      bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+      left: calc(10px + env(safe-area-inset-left)) !important;
+    }
+    #chat-panel {
+      left: 0 !important;
+      right: 0 !important;
+    }
+    #sidebar {
+      padding-left: calc(.85rem + env(safe-area-inset-left)) !important;
+      padding-right: calc(.85rem + env(safe-area-inset-right)) !important;
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom)) !important;
+    }
+    #paint-toolbar {
+      right: calc(10px + env(safe-area-inset-right)) !important;
+    }
+    #faction-btn {
+      left: calc(8px + env(safe-area-inset-left)) !important;
+    }
+    #levelup-notif,
+    #streak-notif {
+      top: calc(52px + env(safe-area-inset-top, 0px)) !important;
+    }
+  }
+}
+

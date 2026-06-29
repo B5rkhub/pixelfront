@@ -17,7 +17,7 @@ let profileData={name:'',photo:'',frame:'none',xp:0,level:1,streak:0,streakBest:
 
 function loadProfile(){
   try{
-    const d=localStorage.getItem('pv_profile');
+    const d=localStorage.getItem(CONFIG.storageKeys.profileSelf);
     if(d){
       const parsed=JSON.parse(d);
       // xp ve level alanlarını koru — eski kayıtta yoksa mevcut değerleri sıfırlama
@@ -39,10 +39,10 @@ function loadProfile(){
 }
 function saveProfile(){
   try{
-    localStorage.setItem('pv_profile',JSON.stringify(profileData));
+    localStorage.setItem(CONFIG.storageKeys.profileSelf,JSON.stringify(profileData));
     // Also save under username key so faction members can see our avatar
     if(typeof username!=='undefined'&&username){
-      localStorage.setItem('pv_profile_'+username,JSON.stringify(profileData));
+      localStorage.setItem(CONFIG.storageKeys.profile + username,JSON.stringify(profileData));
     }
   }catch(e){}
 }
@@ -186,7 +186,7 @@ function renderProfileStats(){
 function renderProfileSettings(){
   // Load saved settings
   let s={};
-  try{ s=JSON.parse(localStorage.getItem('pv_settings')||'{}'); }catch(e){}
+  try{ s=JSON.parse(localStorage.getItem(CONFIG.storageKeys.settings)||'{}'); }catch(e){}
   const chk = (id,def)=>{
     const el=document.getElementById(id);
     if(el) el.checked = s[id]!==undefined ? s[id] : def;
@@ -210,13 +210,13 @@ function saveSettings(){
     const el=document.getElementById(id);
     if(el) s[id]=el.checked;
   });
-  try{ localStorage.setItem('pv_settings',JSON.stringify(s)); }catch(e){}
+  try{ localStorage.setItem(CONFIG.storageKeys.settings,JSON.stringify(s)); }catch(e){}
   applySettings(s);
   showPopup(t('settings.saved'));
 }
 
 function applySettings(s){
-  if(!s){ try{ s=JSON.parse(localStorage.getItem('pv_settings')||'{}'); }catch(e){ s={}; } }
+  if(!s){ try{ s=JSON.parse(localStorage.getItem(CONFIG.storageKeys.settings)||'{}'); }catch(e){ s={}; } }
   // Label overlay
   const lo=document.getElementById('label-overlay');
   if(lo) lo.style.display=(s['pca-labels']===false)?'none':'';
@@ -313,3 +313,62 @@ function openProfileModal(){
 function closeProfileModal(){
   document.getElementById('profile-modal').classList.remove('open');
 }
+
+function selectFrame(fid){
+  const f=FRAMES.find(x=>x.id===fid);
+  const curLvl=profileData.level||1;
+  if(f && (f.unlockLevel||1) > curLvl){
+    showPopup(t('frame.locked_popup',{lvl:f.unlockLevel,cur:curLvl}));
+    return;
+  }
+  profileData.frame=fid;
+  saveProfile();
+  // Re-open to refresh
+  document.getElementById('profile-modal').classList.remove('open');
+  setTimeout(openProfileModal,10);
+  applyProfileToBtn();
+}
+async function saveProfileName(){
+  const val=document.getElementById('pc-name-input').value.trim();
+  if(!val) return;
+  // ── GÜVENLİK: isim değişikliği de kayıt anındaki ile aynı kısıtlamadan
+  // geçmeli (HTML/JS karakteri içermesin) — aksi halde stored XSS açığı
+  // profil üzerinden isim değiştirilerek yeniden açılabilirdi.
+  const NAME_RE = /^[\p{L}\p{N} _\-]{2,20}$/u;
+  if(!NAME_RE.test(val)){
+    showPopup(t('msg.invalid_username'));
+    return;
+  }
+  profileData.name=val;
+  username=val;
+  // İsim artık Supabase Auth'taki gerçek hesabın metadata'sında tutuluyor
+  // (localStorage'da tutulan, kolayca sahteleştirilebilen eski yöntem yerine).
+  try{
+    await supabase.auth.updateUser({ data: { display_name: val } });
+  }catch(e){ console.error('İsim güncellenemedi:', e); }
+  saveProfile();
+  applyProfileToBtn();
+  showPopup(t('msg.username_updated', {name: val}));
+  closeProfileModal();
+}
+function handlePhotoUpload(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    profileData.photo=ev.target.result;
+    saveProfile();
+    applyProfileToBtn();
+    // Refresh modal avatar
+    closeProfileModal();
+    setTimeout(openProfileModal,10);
+  };
+  reader.readAsDataURL(file);
+}
+// Close modal on backdrop click
+document.getElementById('profile-modal').addEventListener('click',function(e){
+  if(e.target===this) closeProfileModal();
+});
+setInterval(updateProfileBtn,2000);
+
+// ── SIDEBAR TOGGLE ──

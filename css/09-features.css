@@ -1,0 +1,621 @@
+/* ── Harita üzeri savaş badge'leri ── */
+.war-badge {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  z-index: 18;
+  /* Transition: zoom < threshold → görünür, zoom ≥ threshold → gizli (JS ile) */
+  transition: opacity .25s ease, transform .2s ease;
+}
+
+.war-badge-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: rgba(8, 6, 22, 0.92);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 6px 10px 6px 8px;
+  border: 1px solid rgba(240, 74, 74, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(240,74,74,.18),
+    0 4px 18px rgba(0,0,0,.65),
+    0 0 20px rgba(240,74,74,.22);
+  white-space: nowrap;
+  transition: box-shadow .2s ease, border-color .2s ease;
+  min-width: 110px;
+}
+
+.war-badge-inner:hover {
+  border-color: rgba(240,74,74,.85);
+  box-shadow:
+    0 0 0 1px rgba(240,74,74,.35),
+    0 6px 24px rgba(0,0,0,.75),
+    0 0 30px rgba(240,74,74,.40);
+}
+
+.war-badge-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #f04a4a;
+}
+
+.war-badge-sword {
+  animation: badge-sword-pulse 1.5s ease-in-out infinite;
+  font-size: .75rem;
+}
+
+@keyframes badge-sword-pulse {
+  0%, 100% { opacity: 1; transform: scale(1) rotate(-5deg); }
+  50%       { opacity: .7; transform: scale(1.15) rotate(5deg); }
+}
+
+.war-badge-title {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: .72rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -.01em;
+}
+
+.war-badge-title .wbt-sep {
+  color: #f04a4a;
+  padding: 0 3px;
+  font-size: .65rem;
+}
+
+.war-badge-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: .58rem;
+  color: rgba(255,255,255,.55);
+}
+
+.war-badge-bar-wrap {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,.10);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 1px;
+}
+
+.war-badge-bar-a {
+  height: 100%;
+  border-radius: 2px 0 0 2px;
+  transition: width .6s ease;
+  display: inline-block;
+  float: left;
+}
+.war-badge-bar-b {
+  height: 100%;
+  border-radius: 0 2px 2px 0;
+  display: inline-block;
+  float: left;
+  opacity: .75;
+}
+
+/* Blinking live dot */
+.war-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f04a4a;
+  flex-shrink: 0;
+  animation: war-live-blink 1s ease-in-out infinite;
+}
+
+@keyframes war-live-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .25; }
+}
+
+/* ── Savaş detay popup ── */
+#war-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.65);
+  backdrop-filter: blur(4px);
+  animation: war-popup-fade .2s ease;
+}
+
+@keyframes war-popup-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+#war-popup-inner {
+  background: rgba(10, 10, 24, .97);
+  border: 1px solid rgba(240,74,74,.35);
+  border-radius: 18px;
+  padding: 1.4rem 1.5rem;
+  width: min(480px, 94vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  box-shadow:
+    0 0 0 1px rgba(240,74,74,.12),
+    0 28px 60px rgba(0,0,0,.75),
+    0 0 40px rgba(240,74,74,.14);
+  position: relative;
+  animation: war-popup-slide .25s cubic-bezier(.34,1.4,.64,1);
+}
+
+@keyframes war-popup-slide {
+  from { transform: translateY(12px) scale(.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1);      opacity: 1; }
+}
+
+#war-popup-inner::-webkit-scrollbar { width: 3px; }
+#war-popup-inner::-webkit-scrollbar-thumb { background: rgba(240,74,74,.3); border-radius: 2px; }
+
+.wp-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.45);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: color .15s;
+  padding: 2px;
+}
+.wp-close:hover { color: #fff; }
+
+.wp-header {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  margin-bottom: 1rem;
+  padding-right: 1.5rem;
+}
+
+.wp-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.wp-header-text { flex: 1; }
+
+.wp-war-name {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+}
+
+.wp-war-meta {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: .62rem;
+  color: rgba(255,255,255,.4);
+  margin-top: 3px;
+}
+
+.wp-war-meta span {
+  color: #f04a4a;
+}
+
+/* Bar karşılaştırma */
+.wp-progress-section {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: .9rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.wp-progress-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: .5rem;
+}
+
+.wp-faction-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wp-faction-label.right { align-items: flex-end; }
+
+.wp-faction-color-name {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+.wp-faction-pix {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: .62rem;
+  color: rgba(255,255,255,.45);
+}
+
+.wp-vs-center {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.3);
+  text-align: center;
+}
+
+.wp-progress-bar-wrap {
+  height: 8px;
+  background: rgba(255,255,255,.06);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+
+.wp-bar-a {
+  height: 100%;
+  transition: width .7s ease;
+  border-radius: 4px 0 0 4px;
+}
+
+.wp-bar-b {
+  height: 100%;
+  transition: width .7s ease;
+  border-radius: 0 4px 4px 0;
+  opacity: .8;
+}
+
+/* Oyuncu listeleri */
+.wp-players-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .65rem;
+}
+
+.wp-player-col-title {
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+  margin-bottom: .45rem;
+  padding-bottom: .3rem;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.wp-player-row {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .3rem .4rem;
+  border-radius: 7px;
+  transition: background .15s;
+}
+
+.wp-player-row:hover { background: rgba(255,255,255,.05); }
+
+.wp-player-rank {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: .55rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.25);
+  min-width: 14px;
+  text-align: center;
+}
+
+.wp-player-rank.gold   { color: #f5a623; }
+.wp-player-rank.silver { color: #c0c0c0; }
+.wp-player-rank.bronze { color: #cd7f32; }
+
+.wp-player-name {
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  font-size: .72rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wp-player-name.is-me { color: #b8acff; }
+
+.wp-player-pix {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: .62rem;
+  font-weight: 500;
+  color: rgba(255,255,255,.4);
+  flex-shrink: 0;
+}
+
+.wp-top-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(245,166,35,.15);
+  border: 1px solid rgba(245,166,35,.35);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: .5rem;
+  font-weight: 700;
+  color: #f5a623;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+
+.wp-empty-list {
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  font-size: .72rem;
+  color: rgba(255,255,255,.25);
+  text-align: center;
+  padding: .5rem 0;
+}
+
+/* ── Tutorial (ilk giriş rehberi) ── */
+#tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5,6,14,.82);
+  backdrop-filter: blur(6px);
+  animation: tut-fade .25s ease;
+}
+#tutorial-overlay.show { display: flex; }
+@keyframes tut-fade { from{opacity:0} to{opacity:1} }
+
+.tut-card {
+  width: min(92vw, 420px);
+  background: var(--surf, #14141f);
+  border: 1px solid var(--bdr, #2a2a3a);
+  border-radius: 18px;
+  padding: 1.4rem 1.3rem 1.2rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  animation: tut-pop .25s ease;
+}
+@keyframes tut-pop { from{transform:scale(.92);opacity:0} to{transform:scale(1);opacity:1} }
+
+.tut-icon {
+  font-size: 2.4rem;
+  text-align: center;
+  margin-bottom: .5rem;
+  line-height: 1;
+}
+.tut-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--txt, #fff);
+  text-align: center;
+  margin-bottom: .35rem;
+}
+.tut-desc {
+  font-size: .8rem;
+  color: var(--muted, #9a9ab0);
+  text-align: center;
+  line-height: 1.55;
+  margin-bottom: 1.1rem;
+}
+.tut-dots {
+  display: flex;
+  justify-content: center;
+  gap: .35rem;
+  margin-bottom: 1.1rem;
+}
+.tut-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--bdr, #2a2a3a);
+  transition: background .2s, transform .2s;
+}
+.tut-dot.active { background: var(--accent, #7B61FF); transform: scale(1.3); }
+
+.tut-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+}
+.tut-skip {
+  background: none; border: none;
+  color: var(--muted, #9a9ab0);
+  font-size: .75rem; font-weight: 600;
+  cursor: pointer; padding: .5rem .3rem;
+}
+.tut-skip:hover { color: var(--txt, #fff); }
+.tut-next {
+  flex: 1;
+  background: var(--accent, #7B61FF);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: .65rem 1rem;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.tut-next:hover { opacity: .88; }
+
+/* ── Lider Tablosu kartı (profil > seviye paneli) ── */
+.lvl-leaderboard-card {
+  margin-top: .9rem;
+  background: var(--surf2, #1a1a28);
+  border: 1px solid var(--bdr, #2a2a3a);
+  border-radius: 14px;
+  padding: .8rem .7rem;
+}
+.lvl-leaderboard-title {
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted, #9a9ab0);
+  margin-bottom: .4rem;
+}
+
+/* ── Savaş ilan banner ── */
+#war-declaration-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.78);
+  backdrop-filter: blur(8px);
+  animation: war-decl-fade .3s ease;
+}
+
+@keyframes war-decl-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+#war-decl-inner {
+  background: linear-gradient(145deg, #100616, #1a0a0a, #130d22);
+  border: 1px solid rgba(240,74,74,.45);
+  border-radius: 22px;
+  padding: 2rem 2rem 1.6rem;
+  width: min(420px, 90vw);
+  text-align: center;
+  box-shadow:
+    0 0 0 1px rgba(240,74,74,.15),
+    0 40px 80px rgba(0,0,0,.85),
+    0 0 60px rgba(240,74,74,.25);
+  animation: war-decl-slide .4s cubic-bezier(.34,1.4,.64,1);
+}
+
+@keyframes war-decl-slide {
+  from { transform: scale(.85) translateY(20px); opacity: 0; }
+  to   { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+.war-decl-sword {
+  font-size: 2.5rem;
+  animation: war-decl-shake .6s ease-in-out;
+  display: block;
+  margin-bottom: .5rem;
+}
+
+@keyframes war-decl-shake {
+  0%, 100% { transform: rotate(-15deg); }
+  25%       { transform: rotate(15deg); }
+  50%       { transform: rotate(-10deg); }
+  75%       { transform: rotate(10deg); }
+}
+
+.war-decl-label {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #f04a4a;
+  margin-bottom: .85rem;
+}
+
+.war-decl-vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  margin-bottom: .65rem;
+}
+
+.war-decl-side {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: #fff;
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.war-decl-vstext {
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  color: #f04a4a;
+  flex-shrink: 0;
+}
+
+.war-decl-region {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: .68rem;
+  color: rgba(255,255,255,.45);
+  margin-bottom: .85rem;
+}
+
+.war-decl-note {
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  font-size: .72rem;
+  color: rgba(255,255,255,.5);
+  line-height: 1.6;
+  margin-bottom: 1.1rem;
+}
+
+.war-decl-close {
+  background: linear-gradient(135deg, #b91c1c, #f04a4a);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif);
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  padding: .6rem 1.4rem;
+  cursor: pointer;
+  transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .15s ease;
+  box-shadow: 0 4px 16px rgba(240,74,74,.45);
+}
+
+.war-decl-close:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 24px rgba(240,74,74,.60);
+}
+.war-decl-close:active {
+  transform: scale(.96);
+  transition-duration: .08s;
+}
+
+/* ── Profil/Ayarlar'a "Savaş Overlay" toggle'ı ──
+   Bu stil mevcut pca-row sistemiyle uyumlu, ek CSS gerekmez.
+   Toggle zaten var (pca-toggle class). */
+
+/* ── Mobil responsive ── */
+@media (max-width: 768px) {
+  .wp-players-grid { grid-template-columns: 1fr; gap: .5rem; }
+  #war-popup-inner { padding: 1.1rem 1rem; border-radius: 20px 20px 0 0; }
+  #war-popup { align-items: flex-end; }
+  .war-decl-side { font-size: .92rem; }
+  #war-decl-inner { padding: 1.6rem 1.3rem 1.3rem; }
+}
+
+@media (max-width: 375px) {
+  .war-badge-inner { min-width: 90px; padding: 5px 8px; }
+  .war-badge-title { font-size: .62rem; }
+}

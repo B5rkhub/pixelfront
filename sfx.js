@@ -153,7 +153,7 @@ const SFX = (()=>{
         {freq:392, start:0.12, dur:0.18, type:'sine', gain:0.12}
       ]);
     },
-    setMuted(v){ muted = !!v; try{ localStorage.setItem('pv_sfx_muted', muted?'1':'0'); }catch(e){} },
+    setMuted(v){ muted = !!v; try{ localStorage.setItem(CONFIG.storageKeys.sfxMuted, muted?'1':'0'); }catch(e){} },
     isMuted(){ return muted; },
     unlock(){
       if(unlocked) return;
@@ -163,7 +163,7 @@ const SFX = (()=>{
   };
 })();
 // Kayıtlı sessize alma tercihini yükle
-try{ SFX.setMuted(localStorage.getItem('pv_sfx_muted')==='1'); }catch(e){}
+try{ SFX.setMuted(localStorage.getItem(CONFIG.storageKeys.sfxMuted)==='1'); }catch(e){}
 // İlk kullanıcı etkileşiminde AudioContext'i kilidini aç (autoplay policy)
 ['pointerdown','keydown','touchstart'].forEach(ev=>{
   document.addEventListener(ev, ()=>SFX.unlock(), {once:true, passive:true});

@@ -1,0 +1,1467 @@
+/* ── TİPOGRAFİ SİSTEMİ — v3 ──
+   UI Display: Space Grotesk (başlıklar — güçlü, geometrik, oyun ruhu)
+   UI Body:    Inter (içerik — mükemmel okunabilirlik, endüstri standardı)
+   Mono:       JetBrains Mono (sayılar/kodlar — maksimum netlik)
+*/
+
+/* Font değişkenleri */
+:root {
+  --font-display: 'Space Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* Letter spacing skalası */
+  --ls-tight: -0.03em;
+  --ls-snug:  -0.02em;
+  --ls-normal: 0em;
+  --ls-wide:  0.05em;
+  --ls-wider: 0.09em;
+  --ls-caps:  0.12em;
+}
+
+/* ── GLOBAL FONT ── */
+body {
+  font-family: var(--font-ui) !important;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── LOGIN KUTUSU ── */
+.lbox h1 {
+  font-family: var(--font-display) !important;
+  font-size: 2.4rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-tight) !important;
+  line-height: 1.08 !important;
+}
+.lbox p {
+  font-family: var(--font-ui) !important;
+  font-size: .9375rem !important;
+  font-weight: 400 !important;
+  line-height: 1.8 !important;
+  letter-spacing: .01em !important;
+  opacity: .85;
+}
+.lbox input {
+  font-family: var(--font-mono) !important;
+  font-size: .875rem !important;
+  letter-spacing: .02em !important;
+  font-weight: 400 !important;
+}
+.btn {
+  font-family: var(--font-display) !important;
+  font-size: .9375rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-wide) !important;
+  text-transform: uppercase !important;
+}
+
+/* ── TOPBAR ── */
+#topbar h1 {
+  font-family: var(--font-display) !important;
+  font-size: .9375rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-snug) !important;
+}
+#ubadge {
+  font-family: var(--font-mono) !important;
+  font-size: .6875rem !important;
+  font-weight: 500 !important;
+  letter-spacing: .03em !important;
+}
+.tb-btn {
+  font-family: var(--font-display) !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-wide) !important;
+}
+.tb-sheet-title {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+.tb-sheet-item-name {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -.01em !important;
+}
+
+/* ── SIDEBAR ── */
+.scard h3 {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+.prname {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -.01em !important;
+}
+.prpct {
+  font-family: var(--font-mono) !important;
+  font-size: .75rem !important;
+  font-weight: 500 !important;
+}
+.rhdr {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+.pi {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+}
+.pbadge {
+  font-family: var(--font-mono) !important;
+  font-size: .6875rem !important;
+  font-weight: 500 !important;
+}
+.af {
+  font-family: var(--font-mono) !important;
+  font-size: .75rem !important;
+  font-weight: 400 !important;
+  line-height: 1.7 !important;
+}
+.lvl-rank-name {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 600 !important;
+}
+.lvl-rank-pos, .lvl-rank-lv, .lvl-rank-xp {
+  font-family: var(--font-mono) !important;
+  font-weight: 500 !important;
+}
+
+/* ── FACTION MODAL ── */
+.fc-header h2 {
+  font-family: var(--font-display) !important;
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-snug) !important;
+}
+.fc-banner-name {
+  font-family: var(--font-display) !important;
+  font-size: 1.0625rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-snug) !important;
+}
+.fc-banner-tag {
+  font-family: var(--font-mono) !important;
+  font-size: .6875rem !important;
+  font-weight: 500 !important;
+}
+.fc-banner-role {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+.fc-tab, .pc-tab {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .005em !important;
+}
+.fc-member-name, .pc-member-name {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 600 !important;
+}
+.fc-member-role {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+.fc-member-pix {
+  font-family: var(--font-mono) !important;
+  font-weight: 500 !important;
+}
+.fc-diplo-name {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 600 !important;
+}
+.fc-diplo-status {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-wide) !important;
+}
+.fc-diplo-btn {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 600 !important;
+}
+.fc-invite-code {
+  font-family: var(--font-mono) !important;
+  font-size: .9375rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .18em !important;
+}
+.fc-copy-btn {
+  font-family: var(--font-ui) !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em !important;
+}
+.fc-btn {
+  font-family: var(--font-display) !important;
+  font-size: .875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .02em !important;
+}
+.fc-small-btn {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 600 !important;
+}
+.fc-empty {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 400 !important;
+  line-height: 1.9 !important;
+}
+.fc-ctext {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+}
+.fc-cname {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+.fc-chat-input {
+  font-family: var(--font-mono) !important;
+  font-size: .8125rem !important;
+  font-weight: 400 !important;
+}
+
+/* ── PROFILE MODAL ── */
+.pc-header h2 {
+  font-family: var(--font-display) !important;
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-snug) !important;
+}
+.pc-stat-val {
+  font-family: var(--font-mono) !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+}
+.pc-stat-lbl {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+.pc-label {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+.pc-input {
+  font-family: var(--font-mono) !important;
+  font-size: .875rem !important;
+  font-weight: 400 !important;
+}
+.pc-save-name {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  font-size: .875rem !important;
+  letter-spacing: .03em !important;
+}
+.pca-row-title {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 600 !important;
+}
+.pca-row-desc {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 400 !important;
+  line-height: 1.65 !important;
+}
+.pca-section-title {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+.pca-select {
+  font-family: var(--font-mono) !important;
+  font-size: .8125rem !important;
+  font-weight: 400 !important;
+}
+.pca-danger-btn {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: .03em !important;
+}
+.pca-lang-btn {
+  font-family: var(--font-mono) !important;
+  font-size: .75rem !important;
+  font-weight: 500 !important;
+}
+.pcs-card-val {
+  font-family: var(--font-mono) !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+}
+.pcs-card-lbl {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 600 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+.pcs-bar-label {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 500 !important;
+}
+.pcs-bar-num {
+  font-family: var(--font-mono) !important;
+  font-size: .6875rem !important;
+  font-weight: 500 !important;
+}
+.pc-lv-num {
+  font-family: var(--font-display) !important;
+  font-size: 2.25rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-tight) !important;
+}
+.pc-lv-title {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+.pc-lv-xp {
+  font-family: var(--font-mono) !important;
+  font-size: .8125rem !important;
+  font-weight: 400 !important;
+}
+.pc-lv-legend {
+  font-family: var(--font-mono) !important;
+  font-size: .6875rem !important;
+  font-weight: 400 !important;
+}
+.pc-reward-lv {
+  font-family: var(--font-mono) !important;
+  font-weight: 500 !important;
+}
+.pc-reward-name {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 500 !important;
+}
+.pc-streak-num {
+  font-family: var(--font-display) !important;
+  font-size: 2.25rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-tight) !important;
+}
+.pc-streak-title {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 600 !important;
+}
+.pc-streak-best {
+  font-family: var(--font-mono) !important;
+  font-size: .8125rem !important;
+  font-weight: 400 !important;
+}
+.pc-streak-day-label {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 600 !important;
+}
+.pc-streak-note {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 400 !important;
+  line-height: 1.7 !important;
+}
+
+/* ── MAILBOX MODAL ── */
+.mailbox-title {
+  font-family: var(--font-display) !important;
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-snug) !important;
+}
+.mail-item-top {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 600 !important;
+}
+.mail-item-body {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 400 !important;
+  line-height: 1.7 !important;
+}
+.mail-accept-btn {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .03em !important;
+}
+.mail-reject-btn {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .03em !important;
+}
+.mail-empty {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 400 !important;
+}
+
+/* ── CHAT ── */
+#chat-header span {
+  font-family: var(--font-display) !important;
+  font-size: .9375rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -.01em !important;
+}
+.cm {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 400 !important;
+  line-height: 1.55 !important;
+}
+.cm-name {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .005em !important;
+}
+#chat-input {
+  font-family: var(--font-mono) !important;
+  font-size: .8125rem !important;
+  font-weight: 400 !important;
+}
+.ch-tab {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .005em !important;
+}
+
+/* ── CANVAS / OYUN İÇİ ── */
+#pixel-count-row {
+  font-family: var(--font-mono) !important;
+  font-size: .9375rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .02em !important;
+}
+.pw-label {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .03em !important;
+}
+#cdlabel {
+  font-family: var(--font-mono) !important;
+  font-size: .75rem !important;
+  font-weight: 500 !important;
+}
+#tip {
+  font-family: var(--font-mono) !important;
+  font-size: .8125rem !important;
+  font-weight: 400 !important;
+}
+.ptbtn {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+#popup {
+  font-family: var(--font-ui) !important;
+  font-size: .875rem !important;
+  font-weight: 500 !important;
+}
+#pixel-event-banner {
+  font-family: var(--font-display) !important;
+  font-size: .875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .05em !important;
+}
+#announce-banner {
+  font-family: var(--font-display) !important;
+  font-size: .9375rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -.01em !important;
+}
+#announce-banner .ab-label {
+  font-family: var(--font-ui) !important;
+  font-size: .6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+
+/* ── LEVEL-UP & STREAK BİLDİRİMLERİ ── */
+#levelup-label {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+#levelup-lv {
+  font-family: var(--font-display) !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-tight) !important;
+}
+#levelup-title {
+  font-family: var(--font-ui) !important;
+  font-size: .9375rem !important;
+  font-weight: 600 !important;
+}
+#levelup-reward {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 500 !important;
+}
+#streak-label {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-caps) !important;
+  text-transform: uppercase !important;
+}
+#streak-days {
+  font-family: var(--font-display) !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-tight) !important;
+}
+#streak-sub {
+  font-family: var(--font-ui) !important;
+  font-size: .9375rem !important;
+  font-weight: 600 !important;
+}
+#streak-reward {
+  font-family: var(--font-ui) !important;
+  font-size: .8125rem !important;
+  font-weight: 500 !important;
+}
+
+/* ── SAVAŞ & İTTİFAK BANNER ── */
+.war-title, .ally-title {
+  font-family: var(--font-display) !important;
+  letter-spacing: var(--ls-wide) !important;
+  font-weight: 700 !important;
+}
+.war-faction-name {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: var(--ls-snug) !important;
+}
+.war-faction-tag {
+  font-family: var(--font-mono) !important;
+  font-weight: 500 !important;
+}
+.war-vs-text {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: .1em !important;
+}
+.war-desc {
+  font-family: var(--font-ui) !important;
+  font-weight: 400 !important;
+  line-height: 1.75 !important;
+  font-size: .875rem !important;
+}
+.war-close-btn {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em !important;
+}
+.ally-names {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+}
+.ally-close-btn {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em !important;
+}
+
+/* ── PROFİL BUTTON (Canvas üstü) ── */
+#profile-btn .pb-name {
+  font-family: var(--font-ui) !important;
+  font-weight: 700 !important;
+  font-size: .875rem !important;
+  letter-spacing: -.01em !important;
+}
+#profile-btn .pb-pix {
+  font-family: var(--font-mono) !important;
+  font-weight: 500 !important;
+}
+#profile-btn .pb-faction {
+  font-family: var(--font-mono) !important;
+  font-weight: 500 !important;
+}
+.pb-lv-badge {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+}
+.pb-streak-badge {
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+}
+#faction-sub-btn {
+  font-family: var(--font-ui) !important;
+  font-size: .75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+}
+
+/* ── MOBİL TİPOGRAFİ İYİLEŞTİRMELERİ ── */
+@media (max-width: 768px) {
+  /* Minimum 13px — hiçbir metin bunun altına inmez */
+  .lbox h1 { font-size: 1.875rem !important; }
+  .lbox p  { font-size: .9375rem !important; line-height: 1.75 !important; }
+  .btn     { font-size: .9375rem !important; }
+
+  #topbar h1 { font-size: .875rem !important; }
+  .tb-btn    { font-size: .75rem !important; }
+
+  .scard h3  { font-size: .6875rem !important; }
+  .prname    { font-size: .875rem !important; font-weight: 700 !important; }
+  .rhdr      { font-size: .6875rem !important; }
+  .pi        { font-size: .8125rem !important; }
+  .af        { font-size: .75rem !important; }
+
+  .mailbox-title            { font-size: 1.0625rem !important; }
+  .mail-item-top            { font-size: .875rem !important; }
+  .mail-item-body           { font-size: .8125rem !important; }
+
+  .fc-header h2,
+  .pc-header h2             { font-size: 1.0625rem !important; }
+  .fc-member-name,
+  .pc-member-name           { font-size: .9375rem !important; }
+  .fc-ctext                 { font-size: .875rem !important; }
+  .fc-cname                 { font-size: .75rem !important; }
+  .cm                       { font-size: .9375rem !important; }
+  .cm-name                  { font-size: .8125rem !important; }
+
+  .pca-row-title            { font-size: .9375rem !important; }
+  .pca-row-desc             { font-size: .8125rem !important; }
+
+  .war-title, .ally-title   { font-size: 1rem !important; }
+  .war-desc                 { font-size: .9375rem !important; }
+
+  #levelup-lv, #streak-days { font-size: 2.25rem !important; }
+  #levelup-title, #streak-sub { font-size: 1rem !important; }
+  #announce-banner          { font-size: .9375rem !important; }
+  #pixel-count-row          { font-size: 1rem !important; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PREMIUM RENK SİSTEMİ — Override Katmanı
+   Tüm sert renkler bu blokta CSS variables üzerinden ezilir.
+   Layout, JS ve responsive yapıya dokunulmaz.
+════════════════════════════════════════════════════════════════ */
+
+/* ── TOPBAR — Daha premium cam efekti ── */
+#topbar { background: rgba(5,6,14,.97) !important; border-bottom-color: rgba(123,97,255,.12) !important; }
+
+/* ── LOGIN KUTUSU ── */
+#login { background: rgba(5,6,14,.92) !important; }
+.lbox {
+  box-shadow: 0 0 0 1px rgba(123,97,255,.12), 0 32px 80px rgba(0,0,0,.70), 0 0 80px rgba(123,97,255,.10) !important;
+}
+.lbox input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(123,97,255,.30) !important; }
+
+/* ── ANA BUTON — Daha parlak gradient ── */
+.btn {
+  background: linear-gradient(135deg, #7B61FF 0%, #9b7fff 55%, #b8acff 100%) !important;
+  box-shadow: 0 4px 24px rgba(123,97,255,.50) !important;
+}
+.btn:hover { box-shadow: 0 10px 32px rgba(123,97,255,.65) !important; }
+
+/* ── MODAL KARTLARI — Daha premium gölge ve border ── */
+#faction-card, #profile-card, .mailbox-box {
+  box-shadow: 0 0 0 1px rgba(123,97,255,.12), 0 32px 80px rgba(0,0,0,.75), 0 0 80px rgba(123,97,255,.08) !important;
+}
+
+/* ── FACTION TAB AKTİF ── */
+.fc-tab.active, .pc-tab.active { background: var(--accent) !important; box-shadow: 0 2px 12px rgba(123,97,255,.40) !important; }
+
+/* ── CHAT MESAJ BENİM ── */
+.cm.user .cm-text { background: var(--accent) !important; box-shadow: 0 2px 8px rgba(123,97,255,.35) !important; }
+
+/* ── SIDEBAR KART — Hafif parlak kenarlık ── */
+.scard { border-color: rgba(123,97,255,.10) !important; }
+
+/* ── XP BARI ── */
+.pb-xp-bar { background: linear-gradient(90deg, #7B61FF, #b8acff) !important; }
+.pc-lv-bar  { background: linear-gradient(90deg, #7B61FF, #b8acff) !important; }
+
+/* ── LVL BADGE ── */
+.pb-lv-badge { background: linear-gradient(135deg, #7B61FF, #c4aaff) !important; }
+
+/* ── LEVEL-UP BİLDİRİMİ — Daha çarpıcı border gradient ── */
+#levelup-notif { background: linear-gradient(135deg, #7B61FF 0%, #c4aaff 50%, #f5a623 100%) !important; box-shadow: 0 0 50px rgba(123,97,255,.80) !important; }
+#levelup-inner { background: #080918 !important; }
+#levelup-label { color: #c4aaff !important; }
+
+/* ── STREAK BİLDİRİMİ ── */
+#streak-inner { background: #080918 !important; }
+#streak-label { color: #ffc53d !important; }
+
+/* ── CHAT BTN PULSE ── */
+@keyframes pulse-chat {
+  0%   { box-shadow: 0 0 0 0 rgba(123,97,255,.55); }
+  70%  { box-shadow: 0 0 0 12px rgba(123,97,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(123,97,255,0); }
+}
+
+/* ── DUYURU BANNER — Daha zengin renk ── */
+#announce-banner { background: linear-gradient(135deg,#131630 0%,#1c1245 50%,#160d3a 100%) !important; border-color: rgba(184,172,255,.45) !important; box-shadow: 0 10px 36px rgba(0,0,0,.55), 0 0 28px rgba(123,97,255,.40) !important; }
+#announce-banner .ab-label { color: var(--accent2) !important; }
+
+/* ── UNREAD MAIL ── */
+.mail-item.unread { border-color: var(--accent) !important; background: rgba(123,97,255,.10) !important; }
+
+/* ── DİPLOMASİ RENKLERI ── */
+.fc-diplo-status.ally { background: rgba(0,212,160,.15) !important; color: #00d4a0 !important; border-color: rgba(0,212,160,.40) !important; }
+.fc-diplo-status.war  { background: rgba(240,74,74,.15) !important; color: #f04a4a !important; border-color: rgba(240,74,74,.40) !important; }
+
+/* ── TOGGLE ── */
+.pca-toggle input:checked + .pca-toggle-slider { background: var(--accent) !important; box-shadow: 0 0 8px rgba(123,97,255,.50) !important; }
+
+/* ── FACTION COPY BTN ── */
+.fc-copy-btn { background: var(--accent) !important; box-shadow: 0 2px 10px rgba(123,97,255,.35) !important; }
+.fc-copy-btn:hover { box-shadow: 0 4px 16px rgba(123,97,255,.50) !important; }
+
+/* ── QUEST SISTEMI — Zümrüt yeşil yükseltme ── */
+.quest-tab.active { background: linear-gradient(135deg, #014d38, #00b888) !important; box-shadow: 0 2px 10px rgba(0,184,136,.35) !important; }
+.qcard .qcard-bar  { background: linear-gradient(90deg, #00b888, #33e8b0) !important; }
+
+/* ── PIXEL EVENT BANNER ── */
+#pixel-event-banner { background: linear-gradient(135deg, #6b2ef5, #e8186a) !important; box-shadow: 0 0 24px rgba(232,24,106,.45) !important; }
+@keyframes event-pulse {
+  0%,100% { box-shadow: 0 0 14px rgba(232,24,106,.40); }
+  50%      { box-shadow: 0 0 32px rgba(232,24,106,.75); }
+}
+
+/* ── SIDEBAR TOGGLE ── */
+#sidebar-toggle:hover { color: var(--accent2) !important; }
+
+/* ── FACTION INVITE CODE ── */
+.fc-invite-code { color: var(--accent2) !important; }
+
+/* ── PRTOP ACCENT (Oy yüzdesi) ── */
+.prpct { color: var(--accent2) !important; }
+
+/* ════════════════════════════════════════════════════════════════
+   PREMIUM BUTON SİSTEMİ
+   — Sadece butonlara dokunulur, başka hiçbir şey değişmez —
+   Animasyon skalası: press → release → hover → idle
+   Mobil: active state ile fiziksel dokunma hissi
+════════════════════════════════════════════════════════════════ */
+
+/* ── Ortak buton temel geçişi ── */
+:root {
+  --btn-ease: cubic-bezier(0.34, 1.56, 0.64, 1);  /* spring */
+  --btn-ease-out: cubic-bezier(0.22, 1, 0.36, 1);  /* smooth out */
+  --btn-duration: 0.18s;
+}
+
+/* ── ANA BTN (Login) ── */
+.btn {
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(184,172,255,.25) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    box-shadow var(--btn-duration) var(--btn-ease-out),
+    border-color .2s ease,
+    opacity .15s ease !important;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,0) 60%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.btn:hover {
+  opacity: 1 !important;
+  transform: translateY(-3px) scale(1.012) !important;
+  box-shadow: 0 14px 40px rgba(123,97,255,.65), 0 0 0 1px rgba(184,172,255,.40) !important;
+  border-color: rgba(184,172,255,.50) !important;
+}
+.btn:active {
+  transform: translateY(1px) scale(0.978) !important;
+  box-shadow: 0 2px 10px rgba(123,97,255,.35) !important;
+  transition-duration: .08s !important;
+}
+
+/* ── TB-BTN (Topbar küçük butonlar) ── */
+.tb-btn {
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    box-shadow var(--btn-duration) ease,
+    background .15s ease,
+    border-color .15s ease !important;
+}
+.tb-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 100%);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.tb-btn:hover {
+  opacity: 1 !important;
+  transform: translateY(-2px) scale(1.04) !important;
+  border-color: rgba(184,172,255,.30) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10) !important;
+}
+.tb-btn:hover::before { opacity: 1; }
+.tb-btn:active {
+  transform: translateY(1px) scale(0.95) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── MAILBOX ÖZEL (derin indigo) ── */
+#mailbox-btn {
+  border: 1px solid rgba(184,172,255,.22) !important;
+  box-shadow: 0 2px 10px rgba(59,31,168,.35) !important;
+}
+#mailbox-btn:hover {
+  box-shadow: 0 6px 20px rgba(59,31,168,.55), 0 0 0 1px rgba(184,172,255,.30) !important;
+  border-color: rgba(184,172,255,.40) !important;
+}
+
+/* ── FC-BTN (Faction modal ana butonlar) ── */
+.fc-btn {
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(123,97,255,.25) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    box-shadow var(--btn-duration) ease,
+    opacity .15s ease,
+    border-color .15s ease !important;
+  box-shadow: 0 2px 12px rgba(123,97,255,.25) !important;
+}
+.fc-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 55%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.fc-btn:hover {
+  opacity: 1 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(123,97,255,.45) !important;
+  border-color: rgba(184,172,255,.40) !important;
+}
+.fc-btn:active {
+  transform: translateY(1px) scale(0.97) !important;
+  box-shadow: 0 1px 6px rgba(123,97,255,.25) !important;
+  transition-duration: .07s !important;
+}
+.fc-btn.danger {
+  border-color: rgba(240,74,74,.30) !important;
+  box-shadow: 0 2px 12px rgba(240,74,74,.20) !important;
+}
+.fc-btn.danger:hover {
+  box-shadow: 0 8px 24px rgba(240,74,74,.40) !important;
+  border-color: rgba(240,74,74,.55) !important;
+}
+.fc-btn.secondary {
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+.fc-btn.secondary:hover {
+  border-color: rgba(123,97,255,.45) !important;
+  box-shadow: 0 4px 14px rgba(123,97,255,.18) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── FC-SMALL-BTN (Küçük aksiyonlar) ── */
+.fc-small-btn {
+  border: 1px solid rgba(255,255,255,.10) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    border-color .15s ease,
+    color .15s ease,
+    box-shadow .15s ease !important;
+}
+.fc-small-btn:hover {
+  border-color: rgba(123,97,255,.55) !important;
+  color: var(--accent2) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(123,97,255,.20) !important;
+}
+.fc-small-btn:active {
+  transform: translateY(1px) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── FC-COPY-BTN (Davet kodu kopyala) ── */
+.fc-copy-btn {
+  border: 1px solid rgba(184,172,255,.25) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    box-shadow .15s ease,
+    opacity .15s !important;
+}
+.fc-copy-btn:hover {
+  opacity: .9 !important;
+  transform: translateY(-1px) scale(1.04) !important;
+  box-shadow: 0 6px 18px rgba(123,97,255,.50) !important;
+}
+.fc-copy-btn:active {
+  transform: scale(0.93) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── FC-DIPLO-BTN (Diplomasi aksiyonları) ── */
+.fc-diplo-btn {
+  border: 1px solid rgba(255,255,255,.10) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    border-color .15s ease,
+    color .15s ease,
+    box-shadow .15s ease !important;
+}
+.fc-diplo-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 10px rgba(0,0,0,.25) !important;
+}
+.fc-diplo-btn:active { transform: scale(0.93) !important; transition-duration: .07s !important; }
+.fc-diplo-btn.ally-btn:hover {
+  border-color: #00d4a0 !important;
+  color: #00d4a0 !important;
+  box-shadow: 0 3px 12px rgba(0,212,160,.25) !important;
+}
+.fc-diplo-btn.war-btn:hover {
+  border-color: #f04a4a !important;
+  color: #f04a4a !important;
+  box-shadow: 0 3px 12px rgba(240,74,74,.25) !important;
+}
+
+/* ── PC-SAVE-NAME ── */
+.pc-save-name {
+  border: 1px solid rgba(123,97,255,.30) !important;
+  box-shadow: 0 2px 8px rgba(123,97,255,.20) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    box-shadow .15s ease,
+    opacity .15s ease,
+    border-color .15s ease !important;
+}
+.pc-save-name:hover {
+  opacity: 1 !important;
+  transform: translateY(-1px) scale(1.04) !important;
+  box-shadow: 0 6px 18px rgba(123,97,255,.42) !important;
+  border-color: rgba(184,172,255,.50) !important;
+}
+.pc-save-name:active {
+  transform: scale(0.94) !important;
+  box-shadow: 0 1px 4px rgba(123,97,255,.20) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── PCA-DANGER-BTN (Tehlike butonları) ── */
+.pca-danger-btn {
+  border: 1px solid rgba(240,74,74,.30) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease !important;
+}
+.pca-danger-btn:hover {
+  transform: translateY(-1px) !important;
+  background: rgba(240,74,74,.20) !important;
+  border-color: rgba(240,74,74,.70) !important;
+  box-shadow: 0 4px 16px rgba(240,74,74,.25) !important;
+}
+.pca-danger-btn:active {
+  transform: scale(0.95) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── PTBTN (Paint toolbar butonları) ── */
+.ptbtn {
+  border: 1px solid rgba(255,255,255,.09) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .12s ease,
+    border-color .12s ease,
+    box-shadow .12s ease,
+    color .12s ease !important;
+}
+.ptbtn:hover {
+  background: var(--surf2) !important;
+  border-color: rgba(255,255,255,.18) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.30) !important;
+}
+.ptbtn:active {
+  transform: scale(0.93) translateY(0) !important;
+  transition-duration: .07s !important;
+}
+.ptbtn.active {
+  border-color: rgba(123,97,255,.60) !important;
+  box-shadow: 0 0 0 1px rgba(123,97,255,.30), 0 2px 10px rgba(123,97,255,.25) !important;
+}
+.ptbtn.danger { box-shadow: 0 0 0 1px rgba(240,74,74,.20) !important; }
+.ptbtn.success { box-shadow: 0 0 0 1px rgba(0,212,160,.20) !important; }
+
+/* ── ZB (Zoom butonları) ── */
+.zb {
+  border: 1px solid rgba(255,255,255,.09) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .12s ease,
+    border-color .12s ease,
+    box-shadow .12s ease !important;
+}
+.zb:hover {
+  background: var(--surf2) !important;
+  border-color: rgba(255,255,255,.18) !important;
+  transform: scale(1.12) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.30) !important;
+}
+.zb:active {
+  transform: scale(0.88) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── CHAT SEND ── */
+#chat-send {
+  border: 1px solid rgba(123,97,255,.25) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    opacity .15s ease,
+    box-shadow .15s ease !important;
+}
+#chat-send:hover:not(:disabled) {
+  opacity: 1 !important;
+  transform: scale(1.08) !important;
+  box-shadow: 0 4px 14px rgba(123,97,255,.40) !important;
+}
+#chat-send:active:not(:disabled) {
+  transform: scale(0.90) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── CH-TAB (Chat kanal sekmeleri) ── */
+.ch-tab {
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .15s ease,
+    border-color .15s ease,
+    color .15s ease,
+    box-shadow .15s ease !important;
+}
+.ch-tab:hover:not(.active) {
+  transform: translateY(-1px) !important;
+  background: rgba(255,255,255,.07) !important;
+  border-color: rgba(255,255,255,.15) !important;
+}
+.ch-tab.active {
+  box-shadow: 0 2px 10px rgba(123,97,255,.35) !important;
+  border-color: rgba(123,97,255,.50) !important;
+}
+.ch-tab:active {
+  transform: scale(0.93) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── MAIL BUTONLARI ── */
+.mail-accept-btn {
+  border: 1px solid rgba(0,212,160,.45) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease !important;
+}
+.mail-accept-btn:hover {
+  background: rgba(0,212,160,.28) !important;
+  border-color: rgba(0,212,160,.75) !important;
+  transform: translateY(-1px) scale(1.04) !important;
+  box-shadow: 0 4px 14px rgba(0,212,160,.28) !important;
+}
+.mail-accept-btn:active {
+  transform: scale(0.93) !important;
+  transition-duration: .07s !important;
+}
+.mail-reject-btn {
+  border: 1px solid rgba(240,74,74,.35) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease !important;
+}
+.mail-reject-btn:hover {
+  background: rgba(240,74,74,.22) !important;
+  border-color: rgba(240,74,74,.65) !important;
+  transform: translateY(-1px) scale(1.04) !important;
+  box-shadow: 0 4px 14px rgba(240,74,74,.22) !important;
+}
+.mail-reject-btn:active {
+  transform: scale(0.93) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── MAILBOX / FC CLOSE (X butonları) ── */
+.mailbox-close, .fc-close, .pc-close {
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    color .15s ease !important;
+}
+.mailbox-close:hover, .fc-close:hover, .pc-close:hover {
+  color: var(--txt) !important;
+  transform: scale(1.20) rotate(8deg) !important;
+}
+.mailbox-close:active, .fc-close:active, .pc-close:active {
+  transform: scale(0.85) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── TB-HAMBURGER ── */
+#tb-hamburger {
+  border: 1px solid rgba(255,255,255,.12) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .15s ease,
+    border-color .15s ease !important;
+}
+#tb-hamburger:hover {
+  background: rgba(255,255,255,.12) !important;
+  border-color: rgba(255,255,255,.20) !important;
+  transform: scale(1.06) !important;
+}
+#tb-hamburger:active {
+  transform: scale(0.92) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── FC-CHAT-SEND ── */
+.fc-chat-send {
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    opacity .15s ease,
+    box-shadow .15s ease !important;
+  border: 1px solid rgba(123,97,255,.25) !important;
+}
+.fc-chat-send:hover {
+  opacity: 1 !important;
+  transform: scale(1.10) !important;
+  box-shadow: 0 3px 12px rgba(123,97,255,.38) !important;
+}
+.fc-chat-send:active {
+  transform: scale(0.88) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── SAVAŞ & İTTİFAK KAPAT BUTONLARI ── */
+.war-close-btn {
+  border: 1px solid rgba(240,74,74,.45) !important;
+  box-shadow: 0 2px 14px rgba(240,74,74,.18), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease !important;
+}
+.war-close-btn:hover {
+  background: rgba(240,74,74,.28) !important;
+  border-color: rgba(240,74,74,.75) !important;
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 8px 24px rgba(240,74,74,.35), inset 0 1px 0 rgba(255,255,255,.10) !important;
+}
+.war-close-btn:active {
+  transform: scale(0.95) !important;
+  box-shadow: 0 2px 6px rgba(240,74,74,.20) !important;
+  transition-duration: .07s !important;
+}
+
+.ally-close-btn {
+  border: 1px solid rgba(0,212,160,.40) !important;
+  box-shadow: 0 2px 14px rgba(0,212,160,.15), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .15s ease,
+    border-color .15s ease,
+    box-shadow .15s ease !important;
+}
+.ally-close-btn:hover {
+  background: rgba(0,212,160,.24) !important;
+  border-color: rgba(0,212,160,.70) !important;
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 8px 24px rgba(0,212,160,.30), inset 0 1px 0 rgba(255,255,255,.10) !important;
+}
+.ally-close-btn:active {
+  transform: scale(0.95) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── PCA-LANG-BTN (Dil seçici) ── */
+.pca-lang-btn {
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .15s ease,
+    color .15s ease !important;
+}
+.pca-lang-btn:hover:not(.active) {
+  background: rgba(255,255,255,.08) !important;
+  color: var(--txt) !important;
+  transform: scale(1.06) !important;
+}
+.pca-lang-btn.active {
+  box-shadow: 0 1px 8px rgba(123,97,255,.35) !important;
+}
+.pca-lang-btn:active {
+  transform: scale(0.92) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── FC & PC TAB BUTONLARI ── */
+.fc-tab, .pc-tab {
+  transition:
+    transform var(--btn-duration) var(--btn-ease),
+    background .15s ease,
+    color .15s ease,
+    box-shadow .15s ease !important;
+}
+.fc-tab:hover:not(.active), .pc-tab:hover:not(.active) {
+  transform: translateY(-1px) !important;
+  background: rgba(255,255,255,.07) !important;
+}
+.fc-tab.active, .pc-tab.active {
+  box-shadow: 0 2px 12px rgba(123,97,255,.40) !important;
+}
+.fc-tab:active, .pc-tab:active {
+  transform: scale(0.93) !important;
+  transition-duration: .07s !important;
+}
+
+/* ── MOBİL: Tüm butanlarda net aktif feedback ──
+   Hover yokken bile dokunma anında görsel geri bildirim verir */
+@media (hover: none) and (pointer: coarse) {
+  .btn:active          { transform: scale(0.960) !important; transition-duration: .08s !important; }
+  .tb-btn:active       { transform: scale(0.900) !important; }
+  .fc-btn:active       { transform: scale(0.955) !important; }
+  .fc-small-btn:active { transform: scale(0.900) !important; }
+  .ptbtn:active        { transform: scale(0.880) !important; }
+  .zb:active           { transform: scale(0.840) !important; }
+  #chat-send:active    { transform: scale(0.870) !important; }
+  .war-close-btn:active, .ally-close-btn:active { transform: scale(0.950) !important; }
+  .mail-accept-btn:active, .mail-reject-btn:active { transform: scale(0.900) !important; }
+  .fc-tab:active, .pc-tab:active  { transform: scale(0.920) !important; }
+  .ch-tab:active                   { transform: scale(0.900) !important; }
+  .mailbox-close:active, .fc-close:active, .pc-close:active { transform: scale(0.800) !important; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SPACING & ALIGNMENT SİSTEMİ — v1
+   Sadece padding, margin, gap, min-height değerleri.
+   Renk, font, layout, JS'e dokunulmaz.
+════════════════════════════════════════════════════════════════ */
+
+/* ── TOPBAR ── */
+#topbar { padding: 0 1rem !important; gap: .625rem !important; }
+.tb-btn-group { gap: .4rem !important; }
+.tb-btn {
+  padding: .375rem .75rem !important;
+  gap: .4rem !important;
+  min-height: 30px !important;
+}
+#ubadge { padding: .25rem .65rem !important; }
+
+/* ── LOGIN KUTUSU ── */
+.lbox { padding: 2.75rem 3rem !important; gap: 1.5rem !important; }
+.lbox input { padding: .875rem 1.1rem !important; }
+.btn { padding: .9rem 1.5rem !important; }
+
+/* ── SIDEBAR ── */
+#sidebar { padding: 1.25rem !important; gap: 1rem !important; }
+.scard { padding: 1.1rem 1.1rem !important; }
+.scard h3 { margin-bottom: .875rem !important; }
+.prow { gap: .3rem !important; margin-bottom: .75rem !important; }
+.prow:last-child { margin-bottom: 0 !important; }
+.prname { gap: .5rem !important; }
+.rblock { margin-bottom: .75rem !important; }
+.rblock:last-child { margin-bottom: 0 !important; }
+.rhdr { padding: .35rem .6rem !important; margin-bottom: .4rem !important; }
+.pi { padding: .35rem .5rem !important; }
+.af { padding: .3rem 0 !important; }
+
+/* ── MAILBOX MODAL ── */
+.mailbox-box { padding: 1.75rem !important; gap: 1rem !important; }
+.mailbox-list { gap: .6rem !important; }
+.mail-item { padding: .9rem 1rem !important; gap: .45rem !important; }
+.mail-item-top { gap: .55rem !important; }
+.mail-item-actions { gap: .5rem !important; margin-top: .3rem !important; }
+.mail-accept-btn { padding: .4rem .85rem !important; }
+.mail-reject-btn { padding: .4rem .85rem !important; }
+.mail-empty { padding: 2rem 0 !important; }
+
+/* ── FACTION MODAL ── */
+#faction-card { padding: 1.75rem !important; gap: 1.25rem !important; }
+.fc-header { margin-bottom: -.25rem !important; }
+.fc-banner { padding: 1.1rem !important; gap: 1rem !important; }
+.fc-banner-info { gap: .25rem !important; }
+.fc-banner-icon { width: 50px !important; height: 50px !important; }
+.fc-tabs { gap: .5rem !important; padding-bottom: .75rem !important; }
+.fc-tab { padding: .4rem .75rem !important; }
+.fc-panel { gap: .85rem !important; }
+.fc-member { gap: .75rem !important; padding: .55rem .6rem !important; }
+.fc-member-av { width: 32px !important; height: 32px !important; }
+.fc-diplo-item { gap: .75rem !important; padding: .6rem .75rem !important; }
+.fc-diplo-actions { gap: .4rem !important; }
+.fc-diplo-btn { padding: .3rem .6rem !important; }
+.fc-invite-box { padding: .9rem 1rem !important; gap: .75rem !important; }
+.fc-copy-btn { padding: .4rem .9rem !important; }
+.fc-btn { padding: .7rem 1rem !important; }
+.fc-small-btn { padding: .4rem .85rem !important; }
+.fc-color-grid { gap: .5rem !important; }
+.fc-color-swatch { width: 30px !important; height: 30px !important; }
+.fc-empty { padding: 1.75rem !important; }
+.fc-browse-row { gap: .75rem !important; padding: .65rem .8rem !important; }
+.fc-chat-msgs { gap: .6rem !important; padding: .6rem 0 !important; }
+.fc-cmsg { gap: .6rem !important; }
+.fc-cbubble { gap: 3px !important; }
+.fc-ctext { padding: .45rem .75rem !important; }
+.fc-chat-footer { gap: .5rem !important; margin-top: .5rem !important; }
+.fc-chat-input { padding: .55rem .85rem !important; }
+
+/* ── PROFILE MODAL ── */
+#profile-card { padding: 1.75rem !important; gap: 1.2rem !important; }
+.pc-header { margin-bottom: -.2rem !important; }
+.pc-tabs { gap: .45rem !important; padding-bottom: .75rem !important; }
+.pc-tab { padding: .4rem .75rem !important; }
+.pc-panel { gap: 1rem !important; }
+.pc-avatar-wrap { gap: .875rem !important; }
+.pc-stats { gap: 1rem !important; }
+.pc-stat { gap: .2rem !important; }
+.pc-section { gap: .5rem !important; }
+.pc-input { padding: .65rem .9rem !important; }
+.pc-save-name { padding: .45rem 1.1rem !important; }
+.pc-frames { gap: .6rem !important; }
+.pcs-grid { gap: .65rem !important; }
+.pcs-card { padding: .9rem 1rem !important; gap: .3rem !important; }
+.pcs-bar-wrap { gap: .4rem !important; }
+.pcs-bar-row { gap: .6rem !important; }
+.pca-row { padding: .8rem 1rem !important; gap: .65rem !important; }
+.pca-row-info { gap: .2rem !important; }
+.pca-lang-btn { padding: .35rem .75rem !important; }
+.pca-danger-btn { padding: .6rem 1.1rem !important; }
+
+/* ── CHAT PANEL ── */
+#chat-header { padding: .75rem 1.1rem !important; gap: .65rem !important; }
+#chat-messages { padding: .875rem !important; gap: .6rem !important; }
+.cm { gap: .6rem !important; }
+.cm-bubble { gap: .2rem !important; }
+.cm-text { padding: .5rem .85rem !important; }
+.cm-name { padding: 0 .35rem !important; }
+#chat-footer { padding: .75rem !important; gap: .6rem !important; }
+#chat-input { padding: .55rem .85rem !important; }
+#chat-send { padding: .5rem .9rem !important; }
+#chat-tabs { gap: .4rem !important; }
+.ch-tab { padding: .3rem .65rem !important; }
+
+/* ── CANVAS / OYUN ── */
+.ptbtn { padding: .5rem .85rem !important; }
+#paint-toolbar { gap: 8px !important; }
+#ptoolbar { padding: .6rem .85rem !important; gap: .45rem !important; }
+#ptoolbar.expanded { padding: .6rem 1.1rem !important; }
+#zbtn { gap: 6px !important; }
+#profile-btn { padding: .5rem .85rem !important; gap: .7rem !important; }
+#faction-sub-btn { padding: .35rem .7rem !important; gap: .5rem !important; }
+#faction-btn { gap: 6px !important; }
+
+/* ── LEVEL-UP & STREAK BİLDİRİMLERİ ── */
+#levelup-inner { padding: 1.1rem 1.75rem !important; gap: .45rem !important; }
+#streak-inner  { padding: 1.1rem 1.75rem !important; gap: .45rem !important; }
+
+/* ── SAVAŞ & İTTİFAK BANNER ── */
+.war-banner-card { padding: 1.5rem !important; gap: .75rem !important; }
+.wb-faction-wrap { gap: .85rem !important; }
+
+/* ── MOBİL SPACING ── */
+@media (max-width: 768px) {
+  /* Topbar */
+  #topbar { padding: 0 .75rem !important; gap: .5rem !important; }
+  .tb-btn { padding: .35rem .65rem !important; }
+
+  /* Login */
+  .lbox { padding: 2rem 1.75rem !important; gap: 1.25rem !important; }
+
+  /* Faction / Profile modallar */
+  #faction-card, #profile-card { padding: 1.25rem !important; gap: 1rem !important; }
+  .fc-banner { padding: .9rem !important; gap: .75rem !important; }
+  .fc-tabs, .pc-tabs { gap: .35rem !important; }
+  .fc-tab, .pc-tab { padding: .375rem .6rem !important; }
+  .fc-btn { padding: .65rem .9rem !important; }
+  .fc-member { padding: .5rem .5rem !important; }
+  .fc-diplo-item { padding: .55rem .65rem !important; }
+
+  /* Mailbox */
+  .mailbox-box { padding: 1.25rem !important; }
+  .mail-item { padding: .8rem .9rem !important; }
+  .mail-accept-btn, .mail-reject-btn { padding: .4rem .75rem !important; }
+
+  /* Profile modal */
+  .pca-row { padding: .7rem .85rem !important; }
+  .pc-section { gap: .4rem !important; }
+
+  /* Chat */
+  #chat-messages { padding: .75rem !important; }
+  #chat-footer { padding: .6rem !important; }
+  .cm-text { padding: .45rem .75rem !important; }
+
+  /* Canvas araçlar */
+  .ptbtn { padding: .45rem .75rem !important; }
+  #profile-btn { padding: .45rem .75rem !important; }
+}
+

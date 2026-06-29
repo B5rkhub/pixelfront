@@ -779,7 +779,7 @@ const I18N = {
 // ── Aktif dil yönetimi ──
 let _currentLang = 'tr';
 try{
-  const savedLang = localStorage.getItem('pv_lang');
+  const savedLang = localStorage.getItem(CONFIG.storageKeys.lang);
   if(savedLang === 'tr' || savedLang === 'en') _currentLang = savedLang;
   else {
     // İlk ziyarette tarayıcı diline göre makul bir varsayılan seç
@@ -833,7 +833,7 @@ function applyI18n(){
 function setLanguage(lang){
   if(lang!=='tr' && lang!=='en') return;
   _currentLang = lang;
-  try{ localStorage.setItem('pv_lang', lang); }catch(e){}
+  try{ localStorage.setItem(CONFIG.storageKeys.lang, lang); }catch(e){}
   applyI18n();
 }
 

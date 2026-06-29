@@ -271,7 +271,7 @@ function claimQuest(qid, tab){
     const LIMIT = (typeof PIXEL_LIMIT !== 'undefined') ? PIXEL_LIMIT : 49;
     _setPixLeft(Math.min(_getPixLeft() + q.pixels, LIMIT));
     if(typeof updateDots === 'function') updateDots();
-    try{ localStorage.setItem('pv_px_'+(typeof username !== 'undefined'?username:''), _getPixLeft()); }catch(e){}
+    try{ localStorage.setItem(CONFIG.storageKeys.pixels + (typeof username !== 'undefined' ? username : ''), _getPixLeft()); }catch(e){}
   }
 
   // SFX

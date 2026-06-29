@@ -1,0 +1,665 @@
+/* ══════════════════════════════════════════════════════════════════
+   MOBİL DESTEK v4 — Mobile-First, Professional Grade
+   Hedef: 320px · 360px · 375px · 390px · 414px · 430px
+   Tasarım felsefesi: Discord/Reddit seviyesinde mobil deneyim
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Global: Overflow & Overscroll ── */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+body {
+  height: 100dvh;
+}
+
+/* ── Touch target & UX quality ── */
+button, [onclick], .pc-frame, .psw, .zb {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+#c {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MOBİL ANA BLOK — 768px ve altı
+   (+ yatay modda dar yükseklikli dokunmatik cihazlar)
+════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px), (max-height: 600px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+
+  /* ══ 1. LOGIN EKRANI ══ */
+  #login {
+    padding: .75rem;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: max(5vh, 24px);
+    overflow-y: auto;
+  }
+  .lbox {
+    width: 100%;
+    max-width: 440px;
+    padding: 1.4rem 1.1rem 1.6rem;
+    border-radius: 20px;
+    gap: .9rem;
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 40px rgba(123,97,255,.10);
+  }
+  .lbox h1 { font-size: 1.5rem; letter-spacing: -.02em; }
+  .lbox p  { font-size: .82rem; line-height: 1.6; }
+  /* iOS: 16px'in altında zoom olur */
+  .lbox input,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]),
+  textarea { font-size: 16px !important; }
+  .lbox input { padding: .75rem .9rem; border-radius: 10px; }
+  .btn { padding: .82rem 1rem; font-size: .95rem; min-height: 48px; border-radius: 10px; }
+
+  /* ══ 2. TOPBAR — Hamburger ile kompakt ══ */
+  #topbar {
+    height: 40px;
+    padding: 0 .55rem;
+    gap: .35rem;
+    flex-shrink: 0;
+  }
+  /* Mobilde logo görünür, masaüstü menü butonu/dropdown'ı gizli */
+  #topbar h1 {
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .8rem;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 90px;
+  }
+  #pb-menu-btn { display: none !important; }
+  #tb-desktop-dropdown {
+    position: static !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    background: none !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  #tb-desktop-dropdown .tb-btn-group > button:not(#faction-sub-btn) { display: none !important; }
+  #ubadge {
+    font-size: .58rem;
+    padding: .18rem .4rem;
+    max-width: 85px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 1;
+  }
+  /* Desktop buton grubu mobilde tamamen gizli */
+  #tb-desktop-btns { display: none !important; }
+  /* Hamburger mobilds görünür */
+  #tb-hamburger { display: flex !important; }
+
+  /* ══ 3. ANA LAYOUT ══ */
+  #main {
+    grid-template-columns: 1fr !important;
+    position: relative;
+    overflow: hidden;
+  }
+  #cwrap {
+    width: 100vw;
+    height: calc(100dvh - 40px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ══ 4. SIDEBAR — Bottom Drawer ══ */
+  #sidebar {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 55vh;
+    max-height: 72vh;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-top: 1px solid var(--bdr2) !important;
+    border-radius: 18px 18px 0 0 !important;
+    transform: translateY(100%) !important;
+    transition: transform .28s cubic-bezier(.4,0,.2,1) !important;
+    z-index: 60;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    padding: 1.2rem .85rem 1rem;
+    padding-top: 1.6rem; /* tutamaç için alan */
+    background: rgba(12,13,26,.98) !important;
+    backdrop-filter: blur(16px) !important;
+    gap: .7rem !important;
+  }
+  /* Drawer tutamaç çizgisi */
+  #sidebar::before {
+    content: '';
+    position: absolute;
+    top: .55rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 3px;
+    background: var(--bdr2);
+    border-radius: 2px;
+  }
+  #sidebar.mobile-open { transform: translateY(0) !important; }
+  #sidebar.hidden      { transform: translateY(100%) !important; }
+
+  /* Sidebar kart'ları mobilde daha kompakt */
+  .scard {
+    padding: .65rem .75rem;
+    border-radius: 12px;
+  }
+  .scard h3 {
+    font-size: .56rem;
+    margin-bottom: .55rem;
+  }
+  .prtop { font-size: .72rem; }
+  .pi    { font-size: .64rem; padding: .24rem .35rem; }
+  .af    { font-size: .62rem; }
+  .lvl-rank-row  { padding: .3rem .35rem; }
+  .lvl-rank-name { font-size: .66rem; }
+
+  /* ══ 5. SIDEBAR TOGGLE — Merkez alt tab ══ */
+  #sidebar-toggle {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: 64px !important;
+    height: 18px !important;
+    border-radius: 7px 7px 0 0 !important;
+    border-top: 1px solid var(--bdr2) !important;
+    border-left: 1px solid var(--bdr2) !important;
+    border-right: 1px solid var(--bdr2) !important;
+    border-bottom: none !important;
+    font-size: .65rem !important;
+    z-index: 55;
+    background: rgba(15,16,32,.92) !important;
+    backdrop-filter: blur(8px);
+  }
+
+  /* ══ 6. PROFİL KARTI — Kompakt, minimum yükseklik, harita üzerinde sol üst ══ */
+  #faction-btn {
+    position: absolute !important;
+    top: 8px !important;
+    left: 8px !important;
+    z-index: 10;
+    gap: 4px !important;
+    max-width: calc(100vw - 76px); /* sağdaki zoom/diğer kontrollerle çakışmasın */
+  }
+
+  /* Kart: avatar solda, sağda iki sıkışık satır (isim+piksel / seviye+ateş) */
+  #profile-btn {
+    padding: .32rem .55rem !important;
+    border-radius: 10px !important;
+    gap: .4rem !important;
+    background: rgba(15,16,32,.78) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255,255,255,.08) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,.3) !important;
+    min-height: 0 !important;
+    width: auto !important;
+    max-width: 100%;
+    align-items: center !important;
+    opacity: .92;
+    transition: opacity .15s;
+  }
+  #profile-btn:active { opacity: 1; }
+
+  /* Avatar küçültülür ama okunaklı kalır */
+  #profile-btn .pb-avatar {
+    width: 26px !important;
+    height: 26px !important;
+    font-size: .66rem !important;
+    border-width: 1.5px !important;
+    flex-shrink: 0;
+  }
+
+  /* İçerik sütunu: dikey boşluk minimuma iner */
+  #profile-btn > div {
+    gap: 1px !important;
+    min-width: 0;
+  }
+
+  /* 1. satır: isim + piksel sayısı yan yana (nokta ayraçla) */
+  #profile-btn .pb-name {
+    font-size: .62rem !important;
+    line-height: 1.2;
+    max-width: 108px;
+    font-weight: 600;
+    display: inline;
+  }
+  #profile-btn .pb-pix {
+    font-size: .56rem !important;
+    line-height: 1.2;
+    display: inline;
+    margin-left: .3rem;
+  }
+  #profile-btn .pb-pix::before {
+    content: '· ';
+    color: var(--muted);
+  }
+  /* isim + piksel aynı satırda akacak şekilde sarmalayıcıyı satır olarak işaretle */
+  #profile-btn .pb-name,
+  #profile-btn .pb-pix {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 2. satır: seviye rozeti + (varsa) ateş skoru — XP çubuğu gizlenir, yükseklik kazanılır */
+  #profile-btn .pb-lv-row {
+    margin-top: 1px !important;
+    gap: .3rem !important;
+  }
+  #profile-btn .pb-xp-bar-wrap { display: none !important; }
+  #profile-btn .pb-lv-badge {
+    font-size: .5rem !important;
+    padding: .06rem .3rem !important;
+    flex-shrink: 0;
+  }
+  #profile-btn .pb-streak-badge {
+    font-size: .5rem !important;
+    padding: .06rem .3rem !important;
+    flex-shrink: 0;
+  }
+
+  /* Faction satırı kompakt kartta gizlenir — zaten ayrı faction-sub-btn var */
+  #profile-btn .pb-faction { display: none !important; }
+
+  /* Faction alt butonu da aynı kompakt dile getirilir */
+  #faction-sub-btn {
+    padding: .2rem .5rem !important;
+    font-size: .54rem !important;
+    min-height: 26px !important;
+    background: rgba(15,16,32,.78) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    opacity: .92;
+    transition: opacity .15s;
+  }
+  #faction-sub-btn:active { opacity: 1; }
+
+  /* ══ 7. ZOOM SİSTEMİ — Yuvarlak FAB butonlar, sağ alt köşe ══ */
+  #zbtn {
+    position: absolute !important;
+    bottom: 78px !important;
+    top: auto !important;
+    transform: none !important;
+    left: auto !important;
+    right: 10px !important;
+    gap: 10px !important;
+    z-index: 10;
+  }
+  .zb {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 1.05rem !important;
+    font-weight: 600;
+    border-radius: 50% !important;
+    background: rgba(20,21,40,.46) !important;
+    backdrop-filter: blur(10px) saturate(1.4) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(1.4) !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06) !important;
+    color: rgba(255,255,255,.92) !important;
+    opacity: 1;
+    transition: transform .12s ease, background .15s, box-shadow .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Dokunma anında belirgin geri bildirim — net "basıldı" hissi */
+  .zb:active {
+    transform: scale(.9);
+    background: rgba(123,97,255,.55) !important;
+    border-color: rgba(255,255,255,.3) !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,.3) !important;
+  }
+  /* Reset (⌂) butonu görsel olarak ikincil — biraz daha küçük ve sönük */
+  #zbtn .zb:last-child {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: .85rem !important;
+    opacity: .82;
+    align-self: center;
+  }
+
+  /* ══ 8. PİKSEL SAYACI — Üst orta, ince ve az göze çarpan ══ */
+  #pixel-widget {
+    position: absolute !important;
+    top: 6px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: .2rem .55rem !important;
+    border-radius: 9px !important;
+    background: rgba(12,13,26,.66) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255,255,255,.06) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,.3) !important;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: .88;
+  }
+  #pixel-count-row { font-size: .72rem !important; }
+  #pixel-dots-wrap   { max-width: 72px; gap: 2px; }
+  .pdot              { width: 5px !important; height: 5px !important; }
+  #pixel-count-row   { font-size: .66rem; }
+  .pw-label          { font-size: .54rem; }
+  #cdlabel           { font-size: .54rem; }
+
+  /* ══ 9. RENK PALETİ — İnce, yatay kaydırmalı şerit, max 60px ══ */
+  #ptoolbar {
+    position: fixed !important;
+    bottom: 14px !important;
+    left: 56px !important;   /* chat butonunun sağından başla */
+    right: 54px !important;  /* zoom butonunun solunda bitir */
+    transform: none !important;
+    max-width: none !important;
+    height: 46px !important;
+    max-height: 46px !important;
+    box-sizing: border-box;
+    border-radius: 23px !important;
+    padding: 0 .5rem !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    flex-wrap: nowrap !important;
+    gap: .34rem !important;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    background: rgba(12,13,26,.82) !important;
+    backdrop-filter: blur(14px) saturate(1.3) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.3) !important;
+    border: 1px solid rgba(255,255,255,.1) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,.35) !important;
+    /* Kaydırılabilir olduğunu belirten kenar soluklaşması (modern ipucu) */
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  }
+  #ptoolbar::-webkit-scrollbar { display: none; }
+  #ptoolbar.expanded {
+    max-width: none !important;
+    flex-wrap: nowrap !important;
+  }
+  #ptoolbar.sidebar-gone { right: 54px !important; }
+
+  /* Toggle dairesi masaüstüne özgü bir aç/kapa kontrolüdür; mobilde renkler zaten
+     her zaman görünür olduğundan gereksiz yer kaplıyor — gizlenir. */
+  #ptoolbar #palette-toggle { display: none !important; }
+
+  /* Modern, ince renk kareleri */
+  .psw {
+    width: 30px !important;
+    height: 30px !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+    border-radius: 9px !important;
+    border: 2px solid rgba(255,255,255,.12) !important;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+    transition: transform .15s, border-color .15s, box-shadow .15s !important;
+    position: relative;
+  }
+  /* Seçili renk: belirgin halka + dış parlama + büyüme — net biçimde öne çıkar */
+  .psw.sel {
+    border-color: #fff !important;
+    transform: scale(1.16) !important;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.55), 0 2px 8px rgba(0,0,0,.5) !important;
+    z-index: 1;
+  }
+  /* Seçili rengin üstünde küçük bir onay rozeti — her renkte (beyaz dahil) net okunur */
+  .psw.sel::after {
+    content: '✓';
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--accent, #7B61FF);
+    border: 2px solid rgba(15,16,32,.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .5rem;
+    line-height: 1;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.5);
+  }
+
+  /* ══ 10. CHAT BUTONU ══ */
+  #chat-btn {
+    position: fixed !important;
+    bottom: 14px !important;
+    left: 10px !important;
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1rem !important;
+    border-radius: 12px !important;
+    z-index: 200;
+    box-shadow: 0 4px 16px rgba(123,97,255,.45) !important;
+  }
+
+  /* ══ 11. CHAT PANELİ — Bottom sheet ══ */
+  #chat-panel {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    height: 60vh !important;
+    max-height: 78vh !important;
+    border-radius: 18px 18px 0 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-top: 1px solid var(--bdr2) !important;
+    z-index: 250;
+    box-shadow: 0 -8px 40px rgba(0,0,0,.5) !important;
+  }
+  #chat-header {
+    padding: .55rem .85rem;
+    border-radius: 18px 18px 0 0;
+  }
+  #chat-messages { padding: .6rem .8rem; }
+  .cm            { font-size: .76rem; }
+  .cm-text       { padding: .42rem .7rem; font-size: .76rem; }
+  #chat-footer {
+    padding: .5rem .65rem;
+    padding-bottom: calc(.5rem + env(safe-area-inset-bottom, 0px));
+  }
+  #chat-input {
+    font-size: 16px !important;
+    padding: .55rem .75rem !important;
+    min-height: 44px;
+  }
+  #chat-send {
+    padding: .48rem .95rem !important;
+    font-size: .85rem !important;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* Chat tab butonları */
+  .ch-tab {
+    font-size: .65rem;
+    padding: .22rem .48rem;
+    min-height: 30px;
+  }
+
+  /* ══ 12. BİLDİRİMLER & BANNER'LAR ══ */
+  #popup {
+    bottom: 72px !important;
+    font-size: .72rem !important;
+    max-width: calc(100vw - 1.5rem) !important;
+    white-space: normal !important;
+    text-align: center;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    border-radius: 12px !important;
+  }
+  #levelup-notif,
+  #streak-notif {
+    top: 52px !important;
+    max-width: calc(100vw - 2rem) !important;
+    width: auto !important;
+  }
+  #pixel-event-banner {
+    top: 6px !important;
+    font-size: .6rem !important;
+    padding: .2rem .65rem !important;
+    max-width: calc(100vw - 130px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 20px !important;
+  }
+  #announce-banner {
+    top: 6px !important;
+    font-size: .7rem !important;
+    padding: .4rem .7rem !important;
+    max-width: calc(100vw - 20px) !important;
+    border-radius: 10px !important;
+  }
+  #announce-banner .ab-text { max-width: 60vw !important; }
+  #announce-banner .ab-label { display: none; }
+
+  /* ══ 13. PROFİL MODAL — Full bottom sheet ══ */
+  #profile-modal {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+  #profile-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 92vh !important;
+    padding: 1.1rem .95rem !important;
+    padding-bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)) !important;
+    /* Glassmorphism kart */
+    background: rgba(12,13,26,.98) !important;
+    backdrop-filter: blur(16px) !important;
+  }
+  .pc-header h2     { font-size: .88rem; }
+  /* Tab'ları daha ergonomik yap */
+  .pc-tabs          { flex-wrap: wrap; gap: .22rem; padding-bottom: .5rem; }
+  .pc-tab           { font-size: .68rem; padding: .3rem .6rem; min-height: 34px; border-radius: 8px; }
+  /* İstatistik artık alt çekmecede (sidebar drawer) gösteriliyor — modal sekmesi mobilde gizlenir */
+  #pctab-stats      { display: none !important; }
+  .pc-avatar-ring   { width: 70px; height: 70px; font-size: 1.4rem; }
+  .pcs-bar-label    { min-width: 58px; font-size: .6rem; }
+  /* İstatistik grid: 2 sütun, kompakt */
+  .pcs-grid         { grid-template-columns: 1fr 1fr; gap: .45rem; }
+  .pcs-card         { padding: .65rem .75rem; }
+  .pcs-card-val     { font-size: 1rem; }
+  /* Ayarlar toggle'ı — büyük hedef */
+  .pca-toggle       { width: 44px; height: 26px; }
+  .pca-toggle-slider:before { width: 20px; height: 20px; left: 3px; bottom: 3px; }
+  .pca-toggle input:checked + .pca-toggle-slider:before { transform: translateX(18px); }
+  .pca-row          { min-height: 46px; align-items: center; }
+  /* iOS zoom önleme */
+  .pc-input,
+  .fc-chat-input    { font-size: 16px !important; }
+  /* Avatar çerçevesi seçici */
+  .pc-frame         { width: 44px !important; height: 44px !important; }
+
+  /* ══ 14. FACTİON MODAL — Bottom sheet ══ */
+  #faction-modal {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+  #faction-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 90vh !important;
+    padding: 1.1rem .95rem !important;
+    padding-bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)) !important;
+    background: rgba(12,13,26,.98) !important;
+    backdrop-filter: blur(16px) !important;
+  }
+  .fc-header h2  { font-size: .88rem; }
+  .fc-tabs       { flex-wrap: wrap; gap: .22rem; }
+  .fc-tab        { font-size: .68rem; min-height: 34px; border-radius: 8px; }
+  .fc-member-kick { opacity: 1; }
+  .fc-color-swatch { width: 34px; height: 34px; border-radius: 8px; }
+  .fc-diplo-btn    { min-height: 34px; min-width: 44px; }
+  .fc-chat-msgs    { max-height: 150px; }
+
+  /* ══ 15. ADMİN PAINT TOOLBAR ══ */
+  #paint-toolbar {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 68px !important;
+    right: 10px !important;
+    left: auto !important;
+    max-height: 48vh;
+    overflow-y: auto;
+    border-radius: 14px !important;
+    background: rgba(12,13,26,.94) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+  .ptbtn {
+    font-size: .65rem !important;
+    padding: .4rem .6rem !important;
+    min-height: 36px;
+  }
+
+  /* ══ 16. ADMİN MODALLARI ══ */
+  #rollback-modal > div,
+  #history-modal > div,
+  #pixel-event-modal > div,
+  #announce-modal > div,
+  #owner-modal > div,
+  #timelapse-modal > div {
+    max-height: 88vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 20px 20px 0 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* ══ 17. TÜM MODALLARIN OVERLAY PADDİNG'İ ══ */
+  #rollback-modal,
+  #history-modal,
+  #pixel-event-modal,
+  #announce-modal,
+  #owner-modal,
+  #timelapse-modal {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  /* ══ 18. GENEL GÜVENLİK AĞLARI ══ */
+  /* iOS: 16px altında otomatik zoom */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]):not([type="color"]),
+  textarea {
+    font-size: 16px !important;
+  }
+  /* Tooltip & hover preview yok */
+  #tip          { display: none !important; }
+  #hover-preview { display: none !important; }
+  /* cwrap tam ekran */
+  #cwrap        { height: calc(100dvh - 40px) !important; }
+}
+

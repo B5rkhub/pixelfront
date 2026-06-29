@@ -68,7 +68,7 @@ function applyPixelEventRate(){
     if (remaining > 0) {
       const cappedRemaining = Math.min(remaining, COOLDOWN_MS);
       cdEnd = Date.now() + cappedRemaining;
-      try{localStorage.setItem('pv_cd_'+username, cdEnd);}catch(e){}
+      try{localStorage.setItem(CONFIG.storageKeys.cooldown + username, cdEnd);}catch(e){}
     }
   }
 }

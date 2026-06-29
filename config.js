@@ -34,6 +34,7 @@ const CONFIG = {
 
   storageKeys: {
     username:      'pv_uname',
+    profileSelf:   'pv_profile',
     profile:       'pv_profile_',
     xp:            'pv_xp_',
     streak:        'pv_streak_',
@@ -52,6 +53,8 @@ const CONFIG = {
     timelapseDay:  'pv_timelapse_day',
     warOverlay:    'pv_war_overlay',
     quests:        'pv_quests_',
+    lang:          'pv_lang',
+    sfxMuted:      'pv_sfx_muted',
   },
 
 };
