@@ -762,7 +762,6 @@
     }
   };
 
-  console.log('⚔️ War Zone System loaded');
 
 })();
 

@@ -89,7 +89,7 @@ async function renderChatMessages(){
     let log=[];
     try{
       const {data,error}=await supabase.from('chat_messages').select('*').eq('channel','global').order('created_at',{ascending:false}).limit(50);
-      console.log('[chat] DB select sonucu:', data?data.length+' satır':'null', error?('HATA: '+JSON.stringify(error)):'hata yok');
+      if(error) console.error('[chat] Mesajlar yüklenemedi:', error);
       if(data) data.reverse(); // en yeni 50'yi çektik, ekranda eskiden-yeniye göstermek için ters çeviriyoruz
       if(data&&!error){
         log=data.map(r=>({user:r.username,text:r.message,t:new Date(r.created_at).getTime(),photo:'',frame:'none'}));
@@ -195,30 +195,28 @@ async function sendChatMsg(){
     supabase.from('chat_messages').insert({username:uname,message:msg,channel:'global'}).select()
       .then(({data,error})=>{
         if(error || !data || data.length===0){
-          // Hata olursa veya satır gerçekten eklenmediyse (RLS sessiz red) konsola yaz ve localStorage'a yedekle
-          console.error('[chat] Supabase insert başarısız (satır DB\'ye yazılmadı):', error||'data boş döndü, muhtemelen RLS engelledi');
+          console.error('[chat] Mesaj DB\'ye yazılamadı:', error || 'boş yanıt (RLS reddi olabilir)');
+          showPopup(t('msg.chat_send_failed') || '⚠ Mesaj gönderilemedi.');
           try{
-            const raw=localStorage.getItem('pv_chat');
+            const raw=localStorage.getItem(CONFIG.storageKeys.chat);
             const log=raw?JSON.parse(raw):[];
             log.push(entry);
             if(log.length>100) log.splice(0,log.length-100);
-            localStorage.setItem('pv_chat',JSON.stringify(log));
+            localStorage.setItem(CONFIG.storageKeys.chat,JSON.stringify(log));
           }catch(e2){}
-        } else {
-          console.log('[chat] Mesaj DB\'ye başarıyla yazıldı:', data);
         }
         // Cache'i temizle ki bir sonraki render yeniden çeksin
         if(_chatMsgCache) _chatMsgCache._globalKey='';
       })
       .catch(err=>{
-        // Network/exception durumunda da yedekle
-        console.error('[chat] Supabase insert exception:', err);
+        console.error('[chat] Ağ hatası, mesaj gönderilemedi:', err);
+        showPopup(t('msg.conn_error'));
         try{
-          const raw=localStorage.getItem('pv_chat');
+          const raw=localStorage.getItem(CONFIG.storageKeys.chat);
           const log=raw?JSON.parse(raw):[];
           log.push(entry);
           if(log.length>100) log.splice(0,log.length-100);
-          localStorage.setItem('pv_chat',JSON.stringify(log));
+          localStorage.setItem(CONFIG.storageKeys.chat,JSON.stringify(log));
         }catch(e2){}
       });
   }

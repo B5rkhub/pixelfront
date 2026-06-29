@@ -1001,4 +1001,3 @@ window.addEventListener('resize', () => { if (!_tplActive && _tplData.size > 0) 
   }
 })();
 
-console.log('🎨 Pixilart-style Template Editor loaded');

@@ -1714,7 +1714,6 @@ async function loadFactionsFromSupabase(){
     if(error){ console.error('loadFactions supabase error:', error.code, error.message, error.details); return false; }
     if(!data) return false;
     allFactions = {};
-    console.log("loadFactions: Supabase'den", data.length, 'faction yüklendi');
     data.forEach(row => {
       // Ekstra alanları ya doğrudan sütunlardan ya da data/extra jsonb'den al
       const extra = row.data || row.extra || {};
@@ -2052,7 +2051,6 @@ async function createFaction(){
       } else if(ins && ins.id){
         allFactions[tag].id = ins.id;
         newFaction.id = ins.id;
-        console.log("Faction Supabase'e kaydedildi, id:", ins.id);
       }
     }catch(e){
       console.error('createFaction supabase exception:', e);

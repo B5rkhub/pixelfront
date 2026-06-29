@@ -600,5 +600,4 @@ window.endWar = async function(warId, winner) {
   }).eq('id', warId);
 };
 
-console.log('⚔️ War Overlay System loaded');
 
