@@ -107,13 +107,15 @@ function buildChatBubble(entry, isMe){
 }
 
 let _chatMsgCache={};
-let _chatRendering=false;
+let _chatRenderToken=0;
 
 // Faction sohbeti de artık aynı chat_messages tablosunu kullanıyor
 // (channel='faction:TAG'), global sohbetle aynı DB+realtime altyapısı üzerinden.
+// Not: her çağrı kendi token'ını alır ve en son çağrı geçerli sayılır — böylece
+// bir sekme geçişi, önceki sekmenin hâlâ süren fetch'i tarafından iptal edilmez.
 async function renderChatMessages(){
-  if(_chatRendering) return;
   const tab=currentChatTab;
+  const myToken=++_chatRenderToken;
   const box=document.getElementById('chat-messages');
   const uname=typeof username!=='undefined'?username:'';
 
@@ -122,7 +124,6 @@ async function renderChatMessages(){
     return;
   }
 
-  _chatRendering=true;
   const channel=chatChannelName(tab);
   const localKey=chatLocalKey(tab);
   let log=[];
@@ -152,10 +153,8 @@ async function renderChatMessages(){
   }catch(e){
     console.error('[chat] Supabase select exception:', e);
     try{ const r=localStorage.getItem(localKey); if(r) log=JSON.parse(r); }catch(e2){}
-  } finally {
-    _chatRendering=false;
   }
-  if(tab!==currentChatTab) return; // beklerken sekme değişmiş olabilir
+  if(myToken!==_chatRenderToken) return; // beklerken daha yeni bir render isteği başladı
 
   if(tab==='faction'){
     log=log.map(entry=>{
@@ -165,11 +164,14 @@ async function renderChatMessages(){
     });
   }
 
-  // Sadece içerik değiştiyse DOM'u güncelle
+  // Sadece içerik değiştiyse VE zaten bu sekme ekranda duruyorsa DOM'u atla
+  // (sekme değiştiğinde kutuda hâlâ diğer sekmenin mesajları görünüyor olabilir,
+  // içerik aynı diye onu atlarsak yanlış sekme ekranda kalır)
   const cacheKey=tab==='faction'?'_factionKey':'_globalKey';
   const newKeys=channel+'|'+log.slice(-30).map(e=>e.t+'|'+e.user+'|'+e.text).join(',');
-  if(newKeys===_chatMsgCache[cacheKey]) return;
+  if(newKeys===_chatMsgCache[cacheKey] && _chatMsgCache._paintedTab===tab) return;
   _chatMsgCache[cacheKey]=newKeys;
+  _chatMsgCache._paintedTab=tab;
 
   if(!log.length){
     box.innerHTML=tab==='faction'
