@@ -692,47 +692,47 @@ body {
 ════════════════════════════════════════════════════════════════ */
 
 /* ── TOPBAR — Daha premium cam efekti ── */
-#topbar { background: rgba(5,6,14,.97) !important; border-bottom-color: rgba(123,97,255,.12) !important; }
+#topbar { background: rgba(5,6,14,.97) !important; border-bottom-color: rgba(var(--accent-rgb),.12) !important; }
 
 /* ── LOGIN KUTUSU ── */
 #login { background: rgba(5,6,14,.92) !important; }
 .lbox {
-  box-shadow: 0 0 0 1px rgba(123,97,255,.12), 0 32px 80px rgba(0,0,0,.70), 0 0 80px rgba(123,97,255,.10) !important;
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb),.12), 0 32px 80px rgba(0,0,0,.70), 0 0 80px rgba(var(--accent-rgb),.10) !important;
 }
-.lbox input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(123,97,255,.30) !important; }
+.lbox input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(var(--accent-rgb),.30) !important; }
 
 /* ── ANA BUTON — Daha parlak gradient ── */
 .btn {
-  background: linear-gradient(135deg, #7B61FF 0%, #9b7fff 55%, #b8acff 100%) !important;
-  box-shadow: 0 4px 24px rgba(123,97,255,.50) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 55%, var(--accent2) 100%) !important;
+  box-shadow: 0 4px 24px rgba(var(--accent-rgb),.50) !important;
 }
-.btn:hover { box-shadow: 0 10px 32px rgba(123,97,255,.65) !important; }
+.btn:hover { box-shadow: 0 10px 32px rgba(var(--accent-rgb),.65) !important; }
 
 /* ── MODAL KARTLARI — Daha premium gölge ve border ── */
 #faction-card, #profile-card, .mailbox-box {
-  box-shadow: 0 0 0 1px rgba(123,97,255,.12), 0 32px 80px rgba(0,0,0,.75), 0 0 80px rgba(123,97,255,.08) !important;
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb),.12), 0 32px 80px rgba(0,0,0,.75), 0 0 80px rgba(var(--accent-rgb),.08) !important;
 }
 
 /* ── FACTION TAB AKTİF ── */
-.fc-tab.active, .pc-tab.active { background: var(--accent) !important; box-shadow: 0 2px 12px rgba(123,97,255,.40) !important; }
+.fc-tab.active, .pc-tab.active { background: var(--accent) !important; box-shadow: 0 2px 12px rgba(var(--accent-rgb),.40) !important; }
 
 /* ── CHAT MESAJ BENİM ── */
-.cm.user .cm-text { background: var(--accent) !important; box-shadow: 0 2px 8px rgba(123,97,255,.35) !important; }
+.cm.user .cm-text { background: var(--accent) !important; box-shadow: 0 2px 8px rgba(var(--accent-rgb),.35) !important; }
 
 /* ── SIDEBAR KART — Hafif parlak kenarlık ── */
-.scard { border-color: rgba(123,97,255,.10) !important; }
+.scard { border-color: rgba(var(--accent-rgb),.10) !important; }
 
 /* ── XP BARI ── */
-.pb-xp-bar { background: linear-gradient(90deg, #7B61FF, #b8acff) !important; }
-.pc-lv-bar  { background: linear-gradient(90deg, #7B61FF, #b8acff) !important; }
+.pb-xp-bar { background: linear-gradient(90deg, var(--accent), var(--accent2)) !important; }
+.pc-lv-bar  { background: linear-gradient(90deg, var(--accent), var(--accent2)) !important; }
 
 /* ── LVL BADGE ── */
-.pb-lv-badge { background: linear-gradient(135deg, #7B61FF, #c4aaff) !important; }
+.pb-lv-badge { background: linear-gradient(135deg, var(--accent), var(--accent2)) !important; }
 
 /* ── LEVEL-UP BİLDİRİMİ — Daha çarpıcı border gradient ── */
-#levelup-notif { background: linear-gradient(135deg, #7B61FF 0%, #c4aaff 50%, #f5a623 100%) !important; box-shadow: 0 0 50px rgba(123,97,255,.80) !important; }
+#levelup-notif { background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, #f5a623 100%) !important; box-shadow: 0 0 50px rgba(var(--accent-rgb),.80) !important; }
 #levelup-inner { background: #080918 !important; }
-#levelup-label { color: #c4aaff !important; }
+#levelup-label { color: var(--accent2) !important; }
 
 /* ── STREAK BİLDİRİMİ ── */
 #streak-inner { background: #080918 !important; }
@@ -740,28 +740,28 @@ body {
 
 /* ── CHAT BTN PULSE ── */
 @keyframes pulse-chat {
-  0%   { box-shadow: 0 0 0 0 rgba(123,97,255,.55); }
-  70%  { box-shadow: 0 0 0 12px rgba(123,97,255,0); }
-  100% { box-shadow: 0 0 0 0 rgba(123,97,255,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(var(--accent-rgb),.55); }
+  70%  { box-shadow: 0 0 0 12px rgba(var(--accent-rgb),0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb),0); }
 }
 
 /* ── DUYURU BANNER — Daha zengin renk ── */
-#announce-banner { background: linear-gradient(135deg,#131630 0%,#1c1245 50%,#160d3a 100%) !important; border-color: rgba(184,172,255,.45) !important; box-shadow: 0 10px 36px rgba(0,0,0,.55), 0 0 28px rgba(123,97,255,.40) !important; }
+#announce-banner { background: linear-gradient(135deg,#131630 0%,#1c1245 50%,#160d3a 100%) !important; border-color: rgba(var(--accent2-rgb),.45) !important; box-shadow: 0 10px 36px rgba(0,0,0,.55), 0 0 28px rgba(var(--accent-rgb),.40) !important; }
 #announce-banner .ab-label { color: var(--accent2) !important; }
 
 /* ── UNREAD MAIL ── */
-.mail-item.unread { border-color: var(--accent) !important; background: rgba(123,97,255,.10) !important; }
+.mail-item.unread { border-color: var(--accent) !important; background: rgba(var(--accent-rgb),.10) !important; }
 
 /* ── DİPLOMASİ RENKLERI ── */
 .fc-diplo-status.ally { background: rgba(0,212,160,.15) !important; color: #00d4a0 !important; border-color: rgba(0,212,160,.40) !important; }
 .fc-diplo-status.war  { background: rgba(240,74,74,.15) !important; color: #f04a4a !important; border-color: rgba(240,74,74,.40) !important; }
 
 /* ── TOGGLE ── */
-.pca-toggle input:checked + .pca-toggle-slider { background: var(--accent) !important; box-shadow: 0 0 8px rgba(123,97,255,.50) !important; }
+.pca-toggle input:checked + .pca-toggle-slider { background: var(--accent) !important; box-shadow: 0 0 8px rgba(var(--accent-rgb),.50) !important; }
 
 /* ── FACTION COPY BTN ── */
-.fc-copy-btn { background: var(--accent) !important; box-shadow: 0 2px 10px rgba(123,97,255,.35) !important; }
-.fc-copy-btn:hover { box-shadow: 0 4px 16px rgba(123,97,255,.50) !important; }
+.fc-copy-btn { background: var(--accent) !important; box-shadow: 0 2px 10px rgba(var(--accent-rgb),.35) !important; }
+.fc-copy-btn:hover { box-shadow: 0 4px 16px rgba(var(--accent-rgb),.50) !important; }
 
 /* ── QUEST SISTEMI — Zümrüt yeşil yükseltme ── */
 .quest-tab.active { background: linear-gradient(135deg, #014d38, #00b888) !important; box-shadow: 0 2px 10px rgba(0,184,136,.35) !important; }
@@ -801,7 +801,7 @@ body {
 .btn {
   position: relative !important;
   overflow: hidden !important;
-  border: 1px solid rgba(184,172,255,.25) !important;
+  border: 1px solid rgba(var(--accent2-rgb),.25) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     box-shadow var(--btn-duration) var(--btn-ease-out),
@@ -819,12 +819,12 @@ body {
 .btn:hover {
   opacity: 1 !important;
   transform: translateY(-3px) scale(1.012) !important;
-  box-shadow: 0 14px 40px rgba(123,97,255,.65), 0 0 0 1px rgba(184,172,255,.40) !important;
-  border-color: rgba(184,172,255,.50) !important;
+  box-shadow: 0 14px 40px rgba(var(--accent-rgb),.65), 0 0 0 1px rgba(var(--accent2-rgb),.40) !important;
+  border-color: rgba(var(--accent2-rgb),.50) !important;
 }
 .btn:active {
   transform: translateY(1px) scale(0.978) !important;
-  box-shadow: 0 2px 10px rgba(123,97,255,.35) !important;
+  box-shadow: 0 2px 10px rgba(var(--accent-rgb),.35) !important;
   transition-duration: .08s !important;
 }
 
@@ -852,7 +852,7 @@ body {
 .tb-btn:hover {
   opacity: 1 !important;
   transform: translateY(-2px) scale(1.04) !important;
-  border-color: rgba(184,172,255,.30) !important;
+  border-color: rgba(var(--accent2-rgb),.30) !important;
   box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10) !important;
 }
 .tb-btn:hover::before { opacity: 1; }
@@ -864,25 +864,25 @@ body {
 
 /* ── MAILBOX ÖZEL (derin indigo) ── */
 #mailbox-btn {
-  border: 1px solid rgba(184,172,255,.22) !important;
+  border: 1px solid rgba(var(--accent2-rgb),.22) !important;
   box-shadow: 0 2px 10px rgba(59,31,168,.35) !important;
 }
 #mailbox-btn:hover {
-  box-shadow: 0 6px 20px rgba(59,31,168,.55), 0 0 0 1px rgba(184,172,255,.30) !important;
-  border-color: rgba(184,172,255,.40) !important;
+  box-shadow: 0 6px 20px rgba(59,31,168,.55), 0 0 0 1px rgba(var(--accent2-rgb),.30) !important;
+  border-color: rgba(var(--accent2-rgb),.40) !important;
 }
 
 /* ── FC-BTN (Faction modal ana butonlar) ── */
 .fc-btn {
   position: relative !important;
   overflow: hidden !important;
-  border: 1px solid rgba(123,97,255,.25) !important;
+  border: 1px solid rgba(var(--accent-rgb),.25) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     box-shadow var(--btn-duration) ease,
     opacity .15s ease,
     border-color .15s ease !important;
-  box-shadow: 0 2px 12px rgba(123,97,255,.25) !important;
+  box-shadow: 0 2px 12px rgba(var(--accent-rgb),.25) !important;
 }
 .fc-btn::after {
   content: '';
@@ -895,12 +895,12 @@ body {
 .fc-btn:hover {
   opacity: 1 !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 24px rgba(123,97,255,.45) !important;
-  border-color: rgba(184,172,255,.40) !important;
+  box-shadow: 0 8px 24px rgba(var(--accent-rgb),.45) !important;
+  border-color: rgba(var(--accent2-rgb),.40) !important;
 }
 .fc-btn:active {
   transform: translateY(1px) scale(0.97) !important;
-  box-shadow: 0 1px 6px rgba(123,97,255,.25) !important;
+  box-shadow: 0 1px 6px rgba(var(--accent-rgb),.25) !important;
   transition-duration: .07s !important;
 }
 .fc-btn.danger {
@@ -916,8 +916,8 @@ body {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
 }
 .fc-btn.secondary:hover {
-  border-color: rgba(123,97,255,.45) !important;
-  box-shadow: 0 4px 14px rgba(123,97,255,.18) !important;
+  border-color: rgba(var(--accent-rgb),.45) !important;
+  box-shadow: 0 4px 14px rgba(var(--accent-rgb),.18) !important;
   transform: translateY(-1px) !important;
 }
 
@@ -931,10 +931,10 @@ body {
     box-shadow .15s ease !important;
 }
 .fc-small-btn:hover {
-  border-color: rgba(123,97,255,.55) !important;
+  border-color: rgba(var(--accent-rgb),.55) !important;
   color: var(--accent2) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(123,97,255,.20) !important;
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb),.20) !important;
 }
 .fc-small-btn:active {
   transform: translateY(1px) !important;
@@ -943,7 +943,7 @@ body {
 
 /* ── FC-COPY-BTN (Davet kodu kopyala) ── */
 .fc-copy-btn {
-  border: 1px solid rgba(184,172,255,.25) !important;
+  border: 1px solid rgba(var(--accent2-rgb),.25) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     box-shadow .15s ease,
@@ -952,7 +952,7 @@ body {
 .fc-copy-btn:hover {
   opacity: .9 !important;
   transform: translateY(-1px) scale(1.04) !important;
-  box-shadow: 0 6px 18px rgba(123,97,255,.50) !important;
+  box-shadow: 0 6px 18px rgba(var(--accent-rgb),.50) !important;
 }
 .fc-copy-btn:active {
   transform: scale(0.93) !important;
@@ -986,8 +986,8 @@ body {
 
 /* ── PC-SAVE-NAME ── */
 .pc-save-name {
-  border: 1px solid rgba(123,97,255,.30) !important;
-  box-shadow: 0 2px 8px rgba(123,97,255,.20) !important;
+  border: 1px solid rgba(var(--accent-rgb),.30) !important;
+  box-shadow: 0 2px 8px rgba(var(--accent-rgb),.20) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     box-shadow .15s ease,
@@ -997,12 +997,12 @@ body {
 .pc-save-name:hover {
   opacity: 1 !important;
   transform: translateY(-1px) scale(1.04) !important;
-  box-shadow: 0 6px 18px rgba(123,97,255,.42) !important;
-  border-color: rgba(184,172,255,.50) !important;
+  box-shadow: 0 6px 18px rgba(var(--accent-rgb),.42) !important;
+  border-color: rgba(var(--accent2-rgb),.50) !important;
 }
 .pc-save-name:active {
   transform: scale(0.94) !important;
-  box-shadow: 0 1px 4px rgba(123,97,255,.20) !important;
+  box-shadow: 0 1px 4px rgba(var(--accent-rgb),.20) !important;
   transition-duration: .07s !important;
 }
 
@@ -1047,8 +1047,8 @@ body {
   transition-duration: .07s !important;
 }
 .ptbtn.active {
-  border-color: rgba(123,97,255,.60) !important;
-  box-shadow: 0 0 0 1px rgba(123,97,255,.30), 0 2px 10px rgba(123,97,255,.25) !important;
+  border-color: rgba(var(--accent-rgb),.60) !important;
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb),.30), 0 2px 10px rgba(var(--accent-rgb),.25) !important;
 }
 .ptbtn.danger { box-shadow: 0 0 0 1px rgba(240,74,74,.20) !important; }
 .ptbtn.success { box-shadow: 0 0 0 1px rgba(0,212,160,.20) !important; }
@@ -1075,7 +1075,7 @@ body {
 
 /* ── CHAT SEND ── */
 #chat-send {
-  border: 1px solid rgba(123,97,255,.25) !important;
+  border: 1px solid rgba(var(--accent-rgb),.25) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     opacity .15s ease,
@@ -1084,7 +1084,7 @@ body {
 #chat-send:hover:not(:disabled) {
   opacity: 1 !important;
   transform: scale(1.08) !important;
-  box-shadow: 0 4px 14px rgba(123,97,255,.40) !important;
+  box-shadow: 0 4px 14px rgba(var(--accent-rgb),.40) !important;
 }
 #chat-send:active:not(:disabled) {
   transform: scale(0.90) !important;
@@ -1106,8 +1106,8 @@ body {
   border-color: rgba(255,255,255,.15) !important;
 }
 .ch-tab.active {
-  box-shadow: 0 2px 10px rgba(123,97,255,.35) !important;
-  border-color: rgba(123,97,255,.50) !important;
+  box-shadow: 0 2px 10px rgba(var(--accent-rgb),.35) !important;
+  border-color: rgba(var(--accent-rgb),.50) !important;
 }
 .ch-tab:active {
   transform: scale(0.93) !important;
@@ -1191,12 +1191,12 @@ body {
     transform var(--btn-duration) var(--btn-ease),
     opacity .15s ease,
     box-shadow .15s ease !important;
-  border: 1px solid rgba(123,97,255,.25) !important;
+  border: 1px solid rgba(var(--accent-rgb),.25) !important;
 }
 .fc-chat-send:hover {
   opacity: 1 !important;
   transform: scale(1.10) !important;
-  box-shadow: 0 3px 12px rgba(123,97,255,.38) !important;
+  box-shadow: 0 3px 12px rgba(var(--accent-rgb),.38) !important;
 }
 .fc-chat-send:active {
   transform: scale(0.88) !important;
@@ -1258,7 +1258,7 @@ body {
   transform: scale(1.06) !important;
 }
 .pca-lang-btn.active {
-  box-shadow: 0 1px 8px rgba(123,97,255,.35) !important;
+  box-shadow: 0 1px 8px rgba(var(--accent-rgb),.35) !important;
 }
 .pca-lang-btn:active {
   transform: scale(0.92) !important;
@@ -1278,7 +1278,7 @@ body {
   background: rgba(255,255,255,.07) !important;
 }
 .fc-tab.active, .pc-tab.active {
-  box-shadow: 0 2px 12px rgba(123,97,255,.40) !important;
+  box-shadow: 0 2px 12px rgba(var(--accent-rgb),.40) !important;
 }
 .fc-tab:active, .pc-tab:active {
   transform: scale(0.93) !important;

@@ -144,6 +144,16 @@ const I18N = {
 
     // ── Ayarlar paneli ──
     'settings.appearance': 'Görünüm',
+    'settings.theme_color': 'Tema Rengi',
+    'settings.theme_color_desc': 'Vurgu rengini değiştir',
+    'settings.theme_purple': 'Mor',
+    'settings.theme_red': 'Kırmızı',
+    'settings.theme_gold': 'Altın',
+    'settings.theme_green': 'Yeşil',
+    'settings.theme_cyan': 'Camgöbeği',
+    'settings.theme_blue': 'Mavi',
+    'settings.theme_pink': 'Pembe',
+    'settings.theme_custom': 'Özel renk seç',
     'settings.language': 'Dil',
     'settings.language_desc': 'Arayüz dilini değiştir',
     'settings.pixel_counter': 'Piksel Sayacı',
@@ -526,6 +536,16 @@ const I18N = {
 
     // ── Settings panel ──
     'settings.appearance': 'Appearance',
+    'settings.theme_color': 'Theme Color',
+    'settings.theme_color_desc': 'Change the accent color',
+    'settings.theme_purple': 'Purple',
+    'settings.theme_red': 'Red',
+    'settings.theme_gold': 'Gold',
+    'settings.theme_green': 'Green',
+    'settings.theme_cyan': 'Cyan',
+    'settings.theme_blue': 'Blue',
+    'settings.theme_pink': 'Pink',
+    'settings.theme_custom': 'Pick a custom color',
     'settings.language': 'Language',
     'settings.language_desc': 'Change interface language',
     'settings.pixel_counter': 'Pixel Counter',

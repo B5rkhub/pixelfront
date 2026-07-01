@@ -334,7 +334,7 @@
   white-space: nowrap;
 }
 
-.wp-player-name.is-me { color: #b8acff; }
+.wp-player-name.is-me { color: var(--accent2); }
 
 .wp-player-pix {
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
@@ -390,7 +390,7 @@
   position: fixed;
   border-radius: 10px;
   box-shadow: 0 0 0 9999px rgba(5,6,14,.87);
-  outline: 2px solid rgba(123,97,255,.55);
+  outline: 2px solid rgba(var(--accent-rgb),.55);
   outline-offset: 1px;
   pointer-events: none;
   z-index: 9999;
@@ -456,7 +456,7 @@
   background: var(--bdr, #2a2a3a);
   transition: background .2s, transform .2s;
 }
-.tut-dot.active { background: var(--accent, #7B61FF); transform: scale(1.35); }
+.tut-dot.active { background: var(--accent, var(--accent)); transform: scale(1.35); }
 
 .tut-actions {
   display: flex;
@@ -485,7 +485,7 @@
 .tut-skip:hover, .tut-skip:hover kbd { color: var(--txt, #fff); }
 .tut-next {
   flex: 1;
-  background: var(--accent, #7B61FF);
+  background: var(--accent, var(--accent));
   color: #fff;
   border: none;
   border-radius: 9px;

@@ -144,7 +144,7 @@
 .tpl-tool.active {
   background: rgba(124,58,237,.25);
   border-color: #7c3aed;
-  color: #c4aaff;
+  color: var(--accent2);
 }
 .tpl-tool-label {
   font-size: .38rem; font-weight: 700;
@@ -364,7 +364,7 @@
   image-rendering: pixelated; flex-shrink: 0;
 }
 .tpl-layer-name {
-  font-size: .72rem; font-weight: 600; color: #c4aaff;
+  font-size: .72rem; font-weight: 600; color: var(--accent2);
   flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .tpl-layer-vis {

@@ -220,7 +220,7 @@
 }
 .pe-dur-btn:hover{border-color:#6b2ef5;color:var(--txt);background:#1a1228;}
 .pe-dur-btn.pe-dur-sel{
-  background:rgba(124,58,237,.15);border-color:#6b2ef5;color:#c4aaff;
+  background:rgba(124,58,237,.15);border-color:#6b2ef5;color:var(--accent2);
   box-shadow:0 0 0 3px rgba(124,58,237,.12);
 }
 

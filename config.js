@@ -55,6 +55,7 @@ const CONFIG = {
     quests:        'pv_quests_',
     lang:          'pv_lang',
     sfxMuted:      'pv_sfx_muted',
+    themeColor:    'pv_theme_color',
   },
 
 };

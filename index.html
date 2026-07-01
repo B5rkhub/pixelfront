@@ -19,6 +19,30 @@
 <link rel="stylesheet" href="css/07-war.css">
 <link rel="stylesheet" href="css/08-template-editor.css">
 <link rel="stylesheet" href="css/09-features.css">
+<script>
+// İlk boyamadan önce kaydedilmiş tema rengini uygula — theme.js body'nin
+// sonunda yüklendiği için onu beklersek dönen kullanıcılar bir anlığına
+// varsayılan mor rengi görür (FOUC). Anahtar CONFIG.storageKeys.themeColor
+// ile aynı ('pv_theme_color') — theme.js tam uygulamayı (accent2, UI, vb.)
+// tekrar ve idempotent şekilde kurar.
+(function(){
+  try{
+    var hex=localStorage.getItem('pv_theme_color');
+    var m=hex&&/^#?([0-9a-f]{6})$/i.exec(hex.trim());
+    if(!m) return;
+    var n=parseInt(m[1],16), r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+    var lr=.46, lR=Math.round(r+(255-r)*lr), lG=Math.round(g+(255-g)*lr), lB=Math.round(b+(255-b)*lr);
+    var mr=.18, mR=Math.round(r+(255-r)*mr), mG=Math.round(g+(255-g)*mr), mB=Math.round(b+(255-b)*mr);
+    var toHex=function(v){return v.toString(16).padStart(2,'0');};
+    var root=document.documentElement.style;
+    root.setProperty('--accent','#'+toHex(r)+toHex(g)+toHex(b));
+    root.setProperty('--accent-rgb',r+','+g+','+b);
+    root.setProperty('--accent-mid','#'+toHex(mR)+toHex(mG)+toHex(mB));
+    root.setProperty('--accent2','#'+toHex(lR)+toHex(lG)+toHex(lB));
+    root.setProperty('--accent2-rgb',lR+','+lG+','+lB);
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 <!-- ── Tutorial overlay (ilk giriş rehberi) ── -->
@@ -485,6 +509,13 @@
     <!-- PANEL: Ayarlar -->
     <div class="pc-panel" id="pcpanel-ayarlar">
       <div class="pca-section-title" data-i18n="settings.appearance">Görünüm</div>
+      <div class="pca-row pca-row-theme">
+        <div class="pca-row-info">
+          <div class="pca-row-title" data-i18n="settings.theme_color">Tema Rengi</div>
+          <div class="pca-row-desc" data-i18n="settings.theme_color_desc">Vurgu rengini değiştir</div>
+        </div>
+        <div class="pca-theme-swatches" id="pca-theme-swatches"><!-- JS ile doldurulur --></div>
+      </div>
       <div class="pca-row" style="cursor:pointer" onclick="try{localStorage.removeItem(CONFIG.storageKeys.tutorialSeen);}catch(e){} maybeShowTutorial()">
         <div class="pca-row-info">
           <div class="pca-row-title">🧭 Tanıtımı Tekrar Göster</div>
@@ -1418,6 +1449,7 @@
 <script src="game.js"></script>
 <script src="progression.js"></script>
 <script src="profile.js"></script>
+<script src="theme.js"></script>
 <script src="faction.js"></script>
 <script src="chat.js"></script>
 <script src="pixel-event.js"></script>

@@ -7,10 +7,10 @@
 
 /* ── CSS DEĞİŞKENLERİ ── */
 :root {
-  --card-glow:    rgba(123,97,255,.07);
-  --card-glow-h:  rgba(123,97,255,.13);
+  --card-glow:    rgba(var(--accent-rgb),.07);
+  --card-glow-h:  rgba(var(--accent-rgb),.13);
   --card-border:  rgba(255,255,255,.055);
-  --card-border-h:rgba(123,97,255,.30);
+  --card-border-h:rgba(var(--accent-rgb),.30);
   --inner-shine:  linear-gradient(160deg, rgba(255,255,255,.045) 0%, transparent 55%);
   --btn-shine:    linear-gradient(160deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 60%);
   --ease-spring:  cubic-bezier(.34,1.56,.64,1);
@@ -46,7 +46,7 @@
 }
 .scard:hover {
   border-color: var(--card-border-h) !important;
-  border-top-color: rgba(184,172,255,.18) !important;
+  border-top-color: rgba(var(--accent2-rgb),.18) !important;
   box-shadow:
     0 0 0 1px rgba(0,0,0,.35),
     0 4px 20px rgba(0,0,0,.50),
@@ -64,10 +64,16 @@
   box-shadow:
     0 0 0 1px rgba(0,0,0,.5),
     0 24px 64px rgba(0,0,0,.75),
-    0 0 60px rgba(123,97,255,.09),
+    0 0 60px rgba(var(--accent-rgb),.09),
     inset 0 1px 0 rgba(255,255,255,.07) !important;
   position: relative !important;
-  overflow: hidden !important;
+  /* Sadece yatay taşmayı kes (üstteki dekoratif glow için) — dikeyde
+     overflow-y:auto (03-components.css) kartın içeriği kaydırabilsin diye
+     burada "hidden" yerine sadece x-ekseni kısıtlanıyor. Eskiden "overflow:
+     hidden !important" hem x hem y'yi kapatıyordu; !important olduğu için
+     03-components.css'teki overflow-y:auto'yu (normal, !important değil)
+     her zaman eziyordu ve profil/faction modalları kaydırılamıyordu. */
+  overflow-x: hidden !important;
 }
 #faction-card::before,
 #profile-card::before {
@@ -75,7 +81,7 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 160px;
-  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(123,97,255,.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(var(--accent-rgb),.12) 0%, transparent 70%);
   pointer-events: none;
   border-radius: inherit;
 }
@@ -89,7 +95,7 @@
   box-shadow:
     0 0 0 1px rgba(0,0,0,.5),
     0 24px 64px rgba(0,0,0,.75),
-    0 0 50px rgba(123,97,255,.07),
+    0 0 50px rgba(var(--accent-rgb),.07),
     inset 0 1px 0 rgba(255,255,255,.07) !important;
 }
 
@@ -97,12 +103,12 @@
 .lbox {
   background: linear-gradient(160deg, rgba(18,19,38,.98) 0%, rgba(10,11,22,1) 100%) !important;
   border: 1px solid rgba(255,255,255,.06) !important;
-  border-top-color: rgba(184,172,255,.15) !important;
+  border-top-color: rgba(var(--accent2-rgb),.15) !important;
   border-radius: 24px !important;
   box-shadow:
     0 0 0 1px rgba(0,0,0,.5),
     0 32px 80px rgba(0,0,0,.75),
-    0 0 80px rgba(123,97,255,.10),
+    0 0 80px rgba(var(--accent-rgb),.10),
     inset 0 1px 0 rgba(255,255,255,.08) !important;
 }
 
@@ -119,14 +125,14 @@
 .fc-diplo-item:hover,
 .fc-browse-row:hover,
 .mail-item:hover {
-  border-color: rgba(123,97,255,.25) !important;
-  border-top-color: rgba(184,172,255,.20) !important;
-  box-shadow: 0 2px 12px rgba(123,97,255,.12), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  border-color: rgba(var(--accent-rgb),.25) !important;
+  border-top-color: rgba(var(--accent2-rgb),.20) !important;
+  box-shadow: 0 2px 12px rgba(var(--accent-rgb),.12), inset 0 1px 0 rgba(255,255,255,.06) !important;
 }
 .mail-item.unread {
-  border-color: rgba(123,97,255,.30) !important;
-  border-top-color: rgba(184,172,255,.25) !important;
-  box-shadow: 0 0 0 1px rgba(123,97,255,.10), inset 0 1px 0 rgba(255,255,255,.05) !important;
+  border-color: rgba(var(--accent-rgb),.30) !important;
+  border-top-color: rgba(var(--accent2-rgb),.25) !important;
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb),.10), inset 0 1px 0 rgba(255,255,255,.05) !important;
 }
 
 /* Faction banner */
@@ -141,10 +147,10 @@
 /* Faction invite box */
 .fc-invite-box {
   background: linear-gradient(135deg, rgba(14,15,30,.9) 0%, rgba(10,11,24,.95) 100%) !important;
-  border: 1px solid rgba(123,97,255,.18) !important;
-  border-top-color: rgba(184,172,255,.25) !important;
+  border: 1px solid rgba(var(--accent-rgb),.18) !important;
+  border-top-color: rgba(var(--accent2-rgb),.25) !important;
   border-radius: 12px !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 0 18px rgba(123,97,255,.10) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 0 18px rgba(var(--accent-rgb),.10) !important;
 }
 
 /* Stat kartları (profil istatistik grid) */
@@ -154,8 +160,8 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 8px rgba(0,0,0,.30) !important;
 }
 .pcs-card:hover {
-  border-color: rgba(123,97,255,.20) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 4px 16px rgba(123,97,255,.12) !important;
+  border-color: rgba(var(--accent-rgb),.20) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 4px 16px rgba(var(--accent-rgb),.12) !important;
 }
 
 /* Ayar satırları */
@@ -165,8 +171,8 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.05) !important;
 }
 .pca-row:hover {
-  border-color: rgba(123,97,255,.20) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 10px rgba(123,97,255,.08) !important;
+  border-color: rgba(var(--accent-rgb),.20) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 2px 10px rgba(var(--accent-rgb),.08) !important;
 }
 
 /* Profile buton (canvas üstü) */
@@ -182,11 +188,11 @@
 }
 #profile-btn:hover {
   background: linear-gradient(145deg, rgba(22,23,46,.97) 0%, rgba(16,17,34,.99) 100%) !important;
-  border-color: rgba(123,97,255,.40) !important;
-  border-top-color: rgba(184,172,255,.30) !important;
+  border-color: rgba(var(--accent-rgb),.40) !important;
+  border-top-color: rgba(var(--accent2-rgb),.30) !important;
   box-shadow:
     0 4px 18px rgba(0,0,0,.50),
-    0 0 20px rgba(123,97,255,.14),
+    0 0 20px rgba(var(--accent-rgb),.14),
     inset 0 1px 0 rgba(255,255,255,.09) !important;
 }
 
@@ -200,8 +206,8 @@
   transition: border-color .2s ease, box-shadow .2s ease !important;
 }
 #faction-sub-btn:hover {
-  border-color: rgba(123,97,255,.35) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 3px 12px rgba(123,97,255,.15) !important;
+  border-color: rgba(var(--accent-rgb),.35) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 3px 12px rgba(var(--accent-rgb),.15) !important;
 }
 
 /* Araç paleti (ptoolbar) */
@@ -224,7 +230,7 @@
   border-radius: 16px !important;
   box-shadow:
     0 8px 40px rgba(0,0,0,.60),
-    0 0 30px rgba(123,97,255,.08),
+    0 0 30px rgba(var(--accent-rgb),.08),
     inset 0 1px 0 rgba(255,255,255,.07) !important;
 }
 #chat-header {
@@ -242,17 +248,17 @@
 
 /* ANA BTN (login) — zaten animasyonlu, sadece görünüm güçlendir */
 .btn {
-  background: linear-gradient(135deg, #7B61FF 0%, #9870ff 45%, #b8acff 100%) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 45%, var(--accent2) 100%) !important;
   border-radius: 14px !important;
   box-shadow:
-    0 4px 20px rgba(123,97,255,.50),
-    0 0 0 1px rgba(184,172,255,.20),
+    0 4px 20px rgba(var(--accent-rgb),.50),
+    0 0 0 1px rgba(var(--accent2-rgb),.20),
     inset 0 1px 0 rgba(255,255,255,.18) !important;
 }
 .btn:hover {
   box-shadow:
-    0 8px 32px rgba(123,97,255,.65),
-    0 0 0 1px rgba(184,172,255,.35),
+    0 8px 32px rgba(var(--accent-rgb),.65),
+    0 0 0 1px rgba(var(--accent2-rgb),.35),
     inset 0 1px 0 rgba(255,255,255,.22) !important;
 }
 
@@ -266,20 +272,20 @@
   transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s var(--ease-spring) !important;
 }
 .tb-btn:hover {
-  background: linear-gradient(160deg, rgba(123,97,255,.18) 0%, rgba(123,97,255,.08) 100%) !important;
-  border-color: rgba(123,97,255,.35) !important;
-  border-top-color: rgba(184,172,255,.28) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 4px 14px rgba(123,97,255,.20) !important;
+  background: linear-gradient(160deg, rgba(var(--accent-rgb),.18) 0%, rgba(var(--accent-rgb),.08) 100%) !important;
+  border-color: rgba(var(--accent-rgb),.35) !important;
+  border-top-color: rgba(var(--accent2-rgb),.28) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 4px 14px rgba(var(--accent-rgb),.20) !important;
 }
 #mailbox-btn {
   background: linear-gradient(135deg, rgba(30,27,110,.80) 0%, rgba(59,31,168,.70) 100%) !important;
-  border: 1px solid rgba(123,97,255,.28) !important;
-  border-top-color: rgba(184,172,255,.22) !important;
+  border: 1px solid rgba(var(--accent-rgb),.28) !important;
+  border-top-color: rgba(var(--accent2-rgb),.22) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 2px 10px rgba(59,31,168,.35) !important;
 }
 #mailbox-btn:hover {
   background: linear-gradient(135deg, rgba(40,37,130,.85) 0%, rgba(75,40,200,.75) 100%) !important;
-  border-color: rgba(123,97,255,.50) !important;
+  border-color: rgba(var(--accent-rgb),.50) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 6px 20px rgba(59,31,168,.50) !important;
 }
 
@@ -287,16 +293,16 @@
 .fc-btn {
   border-radius: 11px !important;
   box-shadow:
-    0 2px 10px rgba(123,97,255,.25),
+    0 2px 10px rgba(var(--accent-rgb),.25),
     inset 0 1px 0 rgba(255,255,255,.14) !important;
   transition: transform .18s var(--ease-spring), box-shadow .18s ease, opacity .15s ease, border-color .15s ease !important;
 }
 .fc-btn:not(.danger):not(.secondary) {
-  background: linear-gradient(135deg, #7B61FF 0%, #9870ff 50%, #b0a0ff 100%) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 50%, var(--accent2) 100%) !important;
 }
 .fc-btn:hover:not(.danger):not(.secondary) {
   box-shadow:
-    0 6px 22px rgba(123,97,255,.45),
+    0 6px 22px rgba(var(--accent-rgb),.45),
     inset 0 1px 0 rgba(255,255,255,.18) !important;
 }
 .fc-btn.secondary {
@@ -306,9 +312,9 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.07) !important;
 }
 .fc-btn.secondary:hover {
-  background: linear-gradient(160deg, rgba(123,97,255,.15) 0%, rgba(123,97,255,.06) 100%) !important;
-  border-color: rgba(123,97,255,.40) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 4px 14px rgba(123,97,255,.18) !important;
+  background: linear-gradient(160deg, rgba(var(--accent-rgb),.15) 0%, rgba(var(--accent-rgb),.06) 100%) !important;
+  border-color: rgba(var(--accent-rgb),.40) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 4px 14px rgba(var(--accent-rgb),.18) !important;
 }
 .fc-btn.danger {
   background: linear-gradient(135deg, rgba(240,74,74,.80) 0%, rgba(200,40,40,.85) 100%) !important;
@@ -329,21 +335,21 @@
   transition: border-color .18s ease, box-shadow .18s ease, color .15s ease, transform .18s var(--ease-spring) !important;
 }
 .fc-small-btn:hover {
-  background: linear-gradient(160deg, rgba(123,97,255,.15) 0%, rgba(123,97,255,.06) 100%) !important;
-  border-color: rgba(123,97,255,.40) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 3px 12px rgba(123,97,255,.18) !important;
+  background: linear-gradient(160deg, rgba(var(--accent-rgb),.15) 0%, rgba(var(--accent-rgb),.06) 100%) !important;
+  border-color: rgba(var(--accent-rgb),.40) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 3px 12px rgba(var(--accent-rgb),.18) !important;
 }
 
 /* FC-COPY-BTN */
 .fc-copy-btn {
-  background: linear-gradient(135deg, #7B61FF 0%, #9870ff 100%) !important;
-  border: 1px solid rgba(184,172,255,.25) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%) !important;
+  border: 1px solid rgba(var(--accent2-rgb),.25) !important;
   border-radius: 9px !important;
-  box-shadow: 0 2px 10px rgba(123,97,255,.35), inset 0 1px 0 rgba(255,255,255,.16) !important;
+  box-shadow: 0 2px 10px rgba(var(--accent-rgb),.35), inset 0 1px 0 rgba(255,255,255,.16) !important;
   transition: transform .18s var(--ease-spring), box-shadow .18s ease !important;
 }
 .fc-copy-btn:hover {
-  box-shadow: 0 6px 18px rgba(123,97,255,.50), inset 0 1px 0 rgba(255,255,255,.20) !important;
+  box-shadow: 0 6px 18px rgba(var(--accent-rgb),.50), inset 0 1px 0 rgba(255,255,255,.20) !important;
 }
 
 /* FC-DIPLO-BTN */
@@ -370,14 +376,14 @@
 
 /* PC-SAVE-NAME */
 .pc-save-name {
-  background: linear-gradient(135deg, #7B61FF 0%, #9870ff 100%) !important;
-  border: 1px solid rgba(184,172,255,.28) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%) !important;
+  border: 1px solid rgba(var(--accent2-rgb),.28) !important;
   border-radius: 9px !important;
-  box-shadow: 0 2px 10px rgba(123,97,255,.30), inset 0 1px 0 rgba(255,255,255,.16) !important;
+  box-shadow: 0 2px 10px rgba(var(--accent-rgb),.30), inset 0 1px 0 rgba(255,255,255,.16) !important;
   transition: transform .18s var(--ease-spring), box-shadow .18s ease !important;
 }
 .pc-save-name:hover {
-  box-shadow: 0 6px 20px rgba(123,97,255,.45), inset 0 1px 0 rgba(255,255,255,.20) !important;
+  box-shadow: 0 6px 20px rgba(var(--accent-rgb),.45), inset 0 1px 0 rgba(255,255,255,.20) !important;
 }
 
 /* TABS — Faction & Profile */
@@ -398,8 +404,8 @@
 }
 .fc-tab.active,
 .pc-tab.active {
-  background: linear-gradient(135deg, #7B61FF 0%, #9266ff 100%) !important;
-  box-shadow: 0 2px 12px rgba(123,97,255,.40), inset 0 1px 0 rgba(255,255,255,.16) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%) !important;
+  box-shadow: 0 2px 12px rgba(var(--accent-rgb),.40), inset 0 1px 0 rgba(255,255,255,.16) !important;
 }
 
 /* CHAT TABS */
@@ -413,9 +419,9 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.07) !important;
 }
 .ch-tab.active {
-  background: linear-gradient(135deg, #7B61FF 0%, #9266ff 100%) !important;
-  border-color: rgba(123,97,255,.50) !important;
-  box-shadow: 0 2px 10px rgba(123,97,255,.35), inset 0 1px 0 rgba(255,255,255,.16) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%) !important;
+  border-color: rgba(var(--accent-rgb),.50) !important;
+  box-shadow: 0 2px 10px rgba(var(--accent-rgb),.35), inset 0 1px 0 rgba(255,255,255,.16) !important;
 }
 
 /* MAIL AKSIYON BUTONLARI */
@@ -476,9 +482,9 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 4px 12px rgba(0,0,0,.40) !important;
 }
 .ptbtn.active {
-  background: linear-gradient(135deg, rgba(123,97,255,.22) 0%, rgba(123,97,255,.12) 100%) !important;
-  border-color: rgba(123,97,255,.55) !important;
-  box-shadow: 0 0 0 1px rgba(123,97,255,.25), inset 0 1px 0 rgba(184,172,255,.14), 0 2px 10px rgba(123,97,255,.22) !important;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb),.22) 0%, rgba(var(--accent-rgb),.12) 100%) !important;
+  border-color: rgba(var(--accent-rgb),.55) !important;
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb),.25), inset 0 1px 0 rgba(var(--accent2-rgb),.14), 0 2px 10px rgba(var(--accent-rgb),.22) !important;
 }
 .ptbtn.danger {
   border-color: rgba(240,74,74,.45) !important;
@@ -502,21 +508,21 @@
   transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s var(--ease-spring) !important;
 }
 .zb:hover {
-  background: linear-gradient(160deg, rgba(123,97,255,.18) 0%, rgba(123,97,255,.08) 100%) !important;
-  border-color: rgba(123,97,255,.40) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 4px 14px rgba(123,97,255,.18) !important;
+  background: linear-gradient(160deg, rgba(var(--accent-rgb),.18) 0%, rgba(var(--accent-rgb),.08) 100%) !important;
+  border-color: rgba(var(--accent-rgb),.40) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 4px 14px rgba(var(--accent-rgb),.18) !important;
 }
 
 /* CHAT SEND */
 #chat-send {
-  background: linear-gradient(135deg, #7B61FF 0%, #9870ff 100%) !important;
-  border: 1px solid rgba(184,172,255,.22) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%) !important;
+  border: 1px solid rgba(var(--accent2-rgb),.22) !important;
   border-radius: 10px !important;
-  box-shadow: 0 2px 10px rgba(123,97,255,.35), inset 0 1px 0 rgba(255,255,255,.16) !important;
+  box-shadow: 0 2px 10px rgba(var(--accent-rgb),.35), inset 0 1px 0 rgba(255,255,255,.16) !important;
   transition: transform .18s var(--ease-spring), box-shadow .18s ease, opacity .15s ease !important;
 }
 #chat-send:hover:not(:disabled) {
-  box-shadow: 0 6px 18px rgba(123,97,255,.50), inset 0 1px 0 rgba(255,255,255,.20) !important;
+  box-shadow: 0 6px 18px rgba(var(--accent-rgb),.50), inset 0 1px 0 rgba(255,255,255,.20) !important;
 }
 #chat-send:disabled {
   opacity: .3 !important;
@@ -525,14 +531,14 @@
 
 /* FC-CHAT-SEND */
 .fc-chat-send {
-  background: linear-gradient(135deg, #7B61FF 0%, #9870ff 100%) !important;
-  border: 1px solid rgba(184,172,255,.22) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%) !important;
+  border: 1px solid rgba(var(--accent2-rgb),.22) !important;
   border-radius: 10px !important;
-  box-shadow: 0 2px 8px rgba(123,97,255,.30), inset 0 1px 0 rgba(255,255,255,.16) !important;
+  box-shadow: 0 2px 8px rgba(var(--accent-rgb),.30), inset 0 1px 0 rgba(255,255,255,.16) !important;
   transition: transform .18s var(--ease-spring), box-shadow .18s ease !important;
 }
 .fc-chat-send:hover {
-  box-shadow: 0 5px 16px rgba(123,97,255,.45), inset 0 1px 0 rgba(255,255,255,.20) !important;
+  box-shadow: 0 5px 16px rgba(var(--accent-rgb),.45), inset 0 1px 0 rgba(255,255,255,.20) !important;
 }
 
 /* CHAT input ve FC chat input */
@@ -545,8 +551,8 @@
 }
 #chat-input:focus,
 .fc-chat-input:focus {
-  border-color: rgba(123,97,255,.55) !important;
-  box-shadow: 0 0 0 3px rgba(123,97,255,.14) !important;
+  border-color: rgba(var(--accent-rgb),.55) !important;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb),.14) !important;
 }
 
 /* PC-INPUT & LBOX INPUT */
@@ -559,8 +565,8 @@
 }
 .pc-input:focus,
 .lbox input:focus {
-  border-color: rgba(123,97,255,.55) !important;
-  box-shadow: 0 0 0 3px rgba(123,97,255,.14) !important;
+  border-color: rgba(var(--accent-rgb),.55) !important;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb),.14) !important;
 }
 
 /* PCA SELECT */
@@ -571,8 +577,8 @@
   transition: border-color .2s ease !important;
 }
 .pca-select:focus {
-  border-color: rgba(123,97,255,.55) !important;
-  box-shadow: 0 0 0 3px rgba(123,97,255,.12) !important;
+  border-color: rgba(var(--accent-rgb),.55) !important;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb),.12) !important;
 }
 
 /* FC-INVITE-CODE rengi zaten accent2, sadece border radius güçlendir */
@@ -594,9 +600,9 @@
   border: 1px solid rgba(255,255,255,.08) !important;
 }
 .pca-toggle input:checked + .pca-toggle-slider {
-  background: linear-gradient(135deg, #7B61FF 0%, #9870ff 100%) !important;
-  border-color: rgba(184,172,255,.25) !important;
-  box-shadow: 0 0 10px rgba(123,97,255,.45) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%) !important;
+  border-color: rgba(var(--accent2-rgb),.25) !important;
+  box-shadow: 0 0 10px rgba(var(--accent-rgb),.45) !important;
 }
 
 /* LANGUAGE SWITCH */
@@ -610,8 +616,8 @@
   transition: background .18s ease, color .18s ease, transform .18s var(--ease-spring) !important;
 }
 .pca-lang-btn.active {
-  background: linear-gradient(135deg, #7B61FF 0%, #9870ff 100%) !important;
-  box-shadow: 0 1px 8px rgba(123,97,255,.40), inset 0 1px 0 rgba(255,255,255,.16) !important;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-mid) 100%) !important;
+  box-shadow: 0 1px 8px rgba(var(--accent-rgb),.40), inset 0 1px 0 rgba(255,255,255,.16) !important;
 }
 
 /* UBADGE */
@@ -633,9 +639,9 @@
   transition: background .18s ease, border-color .18s ease, transform .18s var(--ease-spring) !important;
 }
 #tb-hamburger:hover {
-  background: linear-gradient(160deg, rgba(123,97,255,.18) 0%, rgba(123,97,255,.08) 100%) !important;
-  border-color: rgba(123,97,255,.35) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 3px 12px rgba(123,97,255,.18) !important;
+  background: linear-gradient(160deg, rgba(var(--accent-rgb),.18) 0%, rgba(var(--accent-rgb),.08) 100%) !important;
+  border-color: rgba(var(--accent-rgb),.35) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 3px 12px rgba(var(--accent-rgb),.18) !important;
 }
 
 /* LEVEL-UP & STREAK inner */
@@ -676,7 +682,7 @@
   transition: background .18s ease, box-shadow .18s ease !important;
 }
 .fc-member:hover {
-  background: linear-gradient(160deg, rgba(123,97,255,.10) 0%, rgba(123,97,255,.04) 100%) !important;
+  background: linear-gradient(160deg, rgba(var(--accent-rgb),.10) 0%, rgba(var(--accent-rgb),.04) 100%) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.05) !important;
 }
 
@@ -685,9 +691,9 @@
   border-radius: 12px !important;
 }
 .fc-browse-row:hover {
-  background: linear-gradient(160deg, rgba(123,97,255,.12) 0%, rgba(123,97,255,.04) 100%) !important;
-  border-color: rgba(123,97,255,.35) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 3px 12px rgba(123,97,255,.12) !important;
+  background: linear-gradient(160deg, rgba(var(--accent-rgb),.12) 0%, rgba(var(--accent-rgb),.04) 100%) !important;
+  border-color: rgba(var(--accent-rgb),.35) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 3px 12px rgba(var(--accent-rgb),.12) !important;
 }
 
 /* PC-FRAME */
@@ -705,8 +711,8 @@
 
 /* RHDR */
 .rhdr {
-  background: linear-gradient(90deg, rgba(123,97,255,.12) 0%, rgba(123,97,255,.05) 100%) !important;
-  border: 1px solid rgba(123,97,255,.15) !important;
+  background: linear-gradient(90deg, rgba(var(--accent-rgb),.12) 0%, rgba(var(--accent-rgb),.05) 100%) !important;
+  border: 1px solid rgba(var(--accent-rgb),.15) !important;
   border-radius: 6px !important;
 }
 
@@ -732,10 +738,17 @@
 
   /* ── ACCENT — Elektrik İndigo ──
      Daha parlak, daha saf, yüksek saturasyon violet
+     Varsayılan (kullanıcı Ayarlar'dan tema rengini değiştirmediyse). Runtime'da
+     theme.js bu değişkenleri (ve *-rgb eşleniklerini) document.documentElement
+     üzerinde ezerek tüm rgba(var(--accent-rgb),X) / var(--accent) kullanımlarını
+     tek noktadan yeniden renklendirir (bkz. applyThemeColor()).
   */
   --accent:#7B61FF;
+  --accent-rgb:123,97,255;
+  --accent-mid:#937DFF; /* buton gradyanlarındaki orta durak — accent'in hafif açık tonu */
   --accent2:#b8acff;
-  --accent-glow:rgba(123,97,255,0.40);
+  --accent2-rgb:184,172,255;
+  --accent-glow:rgba(var(--accent-rgb),0.40);
 
   /* ── RED — Elektrik Magenta ──
      Daha canlı, neon oyun hissi
@@ -770,7 +783,7 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
   border:1px solid var(--bdr2);
   border-radius:24px;padding:2.5rem 3rem;width:420px;max-width:calc(100vw - 2rem);
   display:flex;flex-direction:column;gap:1.3rem;
-  box-shadow:0 0 0 1px rgba(123,97,255,.10), 0 32px 80px rgba(0,0,0,.6), 0 0 60px rgba(123,97,255,.10);
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.10), 0 32px 80px rgba(0,0,0,.6), 0 0 60px rgba(var(--accent-rgb),.10);
 }
 .lbox h1{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--accent2),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.02em;}
 .lbox p{color:var(--muted);font-size:.88rem;line-height:1.7;font-weight:500;}
@@ -782,10 +795,10 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',syste
 }
 .lbox input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);}
 .btn{
-  background:linear-gradient(135deg,var(--accent) 0%,#9b7fff 60%,#b8acff 100%);
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent-mid) 60%,var(--accent2) 100%);
   color:#fff;border:none;border-radius:12px;padding:.85rem 1.5rem;
   font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;
   cursor:pointer;transition:opacity .2s,transform .1s,box-shadow .2s;
-  box-shadow:0 4px 24px rgba(123,97,255,.50);
+  box-shadow:0 4px 24px rgba(var(--accent-rgb),.50);
 }
-.btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 10px 32px rgba(123,97,255,.60);}
+.btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 10px 32px rgba(var(--accent-rgb),.60);}

@@ -48,7 +48,7 @@ button, [onclick], .pc-frame, .psw, .zb {
     padding: 1.4rem 1.1rem 1.6rem;
     border-radius: 20px;
     gap: .9rem;
-    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 40px rgba(123,97,255,.10);
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), 0 0 40px rgba(var(--accent-rgb),.10);
   }
   .lbox h1 { font-size: 1.5rem; letter-spacing: -.02em; }
   .lbox p  { font-size: .82rem; line-height: 1.6; }
@@ -329,7 +329,7 @@ button, [onclick], .pc-frame, .psw, .zb {
   /* Dokunma anında belirgin geri bildirim — net "basıldı" hissi */
   .zb:active {
     transform: scale(.9);
-    background: rgba(123,97,255,.55) !important;
+    background: rgba(var(--accent-rgb),.55) !important;
     border-color: rgba(255,255,255,.3) !important;
     box-shadow: 0 2px 6px rgba(0,0,0,.3) !important;
   }
@@ -433,7 +433,7 @@ button, [onclick], .pc-frame, .psw, .zb {
     width: 15px;
     height: 15px;
     border-radius: 50%;
-    background: var(--accent, #7B61FF);
+    background: var(--accent, var(--accent));
     border: 2px solid rgba(15,16,32,.95);
     display: flex;
     align-items: center;
@@ -455,7 +455,7 @@ button, [onclick], .pc-frame, .psw, .zb {
     font-size: 1rem !important;
     border-radius: 12px !important;
     z-index: 200;
-    box-shadow: 0 4px 16px rgba(123,97,255,.45) !important;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb),.45) !important;
   }
 
   /* ══ 11. CHAT PANELİ — Bottom sheet ══ */
