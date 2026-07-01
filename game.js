@@ -958,30 +958,8 @@ function startRealtimeSync(){
       draw();updateSidebar();
     }
   ).subscribe();
-  // Global chat gerçek zamanlı
-  supabase.channel('chat-changes').on(
-    'postgres_changes',
-    {event:'INSERT',schema:'public',table:'chat_messages',filter:'channel=eq.global'},
-    (payload)=>{
-      if(document.getElementById('chat-panel').classList.contains('open')&&currentChatTab==='global'){
-        const row=payload.new;
-        if(!row) return;
-        const uname=typeof username!=='undefined'?username:'';
-        // Kendi mesajımızı optimistic olarak zaten ekledik, tekrar ekleme
-        if(row.username===uname && Date.now()-new Date(row.created_at).getTime()<5000) return;
-        const entry={user:row.username,text:row.message,t:new Date(row.created_at).getTime(),photo:'',frame:'none'};
-        const isMe=entry.user===uname;
-        const box=document.getElementById('chat-messages');
-        const el=document.createElement('div');
-        el.className='cm '+(isMe?'user':'other');
-        el.appendChild(buildChatAvatar(entry));
-        el.appendChild(buildChatBubble(entry,isMe));
-        box.appendChild(el);
-        box.scrollTop=box.scrollHeight;
-        if(_chatMsgCache) _chatMsgCache._globalKey='';
-      }
-    }
-  ).subscribe();
+  // Global + faction chat gerçek zamanlı — chat.js'de yönetiliyor
+  if(typeof startChatRealtimeSync==='function') startChatRealtimeSync();
 }
 function winner(pid){
   const v=pixData[pid];if(!v||!v.length)return null;

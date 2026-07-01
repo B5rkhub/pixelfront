@@ -215,15 +215,15 @@
 </div>
 
 <!-- Chat button -->
-<button id="chat-btn" onclick="toggleChat()" title="AI Asistan"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/></svg></button>
+<button id="chat-btn" onclick="toggleChat()" title="AI Asistan"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/></svg><span id="chat-btn-badge" class="ch-badge"></span></button>
 
 <!-- Chat panel -->
 <div id="chat-panel">
   <div id="chat-header">
     <div class="ch-dot"></div>
     <div id="chat-tabs">
-      <button class="ch-tab active" id="ch-tab-global" onclick="switchChatTab('global')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> Genel</button>
-      <button class="ch-tab" id="ch-tab-faction" onclick="switchChatTab('faction')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> Faction</button>
+      <button class="ch-tab active" id="ch-tab-global" onclick="switchChatTab('global')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> <span id="ch-tab-global-label">Genel</span><span id="chat-global-badge" class="ch-badge"></span></button>
+      <button class="ch-tab" id="ch-tab-faction" onclick="switchChatTab('faction')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> <span id="ch-tab-faction-label">Faction</span><span id="chat-faction-badge" class="ch-badge"></span></button>
     </div>
     <button class="ch-close" onclick="toggleChat()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
   </div>

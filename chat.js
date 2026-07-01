@@ -25,6 +25,7 @@ function switchChatTab(tab){
   } else {
     inp.placeholder='Mesaj yaz...';
   }
+  setChatUnread(tab,false);
   renderChatMessages();
   inp.focus();
 }
@@ -33,9 +34,32 @@ function toggleChat(){
   const panel=document.getElementById('chat-panel');
   panel.classList.toggle('open');
   if(panel.classList.contains('open')){
+    setChatUnread(currentChatTab,false);
     renderChatMessages();
     document.getElementById('chat-input').focus();
   }
+}
+
+// ── Unread badges ──
+const _chatUnread={global:false, faction:false};
+function setChatUnread(tab, val){
+  _chatUnread[tab]=val;
+  const tabBadge=document.getElementById(tab==='faction'?'chat-faction-badge':'chat-global-badge');
+  if(tabBadge) tabBadge.style.display=val?'block':'none';
+  const btnBadge=document.getElementById('chat-btn-badge');
+  if(btnBadge) btnBadge.style.display=(_chatUnread.global||_chatUnread.faction)?'block':'none';
+}
+
+function chatChannelName(tab){
+  return (tab==='faction' && factionData) ? ('faction:'+factionData.tag) : 'global';
+}
+function chatLocalKey(tab){
+  return (tab==='faction' && factionData) ? (CONFIG.storageKeys.factionChat + factionData.tag) : CONFIG.storageKeys.chat;
+}
+function fmtChatTime(t){
+  if(!t) return '';
+  const d=new Date(t);
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 }
 
 function buildChatAvatar(entry, borderOverride){
@@ -73,93 +97,106 @@ function buildChatBubble(entry, isMe){
   txt.className='cm-text';
   txt.textContent=entry.text;
   wrap.appendChild(txt);
+  if(entry.t){
+    const tm=document.createElement('div');
+    tm.className='cm-time';
+    tm.textContent=fmtChatTime(entry.t);
+    wrap.appendChild(tm);
+  }
   return wrap;
 }
 
-let _chatMsgCache=[];
+let _chatMsgCache={};
 let _chatRendering=false;
 
+// Faction sohbeti de artık aynı chat_messages tablosunu kullanıyor
+// (channel='faction:TAG'), global sohbetle aynı DB+realtime altyapısı üzerinden.
 async function renderChatMessages(){
   if(_chatRendering) return;
-  _chatRendering=true;
+  const tab=currentChatTab;
   const box=document.getElementById('chat-messages');
   const uname=typeof username!=='undefined'?username:'';
 
-  if(currentChatTab==='global'){
-    let log=[];
-    try{
-      const {data,error}=await supabase.from('chat_messages').select('*').eq('channel','global').order('created_at',{ascending:false}).limit(50);
-      if(error) console.error('[chat] Mesajlar yüklenemedi:', error);
-      if(data) data.reverse(); // en yeni 50'yi çektik, ekranda eskiden-yeniye göstermek için ters çeviriyoruz
-      if(data&&!error){
-        log=data.map(r=>({user:r.username,text:r.message,t:new Date(r.created_at).getTime(),photo:'',frame:'none'}));
-        // DB'ye yazılamayıp localStorage'a düşmüş mesajlar varsa onları da ekle (kaybolmasınlar)
-        try{
-          const r=localStorage.getItem(CONFIG.storageKeys.chat);
-          if(r){
-            const pending=JSON.parse(r);
-            const dbKeys=new Set(log.map(e=>e.user+'|'+e.text+'|'+Math.floor(e.t/1000)));
-            pending.forEach(p=>{
-              const k=p.user+'|'+p.text+'|'+Math.floor(p.t/1000);
-              if(!dbKeys.has(k)) log.push(p);
-            });
-            log.sort((a,b)=>a.t-b.t);
-          }
-        }catch(e){}
-      } else {
-        if(error) console.error('[chat] Supabase select hatası, mesajlar DB\'den çekilemedi:', error);
-        try{ const r=localStorage.getItem(CONFIG.storageKeys.chat); if(r) log=JSON.parse(r); }catch(e){}
-      }
-    }catch(e){
-      console.error('[chat] Supabase select exception:', e);
-      try{ const r=localStorage.getItem(CONFIG.storageKeys.chat); if(r) log=JSON.parse(r); }catch(e2){}
-    } finally {
-      _chatRendering=false;
-    }
-    // Sadece içerik değiştiyse DOM'u güncelle
-    const newKeys=log.slice(-30).map(e=>e.t+'|'+e.user+'|'+e.text).join(',');
-    if(newKeys===_chatMsgCache._globalKey) return;
-    _chatMsgCache._globalKey=newKeys;
-    const wasAtBottom=box.scrollHeight-box.scrollTop-box.clientHeight<40;
-    box.innerHTML='';
-    log.slice(-30).forEach(entry=>{
-      const isMe=entry.user===uname;
-      const el=document.createElement('div');
-      el.className='cm '+(isMe?'user':'other');
-      el.appendChild(buildChatAvatar(entry));
-      el.appendChild(buildChatBubble(entry,isMe));
-      box.appendChild(el);
-    });
-    if(wasAtBottom) box.scrollTop=box.scrollHeight;
+  if(tab==='faction' && !factionData){
+    box.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">⚑ Faction\'a katıl</div>';
     return;
-  } else {
+  }
+
+  _chatRendering=true;
+  const channel=chatChannelName(tab);
+  const localKey=chatLocalKey(tab);
+  let log=[];
+  try{
+    const {data,error}=await supabase.from('chat_messages').select('*').eq('channel',channel).order('created_at',{ascending:false}).limit(50);
+    if(error) console.error('[chat] Mesajlar yüklenemedi:', error);
+    if(data) data.reverse(); // en yeni 50'yi çektik, ekranda eskiden-yeniye göstermek için ters çeviriyoruz
+    if(data&&!error){
+      log=data.map(r=>({user:r.username,text:r.message,t:new Date(r.created_at).getTime(),photo:'',frame:'none'}));
+      // DB'ye yazılamayıp localStorage'a düşmüş mesajlar varsa onları da ekle (kaybolmasınlar)
+      try{
+        const r=localStorage.getItem(localKey);
+        if(r){
+          const pending=JSON.parse(r);
+          const dbKeys=new Set(log.map(e=>e.user+'|'+e.text+'|'+Math.floor(e.t/1000)));
+          pending.forEach(p=>{
+            const k=p.user+'|'+p.text+'|'+Math.floor(p.t/1000);
+            if(!dbKeys.has(k)) log.push(p);
+          });
+          log.sort((a,b)=>a.t-b.t);
+        }
+      }catch(e){}
+    } else {
+      if(error) console.error('[chat] Supabase select hatası, mesajlar DB\'den çekilemedi:', error);
+      try{ const r=localStorage.getItem(localKey); if(r) log=JSON.parse(r); }catch(e){}
+    }
+  }catch(e){
+    console.error('[chat] Supabase select exception:', e);
+    try{ const r=localStorage.getItem(localKey); if(r) log=JSON.parse(r); }catch(e2){}
+  } finally {
     _chatRendering=false;
-    // Faction chat - localStorage'da kalsın
-    if(!factionData){ box.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">⚑ Faction\'a katıl</div>'; return; }
-    let log=[];
-    try{ const r=localStorage.getItem(CONFIG.storageKeys.factionChat + factionData.tag); if(r) log=JSON.parse(r); }catch(e){}
-    if(!log.length){ box.innerHTML=`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">💬 Henüz mesaj yok.<br><span style="font-size:.65rem;opacity:.6">[${factionData.tag}] kanalı</span></div>`; return; }
-    log.slice(-40).forEach(entry=>{
-      const isMe=entry.user===uname;
+  }
+  if(tab!==currentChatTab) return; // beklerken sekme değişmiş olabilir
+
+  if(tab==='faction'){
+    log=log.map(entry=>{
       let memberProf={};
       try{ memberProf=JSON.parse(localStorage.getItem(CONFIG.storageKeys.profile + entry.user)||'{}'); }catch(e){}
-      const fEntry={...entry, photo:memberProf.photo||entry.photo||'', frame:entry.frame||'none'};
-      const borderCol=factionData.color;
-      const el=document.createElement('div');
-      el.className='cm '+(isMe?'user':'other');
-      el.appendChild(buildChatAvatar(fEntry, isMe?null:borderCol+'88'));
-      el.appendChild(buildChatBubble(fEntry,isMe));
-      box.appendChild(el);
+      return {...entry, photo:memberProf.photo||entry.photo||'', frame:entry.frame||'none'};
     });
   }
-  box.scrollTop=box.scrollHeight;
+
+  // Sadece içerik değiştiyse DOM'u güncelle
+  const cacheKey=tab==='faction'?'_factionKey':'_globalKey';
+  const newKeys=channel+'|'+log.slice(-30).map(e=>e.t+'|'+e.user+'|'+e.text).join(',');
+  if(newKeys===_chatMsgCache[cacheKey]) return;
+  _chatMsgCache[cacheKey]=newKeys;
+
+  if(!log.length){
+    box.innerHTML=tab==='faction'
+      ? `<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">💬 Henüz mesaj yok.<br><span style="font-size:.65rem;opacity:.6">[${factionData.tag}] kanalı</span></div>`
+      : '';
+    return;
+  }
+
+  const wasAtBottom=box.scrollHeight-box.scrollTop-box.clientHeight<40;
+  box.innerHTML='';
+  const borderCol=tab==='faction'?factionData.color:null;
+  log.slice(-30).forEach(entry=>{
+    const isMe=entry.user===uname;
+    const el=document.createElement('div');
+    el.className='cm '+(isMe?'user':'other');
+    el.appendChild(buildChatAvatar(entry, (tab==='faction'&&!isMe)?borderCol+'88':null));
+    el.appendChild(buildChatBubble(entry,isMe));
+    box.appendChild(el);
+  });
+  if(wasAtBottom) box.scrollTop=box.scrollHeight;
 }
 
-function addChatMsg(text, role){
-  // Only used for global immediate render
+function addChatMsg(text, role, tab){
+  tab=tab||currentChatTab;
   const uname=typeof username!=='undefined'?username:'Sen';
   const isMe=role==='user';
-  const entry={user:uname, text, photo:profileData.photo||'', frame:profileData.frame||'none'};
+  const entry={user:uname, text, t:Date.now(), photo:profileData.photo||'', frame:profileData.frame||'none'};
   const box=document.getElementById('chat-messages');
   const el=document.createElement('div');
   el.className='cm '+(isMe?'user':'other');
@@ -169,57 +206,49 @@ function addChatMsg(text, role){
   box.scrollTop=box.scrollHeight;
 }
 
+function _persistChatFallback(key, entry){
+  try{
+    const raw=localStorage.getItem(key);
+    const log=raw?JSON.parse(raw):[];
+    log.push(entry);
+    if(log.length>100) log.splice(0,log.length-100);
+    localStorage.setItem(key,JSON.stringify(log));
+  }catch(e){}
+}
+
+let _chatSending=false;
 async function sendChatMsg(){
   const inp=document.getElementById('chat-input');
   const msg=inp.value.trim();
-  if(!msg) return;
+  if(!msg || _chatSending) return;
+  const tab=currentChatTab;
+  if(tab==='faction' && !factionData){ showPopup(t('msg.join_faction_short')); return; }
+  _chatSending=true;
   inp.value='';
   const uname=typeof username!=='undefined'?username:'Anonim';
+  const channel=chatChannelName(tab);
+  const localKey=chatLocalKey(tab);
 
-  if(currentChatTab==='faction'){
-    if(!factionData){ showPopup(t('msg.join_faction_short')); return; }
-    const entry={user:uname, text:msg, t:Date.now(), photo:profileData.photo||'', frame:profileData.frame||'none'};
-    try{
-      const key=CONFIG.storageKeys.factionChat + factionData.tag;
-      const raw=localStorage.getItem(key);
-      const log=raw?JSON.parse(raw):[];
-      log.push(entry);
-      if(log.length>100) log.splice(0,log.length-100);
-      localStorage.setItem(key,JSON.stringify(log));
-    }catch(e){}
-  } else {
-    // Global chat → Önce UI'a hemen ekle (optimistic update)
-    const entry={user:uname, text:msg, t:Date.now(), photo:profileData&&profileData.photo||'', frame:profileData&&profileData.frame||'none'};
-    addChatMsg(msg,'user');
-    // Supabase'e kaydet (arka planda)
-    supabase.from('chat_messages').insert({username:uname,message:msg,channel:'global'}).select()
-      .then(({data,error})=>{
-        if(error || !data || data.length===0){
-          console.error('[chat] Mesaj DB\'ye yazılamadı:', error || 'boş yanıt (RLS reddi olabilir)');
-          showPopup(t('msg.chat_send_failed') || '⚠ Mesaj gönderilemedi.');
-          try{
-            const raw=localStorage.getItem(CONFIG.storageKeys.chat);
-            const log=raw?JSON.parse(raw):[];
-            log.push(entry);
-            if(log.length>100) log.splice(0,log.length-100);
-            localStorage.setItem(CONFIG.storageKeys.chat,JSON.stringify(log));
-          }catch(e2){}
-        }
-        // Cache'i temizle ki bir sonraki render yeniden çeksin
-        if(_chatMsgCache) _chatMsgCache._globalKey='';
-      })
-      .catch(err=>{
-        console.error('[chat] Ağ hatası, mesaj gönderilemedi:', err);
-        showPopup(t('msg.conn_error'));
-        try{
-          const raw=localStorage.getItem(CONFIG.storageKeys.chat);
-          const log=raw?JSON.parse(raw):[];
-          log.push(entry);
-          if(log.length>100) log.splice(0,log.length-100);
-          localStorage.setItem(CONFIG.storageKeys.chat,JSON.stringify(log));
-        }catch(e2){}
-      });
-  }
+  // Önce UI'a hemen ekle (optimistic update)
+  const entry={user:uname, text:msg, t:Date.now(), photo:profileData&&profileData.photo||'', frame:profileData&&profileData.frame||'none'};
+  addChatMsg(msg,'user',tab);
+  const cacheKey=tab==='faction'?'_factionKey':'_globalKey';
+  // Supabase'e kaydet (arka planda)
+  supabase.from('chat_messages').insert({username:uname,message:msg,channel}).select()
+    .then(({data,error})=>{
+      if(error || !data || data.length===0){
+        console.error('[chat] Mesaj DB\'ye yazılamadı:', error || 'boş yanıt (RLS reddi olabilir)');
+        showPopup(t('msg.chat_send_failed') || '⚠ Mesaj gönderilemedi.');
+        _persistChatFallback(localKey, entry);
+      }
+      if(_chatMsgCache) _chatMsgCache[cacheKey]='';
+    })
+    .catch(err=>{
+      console.error('[chat] Ağ hatası, mesaj gönderilemedi:', err);
+      showPopup(t('msg.conn_error'));
+      _persistChatFallback(localKey, entry);
+    })
+    .finally(()=>{ _chatSending=false; });
   inp.focus();
 }
 
@@ -233,19 +262,83 @@ function loadChat(){
 
 function updateChatFactionTab(){
   const fBtn=document.getElementById('ch-tab-faction');
-  if(!fBtn) return;
-  if(factionData){
-    fBtn.textContent='⚑ '+factionData.name;
-    fBtn.style.opacity='1';
-    fBtn.style.cursor='pointer';
-  } else {
-    fBtn.textContent='⚑ Faction';
-    fBtn.style.opacity='.4';
-    fBtn.style.cursor='default';
+  if(fBtn){
+    const label=document.getElementById('ch-tab-faction-label');
+    if(factionData){
+      if(label) label.textContent='⚑ '+factionData.name;
+      fBtn.style.opacity='1';
+      fBtn.style.cursor='pointer';
+    } else {
+      if(label) label.textContent='⚑ Faction';
+      fBtn.style.opacity='.4';
+      fBtn.style.cursor='default';
+    }
   }
+  ensureFactionChatRealtime();
 }
 
-// Realtime subscription mesajları anlık getiriyor, polling kaldırıldı
+// ── Realtime: global sohbet her zaman, faction sohbeti dinamik olarak
+// aktif faction'ın kanalına abone olur (faction değişince yeniden abone olunur) ──
+let _globalChatChannel=null;
+let _factionChatChannel=null;
+let _subscribedFactionTag=null;
+
+function startChatRealtimeSync(){
+  if(_globalChatChannel) return; // bu oturumda zaten abone
+  _globalChatChannel=supabase.channel('chat-changes-global').on(
+    'postgres_changes',
+    {event:'INSERT',schema:'public',table:'chat_messages',filter:'channel=eq.global'},
+    payload=>handleIncomingChatRow(payload,'global')
+  ).subscribe();
+  ensureFactionChatRealtime();
+}
+
+function ensureFactionChatRealtime(){
+  const tag=factionData?factionData.tag:null;
+  if(tag===_subscribedFactionTag) return;
+  if(_factionChatChannel){ supabase.removeChannel(_factionChatChannel); _factionChatChannel=null; }
+  _subscribedFactionTag=tag;
+  if(!tag) return;
+  _factionChatChannel=supabase.channel('chat-changes-faction-'+tag).on(
+    'postgres_changes',
+    {event:'INSERT',schema:'public',table:'chat_messages',filter:'channel=eq.faction:'+tag},
+    payload=>handleIncomingChatRow(payload,'faction')
+  ).subscribe();
+}
+
+function handleIncomingChatRow(payload, tab){
+  const row=payload.new;
+  if(!row) return;
+  const uname=typeof username!=='undefined'?username:'';
+  // Kendi mesajımızı optimistic olarak zaten ekledik, tekrar ekleme
+  if(row.username===uname && Date.now()-new Date(row.created_at).getTime()<5000){
+    if(_chatMsgCache) _chatMsgCache[tab==='faction'?'_factionKey':'_globalKey']='';
+    return;
+  }
+  const cacheKey=tab==='faction'?'_factionKey':'_globalKey';
+  const panelOpen=document.getElementById('chat-panel').classList.contains('open');
+  if(panelOpen && currentChatTab===tab){
+    let entry={user:row.username,text:row.message,t:new Date(row.created_at).getTime(),photo:'',frame:'none'};
+    if(tab==='faction'){
+      let memberProf={};
+      try{ memberProf=JSON.parse(localStorage.getItem(CONFIG.storageKeys.profile+entry.user)||'{}'); }catch(e){}
+      entry={...entry, photo:memberProf.photo||'', frame:'none'};
+    }
+    const isMe=entry.user===uname;
+    const box=document.getElementById('chat-messages');
+    const borderOverride=(tab==='faction'&&!isMe&&factionData)?factionData.color+'88':null;
+    const el=document.createElement('div');
+    el.className='cm '+(isMe?'user':'other');
+    el.appendChild(buildChatAvatar(entry, borderOverride));
+    el.appendChild(buildChatBubble(entry,isMe));
+    box.appendChild(el);
+    box.scrollTop=box.scrollHeight;
+    if(_chatMsgCache) _chatMsgCache[cacheKey]='';
+  } else {
+    if(_chatMsgCache) _chatMsgCache[cacheKey]='';
+    setChatUnread(tab,true);
+  }
+}
 
 // Show chat+sidebar buttons after login
 const _origStartGame2=window.startGame;
