@@ -56,6 +56,7 @@ const CONFIG = {
     lang:          'pv_lang',
     sfxMuted:      'pv_sfx_muted',
     themeColor:    'pv_theme_color',
+    colorMode:     'pv_color_mode',
   },
 
 };

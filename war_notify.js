@@ -43,8 +43,10 @@ function showWarBanner({attackerName, attackerColor, attackerEmoji, defenderName
   document.getElementById('wb-def-tag').textContent = '';
   document.getElementById('wb-attacker').style.borderColor = attackerColor + '55';
   document.getElementById('wb-defender').style.borderColor = defenderColor + '55';
-  document.getElementById('wb-desc').innerHTML =
-    `<b>${_esc(attackerName)}</b> fraksiyonu <b>${_esc(defenderName)}</b> fraksiyonuna savaş ilan etti!<br>Harita artık çok daha tehlikeli bir yer.`;
+  document.getElementById('wb-desc').innerHTML = t('war.declared_html', {
+    attacker: `<b>${_esc(attackerName)}</b>`,
+    defender: `<b>${_esc(defenderName)}</b>`
+  });
 
   overlay.classList.add('show');
   card.classList.add('show');
@@ -74,8 +76,10 @@ function closeWarBanner(){
 function showAllyBanner({f1Name, f1Color, f2Name, f2Color}){
   const card = document.getElementById('ally-banner-card');
   const overlay = document.getElementById('war-banner-overlay');
-  document.getElementById('ab-names').innerHTML =
-    `<span style="color:${f1Color}">${_esc(f1Name)}</span> &amp; <span style="color:${f2Color}">${_esc(f2Name)}</span><br><span style="font-size:.72rem;color:rgba(255,255,255,.5);font-weight:600;">Artık aynı taraftalar!</span>`;
+  document.getElementById('ab-names').innerHTML = t('ally.formed_html', {
+    f1: `<span style="color:${f1Color}">${_esc(f1Name)}</span>`,
+    f2: `<span style="color:${f2Color}">${_esc(f2Name)}</span>`
+  });
   overlay.classList.add('show');
   card.classList.add('show');
 }
@@ -178,7 +182,7 @@ function showWarToast(attackerName, attackerColor, defenderName, defenderColor) 
       <b style="color:${attackerColor}">${attackerName}</b>
       <span style="color:rgba(255,255,255,.5)"> vs </span>
       <b style="color:${defenderColor}">${defenderName}</b>
-      <span style="color:rgba(255,255,255,.4)"> — Savaş başladı!</span>
+      <span style="color:rgba(255,255,255,.4)"> — ${t('war.toast_started')}</span>
     </span>
   `;
 

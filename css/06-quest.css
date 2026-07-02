@@ -218,9 +218,9 @@
   cursor:pointer;padding:.6rem .8rem;transition:all .18s;
   display:flex;align-items:center;gap:.55rem;
 }
-.pe-dur-btn:hover{border-color:#6b2ef5;color:var(--txt);background:#1a1228;}
+.pe-dur-btn:hover{border-color:#6b2ef5;color:#e8eaf8;background:#1a1228;}
 .pe-dur-btn.pe-dur-sel{
-  background:rgba(124,58,237,.15);border-color:#6b2ef5;color:var(--accent2);
+  background:rgba(124,58,237,.15);border-color:#6b2ef5;color:var(--accent-text);
   box-shadow:0 0 0 3px rgba(124,58,237,.12);
 }
 

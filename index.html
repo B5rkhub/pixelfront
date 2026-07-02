@@ -42,6 +42,18 @@
     root.setProperty('--accent2-rgb',lR+','+lG+','+lB);
   }catch(e){}
 })();
+// Aynı FOUC nedeniyle açık/koyu mod da ilk boyamadan önce senkron uygulanıyor.
+// Anahtar CONFIG.storageKeys.colorMode ile aynı ('pv_color_mode') — mode.js
+// tam uygulamayı (Ayarlar'daki buton durumu vb.) tekrar kurar.
+(function(){
+  try{
+    var mode=localStorage.getItem('pv_color_mode');
+    if(!mode){
+      mode=(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+    }
+    document.documentElement.setAttribute('data-theme', mode==='light'?'light':'dark');
+  }catch(e){}
+})();
 </script>
 </head>
 <body>
@@ -57,8 +69,8 @@
     <div class="tut-desc" id="tut-desc"></div>
     <div class="tut-dots" id="tut-dots"></div>
     <div class="tut-actions">
-      <button class="tut-skip" onclick="closeTutorial()">Atla <kbd>Esc</kbd></button>
-      <button class="tut-next" id="tut-next" onclick="tutorialNext()">İleri →</button>
+      <button class="tut-skip" onclick="closeTutorial()"><span data-i18n="tutorial.skip">Atla</span> <kbd>Esc</kbd></button>
+      <button class="tut-next" id="tut-next" onclick="tutorialNext()" data-i18n="tutorial.next">İleri →</button>
     </div>
   </div>
 </div>
@@ -99,21 +111,21 @@
     <p id="login-desc" data-i18n="login.desc">Türkiye'nin seçim haritasını şekillendir.<br>Her <b>3 dakikada</b> bir <b>7 piksel</b> hakkın var.<br>İlin içine tıkla — sınırlara tıklanamaz.</p>
 
     <!-- Google ile Giriş Yap — önerilen, en hızlı yöntem -->
-    <button type="button" id="google-signin-btn" onclick="signInWithGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.65rem;border-radius:8px;border:1px solid #ffffff33;background:#fff;color:#1f1f1f;font-size:.82rem;font-weight:600;cursor:pointer;margin-bottom:.7rem;">
+    <button type="button" id="google-signin-btn" onclick="signInWithGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.65rem;border-radius:8px;border:1px solid #00000022;background:#fff;color:#1f1f1f;font-size:.82rem;font-weight:600;cursor:pointer;margin-bottom:.7rem;">
       <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.96v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.03l2.99-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.97l2.99 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
       <span data-i18n="login.google">Google ile Giriş Yap</span>
     </button>
 
     <div style="display:flex;align-items:center;gap:.6rem;margin:.6rem 0;">
-      <div style="flex:1;height:1px;background:#ffffff22;"></div>
-      <span style="font-size:.68rem;color:#888;" data-i18n="login.or_email">veya email ile</span>
-      <div style="flex:1;height:1px;background:#ffffff22;"></div>
+      <div style="flex:1;height:1px;background:var(--bdr2);"></div>
+      <span style="font-size:.68rem;color:var(--muted);" data-i18n="login.or_email">veya email ile</span>
+      <div style="flex:1;height:1px;background:var(--bdr2);"></div>
     </div>
 
     <!-- Kayıt ol / Giriş yap sekmeleri -->
     <div id="auth-tabs" style="display:flex;gap:.4rem;margin-bottom:.6rem;">
-      <button type="button" id="auth-tab-signup" class="auth-tab active" onclick="switchAuthTab('signup')" style="flex:1;padding:.5rem;border-radius:8px;border:1px solid #ffffff22;background:#ffffff14;color:#fff;font-size:.78rem;cursor:pointer;" data-i18n="login.tab_signup">Kayıt Ol</button>
-      <button type="button" id="auth-tab-signin" class="auth-tab" onclick="switchAuthTab('signin')" style="flex:1;padding:.5rem;border-radius:8px;border:1px solid #ffffff22;background:transparent;color:#aaa;font-size:.78rem;cursor:pointer;" data-i18n="login.tab_signin">Giriş Yap</button>
+      <button type="button" id="auth-tab-signup" class="auth-tab active" onclick="switchAuthTab('signup')" data-i18n="login.tab_signup">Kayıt Ol</button>
+      <button type="button" id="auth-tab-signin" class="auth-tab" onclick="switchAuthTab('signin')" data-i18n="login.tab_signin">Giriş Yap</button>
     </div>
 
     <!-- Sadece kayıt olurken görünen kullanıcı adı alanı -->
@@ -147,7 +159,7 @@
   <div id="tb-menu-overlay"></div>
   <div id="tb-menu-card">
     <div class="tb-sheet-header">
-      <span class="tb-sheet-title">Menü</span>
+      <span class="tb-sheet-title" data-i18n="topbar.menu">Menü</span>
       <button class="tb-sheet-close" onclick="closeTbMenu()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
     </div>
     <div class="tb-sheet-grid">
@@ -155,16 +167,16 @@
       <div id="ts-templatebtn" class="tb-sheet-item" style="display:none" onclick="closeTbMenu();openTemplateEditor()">
         <div class="tb-sheet-item-icon" style="background:linear-gradient(135deg,#7c3aed,#c026d3)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
         <div class="tb-sheet-item-body">
-          <div class="tb-sheet-item-name">Şablon Yap</div>
-          <div class="tb-sheet-item-desc">Haritaya çiz & kaydet</div>
+          <div class="tb-sheet-item-name" data-i18n="menu.template_name">Şablon Yap</div>
+          <div class="tb-sheet-item-desc" data-i18n="menu.template_desc">Haritaya çiz &amp; kaydet</div>
         </div>
       </div>
       <!-- Görevler -->
       <div id="ts-questbtn" class="tb-sheet-item" style="display:none" onclick="closeTbMenu();openQuestPanel()">
         <div class="tb-sheet-item-icon" style="background:linear-gradient(135deg,#014d38,#00b888)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/></svg></div>
         <div class="tb-sheet-item-body">
-          <div class="tb-sheet-item-name">Görevler <span id="ts-quest-badge" style="display:none;background:#f5a623;color:#000;font-size:.52rem;font-weight:800;border-radius:4px;padding:.05rem .3rem;margin-left:.2rem;font-family:'Space Mono',monospace;">!</span></div>
-          <div class="tb-sheet-item-desc">Günlük & haftalık</div>
+          <div class="tb-sheet-item-name"><span data-i18n="menu.quest_name">Görevler</span> <span id="ts-quest-badge" style="display:none;background:#f5a623;color:#000;font-size:.52rem;font-weight:800;border-radius:4px;padding:.05rem .3rem;margin-left:.2rem;font-family:'Space Mono',monospace;">!</span></div>
+          <div class="tb-sheet-item-desc" data-i18n="menu.quest_desc">Günlük &amp; haftalık</div>
         </div>
       </div>
       <!-- Timelapse -->
@@ -172,7 +184,7 @@
         <div class="tb-sheet-item-icon" style="background:linear-gradient(135deg,#1a2e8a,#5b21c9)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M2 6h20v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/><path d="M7 2h10"/><path d="M12 6v16"/><path d="M2 12h20"/></svg></div>
         <div class="tb-sheet-item-body">
           <div class="tb-sheet-item-name" data-i18n="topbar.timelapse">Timelapse</div>
-          <div class="tb-sheet-item-desc">Video oluştur</div>
+          <div class="tb-sheet-item-desc" data-i18n="menu.timelapse_desc">Video oluştur</div>
         </div>
       </div>
       <!-- Geçmiş -->
@@ -180,15 +192,15 @@
         <div class="tb-sheet-item-icon" style="background:linear-gradient(135deg,#0a6660,#0257a0)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></div>
         <div class="tb-sheet-item-body">
           <div class="tb-sheet-item-name" data-i18n="topbar.history">Geçmiş</div>
-          <div class="tb-sheet-item-desc">Haritayı geri sar</div>
+          <div class="tb-sheet-item-desc" data-i18n="menu.history_desc">Haritayı geri sar</div>
         </div>
       </div>
       <!-- Admin -->
       <div id="ts-adminbtn" class="tb-sheet-item" style="display:none" onclick="closeTbMenu();toggleAdmin()">
         <div class="tb-sheet-item-icon" style="background:#dc2626"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></div>
         <div class="tb-sheet-item-body">
-          <div class="tb-sheet-item-name">Admin</div>
-          <div class="tb-sheet-item-desc">Modu aç/kapat</div>
+          <div class="tb-sheet-item-name" data-i18n="menu.admin_name">Admin</div>
+          <div class="tb-sheet-item-desc" data-i18n="menu.admin_desc">Modu aç/kapat</div>
         </div>
       </div>
       <!-- Owner -->
@@ -196,7 +208,7 @@
         <div class="tb-sheet-item-icon" style="background:linear-gradient(135deg,#92400e,#d97706)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21 5l-2 13H5L3 5l4.094 4.164a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg></div>
         <div class="tb-sheet-item-body">
           <div class="tb-sheet-item-name" data-i18n="topbar.owner">Owner</div>
-          <div class="tb-sheet-item-desc">Yetki yönetimi</div>
+          <div class="tb-sheet-item-desc" data-i18n="menu.owner_desc">Yetki yönetimi</div>
         </div>
       </div>
     </div>
@@ -210,28 +222,28 @@
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div style="display:flex;align-items:center;gap:.6rem;">
         <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#b45309,#d97706);display:flex;align-items:center;justify-content:center;font-size:1rem;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21 5l-2 13H5L3 5l4.094 4.164a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg></div>
-        <h2 style="font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,#ffc53d,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Admin Yönetimi</h2>
+        <h2 style="font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,#ffc53d,#f5a623);-webkit-background-clip:text;-webkit-text-fill-color:transparent;" data-i18n="owner.title">Admin Yönetimi</h2>
       </div>
       <button onclick="closeOwnerPanel()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:.5rem;">
-      <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Email ile Admin Ata</label>
-      <input id="owner-add-email" type="email" placeholder="kullanici@example.com" style="background:var(--bg);border:1px solid var(--bdr2);border-radius:10px;padding:.65rem .9rem;color:var(--txt);font-family:'Space Mono',monospace;font-size:.82rem;outline:none;width:100%;">
+      <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);" data-i18n="owner.assign_label">Email ile Admin Ata</label>
+      <input id="owner-add-email" type="email" placeholder="kullanici@example.com" data-i18n-placeholder="owner.email_ph" style="background:var(--bg);border:1px solid var(--bdr2);border-radius:10px;padding:.65rem .9rem;color:var(--txt);font-family:'Space Mono',monospace;font-size:.82rem;outline:none;width:100%;">
       <div style="display:flex;gap:.5rem;">
-        <button onclick="ownerAssignRole('admin')" style="flex:1;background:linear-gradient(135deg,var(--accent) 0%,#9b7fff 60%,#b8acff 100%);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-family:'Outfit',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;">Admin Yap</button>
-        <button onclick="ownerAssignRole('owner')" style="flex:1;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-family:'Outfit',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;">Owner Yap</button>
+        <button onclick="ownerAssignRole('admin')" data-i18n="owner.make_admin" style="flex:1;background:linear-gradient(135deg,var(--accent) 0%,#9b7fff 60%,#b8acff 100%);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-family:'Outfit',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;">Admin Yap</button>
+        <button onclick="ownerAssignRole('owner')" data-i18n="owner.make_owner" style="flex:1;background:linear-gradient(135deg,#b45309,#d97706);color:#fff;border:none;border-radius:10px;padding:.65rem 1rem;font-family:'Outfit',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;">Owner Yap</button>
       </div>
-      <button onclick="ownerRevoke()" style="background:var(--surf2);border:1px solid rgba(220,38,38,.4);color:#ff7373;border-radius:10px;padding:.6rem 1rem;font-family:'Outfit',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;">Yetkiyi Kaldır</button>
+      <button onclick="ownerRevoke()" data-i18n="owner.revoke" style="background:var(--surf2);border:1px solid rgba(220,38,38,.4);color:#ff7373;border-radius:10px;padding:.6rem 1rem;font-family:'Outfit',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;">Yetkiyi Kaldır</button>
       <div id="owner-form-msg" style="font-size:.74rem;font-family:'Space Mono',monospace;min-height:1rem;"></div>
     </div>
 
     <div style="height:1px;background:var(--bdr2);"></div>
 
     <div style="display:flex;flex-direction:column;gap:.5rem;">
-      <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Mevcut Yetkililer</label>
+      <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);" data-i18n="owner.current_label">Mevcut Yetkililer</label>
       <div id="owner-admin-list" style="display:flex;flex-direction:column;gap:.4rem;max-height:220px;overflow-y:auto;">
-        <div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;">Yükleniyor...</div>
+        <div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;" data-i18n="owner.loading">Yükleniyor...</div>
       </div>
     </div>
 
@@ -253,7 +265,7 @@
   </div>
   <div id="chat-messages"></div>
   <div id="chat-footer">
-    <input id="chat-input" placeholder="Mesaj yaz..." maxlength="200" enterkeyhint="send" onkeydown="if(event.key==='Enter')sendChatMsg()"/>
+    <input id="chat-input" placeholder="Mesaj yaz..." data-i18n-placeholder="chat.input_ph" maxlength="200" enterkeyhint="send" onkeydown="if(event.key==='Enter')sendChatMsg()"/>
     <button id="chat-send" onclick="sendChatMsg()">→</button>
   </div>
 </div>
@@ -267,12 +279,12 @@
     <div id="label-overlay" style="display:none"></div>
     <div id="pixel-event-banner">
       <div class="ev-dot"></div>
-      <span><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> Piksel Etkinliği Aktif — <span id="pe-rate-label">1dk'da 6 piksel</span></span>
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> <span data-i18n="pe.banner_active">Piksel Etkinliği Aktif —</span> <span id="pe-rate-label" data-i18n="pe.banner_rate">1dk'da 6 piksel</span></span>
       <span id="pe-banner-timer" style="font-family:'Space Mono',monospace;font-weight:700;opacity:.9;">—</span>
     </div>
     <div id="announce-banner">
       <span class="ab-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 11l19-9v18L3 13"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>
-      <span class="ab-label">Duyuru</span>
+      <span class="ab-label" data-i18n="announce.label">Duyuru</span>
       <span class="ab-text" id="announce-banner-text">—</span>
     </div>
     <div id="tip"></div>
@@ -282,35 +294,35 @@
       <span style="font-size:1rem;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span>
       <span id="history-banner-label">—</span>
       <div style="display:flex;align-items:center;gap:.3rem;border-left:1px solid rgba(255,255,255,.25);padding-left:.6rem;margin-left:.1rem;">
-        <button id="hist-scrub-back" onclick="scrubHistory(-1)" title="Geri" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.85rem;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;padding:.2rem .55rem;transition:background .15s;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">◀</button>
+        <button id="hist-scrub-back" onclick="scrubHistory(-1)" title="Geri" data-i18n-title="history.back_title" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.85rem;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;padding:.2rem .55rem;transition:background .15s;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">◀</button>
         <select id="hist-scrub-step" onchange="updateHistScrubStep()" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.66rem;font-family:'Space Mono',monospace;padding:.2rem .3rem;cursor:pointer;outline:none;">
-          <option value="15">15 dk</option>
-          <option value="60" selected>1 saat</option>
-          <option value="360">6 saat</option>
-          <option value="1440">1 gün</option>
+          <option value="15" data-i18n="history.step_15m">15 dk</option>
+          <option value="60" selected data-i18n="history.step_1h">1 saat</option>
+          <option value="360" data-i18n="history.step_6h">6 saat</option>
+          <option value="1440" data-i18n="history.step_1d">1 gün</option>
         </select>
-        <button id="hist-scrub-fwd" onclick="scrubHistory(1)" title="İleri" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.85rem;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;padding:.2rem .55rem;transition:background .15s;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">▶</button>
+        <button id="hist-scrub-fwd" onclick="scrubHistory(1)" title="İleri" data-i18n-title="history.fwd_title" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.85rem;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;padding:.2rem .55rem;transition:background .15s;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">▶</button>
       </div>
-      <button onclick="exitHistoryMode()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.72rem;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;padding:.2rem .6rem;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.15)'"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg> Çık</button>
+      <button onclick="exitHistoryMode()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.72rem;font-family:'Outfit',sans-serif;font-weight:700;cursor:pointer;padding:.2rem .6rem;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.15)'"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg> <span data-i18n="history.exit_word">Çık</span></button>
     </div>
     <!-- Centered pixel counter -->
     <div id="pixel-widget">
       <div id="pixel-dots-wrap"></div>
       <div id="pixel-count-row">
-        <span id="pnum">7</span><span class="pw-label"> piksel</span>
+        <span id="pnum">7</span><span class="pw-label" data-i18n="pixel.unit"> piksel</span>
       </div>
-      <div id="cdlabel" style="display:block">Sonraki piksel: <span id="cdtimer">—</span></div>
+      <div id="cdlabel" style="display:block"><span data-i18n="pixel.next">Sonraki piksel: </span><span id="cdtimer">—</span></div>
     </div>
     <div id="paint-toolbar">
-      <button class="ptbtn active" id="pt-pixerase"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> Erase Pixels</button>
+      <button class="ptbtn active" id="pt-pixerase"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> <span data-i18n="paint.erase">Erase Pixels</span></button>
       <div style="border-top:1px solid var(--bdr);margin:.1rem 0"></div>
-      <button class="ptbtn" id="pt-event-toggle" onclick="openPixelEventModal()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> Pixel Event: OFF</button>
+      <button class="ptbtn" id="pt-event-toggle" onclick="openPixelEventModal()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> <span id="pt-event-toggle-label" data-i18n="paint.event_off">Pixel Event: OFF</span></button>
       <div style="border-top:1px solid var(--bdr);margin:.1rem 0"></div>
-      <button class="ptbtn" id="pt-rollback-toggle" onclick="toggleRollbackTool()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg> Rollback Aracı: OFF</button>
+      <button class="ptbtn" id="pt-rollback-toggle" onclick="toggleRollbackTool()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg> <span id="pt-rollback-toggle-label" data-i18n="paint.rollback_off">Rollback Aracı: OFF</span></button>
       <div style="border-top:1px solid var(--bdr);margin:.1rem 0"></div>
-      <button class="ptbtn" id="pt-announce-toggle" onclick="openAnnounceModal()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 11l19-9v18L3 13"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> Duyuru Yaz</button>
+      <button class="ptbtn" id="pt-announce-toggle" onclick="openAnnounceModal()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 11l19-9v18L3 13"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg> <span data-i18n="paint.announce">Duyuru Yaz</span></button>
       <div style="border-top:1px solid var(--bdr);margin:.1rem 0"></div>
-      <button class="ptbtn" id="pt-warzone-btn" onclick="wzOpenPickModal()" style="background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;font-weight:700;">⚔️ Savaş Bölgesi</button>
+      <button class="ptbtn" id="pt-warzone-btn" onclick="wzOpenPickModal()" style="background:linear-gradient(135deg,#7f1d1d,#dc2626);color:#fff;font-weight:700;" data-i18n="paint.warzone">⚔️ Savaş Bölgesi</button>
     </div>
     <div id="faction-btn">
     <button id="profile-btn" onclick="openProfileModal()">
@@ -340,11 +352,11 @@
         <button id="faction-sub-btn" class="tb-btn" onclick="closeTbDesktopMenu();openFactionModal()" title="Faction" data-i18n-title="faction.btn_title">
           <span class="tb-icon fsb-dot" id="fsb-dot" style="background:#5a5a80;width:12px;height:12px;border-radius:3px;display:inline-block;"></span><span class="tb-label" id="fsb-label" data-i18n="faction.label">Faction</span>
         </button>
-        <button id="template-btn" class="tb-btn" style="background:linear-gradient(135deg,#7c3aed,#c026d3);display:none" onclick="closeTbDesktopMenu();openTemplateEditor()" title="Şablon Yap">
-          <span class="tb-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span class="tb-label">Şablon Yap</span>
+        <button id="template-btn" class="tb-btn" style="background:linear-gradient(135deg,#7c3aed,#c026d3);display:none" onclick="closeTbDesktopMenu();openTemplateEditor()" title="Şablon Yap" data-i18n-title="menu.template_name">
+          <span class="tb-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span class="tb-label" data-i18n="menu.template_name">Şablon Yap</span>
         </button>
-        <button id="quest-btn" class="tb-btn" style="background:linear-gradient(135deg,#014d38,#00b888);display:none;position:relative" onclick="closeTbDesktopMenu();openQuestPanel()" title="Görevler">
-          <span class="tb-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/></svg></span><span class="tb-label">Görevler</span>
+        <button id="quest-btn" class="tb-btn" style="background:linear-gradient(135deg,#014d38,#00b888);display:none;position:relative" onclick="closeTbDesktopMenu();openQuestPanel()" title="Görevler" data-i18n-title="menu.quest_name">
+          <span class="tb-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/></svg></span><span class="tb-label" data-i18n="menu.quest_name">Görevler</span>
           <span id="quest-badge" style="display:none;position:absolute;top:-4px;right:-4px;background:#f5a623;color:#000;font-size:.5rem;font-weight:800;border-radius:50%;width:14px;height:14px;align-items:center;justify-content:center;line-height:1;font-family:'Space Mono',monospace;">!</span>
         </button>
         <button id="timelapse-btn" class="tb-btn" style="background:linear-gradient(135deg,#1a2e8a,#5b21c9);display:none" onclick="closeTbDesktopMenu();openTimelapseModal()" title="Timelapse Oluştur" data-i18n-title="tl.title">
@@ -372,40 +384,40 @@
       <button class="zb" style="font-size:.65rem" onclick="resetView()">⌂</button>
     </div>
     <div id="ptoolbar">
-      <div id="pen-toggle" onclick="togglePenMode()" title="Kalem modu (basılı tut + sürükle = piksel bas)">
+      <div id="pen-toggle" onclick="togglePenMode()" title="Kalem modu (basılı tut + sürükle = piksel bas)" data-i18n-title="paint.pen_mode_title">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
       </div>
-      <div id="palette-toggle" style="background:#ffffff" onclick="togglePalette()" title="Renk seç"></div>
-      <div class="psw sel" style="background:#ffffff" id="sw0" onclick="selP(0)" title="Beyaz"></div>
-      <div class="psw" style="background:#e4e4e4" id="sw1" onclick="selP(1)" title="Açık Gri"></div>
-      <div class="psw" style="background:#c4c4c4" id="sw2" onclick="selP(2)" title="Gri"></div>
-      <div class="psw" style="background:#888888" id="sw3" onclick="selP(3)" title="Koyu Gri"></div>
-      <div class="psw" style="background:#4e4e4e" id="sw4" onclick="selP(4)" title="Çok Koyu Gri"></div>
-      <div class="psw" style="background:#000000" id="sw5" onclick="selP(5)" title="Siyah"></div>
-      <div class="psw" style="background:#f4b3ae" id="sw6" onclick="selP(6)" title="Açık Pembe"></div>
-      <div class="psw" style="background:#ffa7d1" id="sw7" onclick="selP(7)" title="Pembe"></div>
-      <div class="psw" style="background:#ff54b2" id="sw8" onclick="selP(8)" title="Fuşya"></div>
-      <div class="psw" style="background:#ff6565" id="sw9" onclick="selP(9)" title="Açık Kırmızı"></div>
-      <div class="psw" style="background:#e50000" id="sw10" onclick="selP(10)" title="Kırmızı"></div>
-      <div class="psw" style="background:#9a0000" id="sw11" onclick="selP(11)" title="Koyu Kırmızı"></div>
-      <div class="psw" style="background:#fea460" id="sw12" onclick="selP(12)" title="Şeftali"></div>
-      <div class="psw" style="background:#e59500" id="sw13" onclick="selP(13)" title="Turuncu"></div>
-      <div class="psw" style="background:#a06a42" id="sw14" onclick="selP(14)" title="Kahverengi"></div>
-      <div class="psw" style="background:#604028" id="sw15" onclick="selP(15)" title="Koyu Kahverengi"></div>
-      <div class="psw" style="background:#f5dfb0" id="sw16" onclick="selP(16)" title="Krem"></div>
-      <div class="psw" style="background:#fff889" id="sw17" onclick="selP(17)" title="Açık Sarı"></div>
-      <div class="psw" style="background:#e5d900" id="sw18" onclick="selP(18)" title="Sarı"></div>
-      <div class="psw" style="background:#94e044" id="sw19" onclick="selP(19)" title="Açık Yeşil"></div>
-      <div class="psw" style="background:#02be01" id="sw20" onclick="selP(20)" title="Yeşil"></div>
-      <div class="psw" style="background:#688338" id="sw21" onclick="selP(21)" title="Çimen"></div>
-      <div class="psw" style="background:#006513" id="sw22" onclick="selP(22)" title="Koyu Yeşil"></div>
-      <div class="psw" style="background:#cae3ff" id="sw23" onclick="selP(23)" title="Açık Mavi"></div>
-      <div class="psw" style="background:#00d3dd" id="sw24" onclick="selP(24)" title="Cyan"></div>
-      <div class="psw" style="background:#0083c7" id="sw25" onclick="selP(25)" title="Mavi"></div>
-      <div class="psw" style="background:#0000ea" id="sw26" onclick="selP(26)" title="Parlak Mavi"></div>
-      <div class="psw" style="background:#191973" id="sw27" onclick="selP(27)" title="Lacivert"></div>
-      <div class="psw" style="background:#cf6ee4" id="sw28" onclick="selP(28)" title="Lila"></div>
-      <div class="psw" style="background:#820080" id="sw29" onclick="selP(29)" title="Mor"></div>
+      <div id="palette-toggle" style="background:#ffffff" onclick="togglePalette()" title="Renk seç" data-i18n-title="palette.title"></div>
+      <div class="psw sel" style="background:#ffffff" id="sw0" onclick="selP(0)" title="Beyaz" data-i18n-title="color.white"></div>
+      <div class="psw" style="background:#e4e4e4" id="sw1" onclick="selP(1)" title="Açık Gri" data-i18n-title="color.light_gray"></div>
+      <div class="psw" style="background:#c4c4c4" id="sw2" onclick="selP(2)" title="Gri" data-i18n-title="color.gray"></div>
+      <div class="psw" style="background:#888888" id="sw3" onclick="selP(3)" title="Koyu Gri" data-i18n-title="color.dark_gray"></div>
+      <div class="psw" style="background:#4e4e4e" id="sw4" onclick="selP(4)" title="Çok Koyu Gri" data-i18n-title="color.very_dark_gray"></div>
+      <div class="psw" style="background:#000000" id="sw5" onclick="selP(5)" title="Siyah" data-i18n-title="color.black"></div>
+      <div class="psw" style="background:#f4b3ae" id="sw6" onclick="selP(6)" title="Açık Pembe" data-i18n-title="color.light_pink"></div>
+      <div class="psw" style="background:#ffa7d1" id="sw7" onclick="selP(7)" title="Pembe" data-i18n-title="color.pink"></div>
+      <div class="psw" style="background:#ff54b2" id="sw8" onclick="selP(8)" title="Fuşya" data-i18n-title="color.fuchsia"></div>
+      <div class="psw" style="background:#ff6565" id="sw9" onclick="selP(9)" title="Açık Kırmızı" data-i18n-title="color.light_red"></div>
+      <div class="psw" style="background:#e50000" id="sw10" onclick="selP(10)" title="Kırmızı" data-i18n-title="color.red"></div>
+      <div class="psw" style="background:#9a0000" id="sw11" onclick="selP(11)" title="Koyu Kırmızı" data-i18n-title="color.dark_red"></div>
+      <div class="psw" style="background:#fea460" id="sw12" onclick="selP(12)" title="Şeftali" data-i18n-title="color.peach"></div>
+      <div class="psw" style="background:#e59500" id="sw13" onclick="selP(13)" title="Turuncu" data-i18n-title="color.orange"></div>
+      <div class="psw" style="background:#a06a42" id="sw14" onclick="selP(14)" title="Kahverengi" data-i18n-title="color.brown"></div>
+      <div class="psw" style="background:#604028" id="sw15" onclick="selP(15)" title="Koyu Kahverengi" data-i18n-title="color.dark_brown"></div>
+      <div class="psw" style="background:#f5dfb0" id="sw16" onclick="selP(16)" title="Krem" data-i18n-title="color.cream"></div>
+      <div class="psw" style="background:#fff889" id="sw17" onclick="selP(17)" title="Açık Sarı" data-i18n-title="color.light_yellow"></div>
+      <div class="psw" style="background:#e5d900" id="sw18" onclick="selP(18)" title="Sarı" data-i18n-title="color.yellow"></div>
+      <div class="psw" style="background:#94e044" id="sw19" onclick="selP(19)" title="Açık Yeşil" data-i18n-title="color.light_green"></div>
+      <div class="psw" style="background:#02be01" id="sw20" onclick="selP(20)" title="Yeşil" data-i18n-title="color.green"></div>
+      <div class="psw" style="background:#688338" id="sw21" onclick="selP(21)" title="Çimen" data-i18n-title="color.grass"></div>
+      <div class="psw" style="background:#006513" id="sw22" onclick="selP(22)" title="Koyu Yeşil" data-i18n-title="color.dark_green"></div>
+      <div class="psw" style="background:#cae3ff" id="sw23" onclick="selP(23)" title="Açık Mavi" data-i18n-title="color.light_blue"></div>
+      <div class="psw" style="background:#00d3dd" id="sw24" onclick="selP(24)" title="Cyan" data-i18n-title="color.cyan"></div>
+      <div class="psw" style="background:#0083c7" id="sw25" onclick="selP(25)" title="Mavi" data-i18n-title="color.blue"></div>
+      <div class="psw" style="background:#0000ea" id="sw26" onclick="selP(26)" title="Parlak Mavi" data-i18n-title="color.bright_blue"></div>
+      <div class="psw" style="background:#191973" id="sw27" onclick="selP(27)" title="Lacivert" data-i18n-title="color.navy"></div>
+      <div class="psw" style="background:#cf6ee4" id="sw28" onclick="selP(28)" title="Lila" data-i18n-title="color.lilac"></div>
+      <div class="psw" style="background:#820080" id="sw29" onclick="selP(29)" title="Mor" data-i18n-title="color.purple"></div>
     </div>
   </div>
 </div>
@@ -509,6 +521,16 @@
     <!-- PANEL: Ayarlar -->
     <div class="pc-panel" id="pcpanel-ayarlar">
       <div class="pca-section-title" data-i18n="settings.appearance">Görünüm</div>
+      <div class="pca-row" id="pca-row-color-mode">
+        <div class="pca-row-info">
+          <div class="pca-row-title" data-i18n="settings.color_mode">Görünüm Modu</div>
+          <div class="pca-row-desc" data-i18n="settings.color_mode_desc">Açık veya koyu temayı seç</div>
+        </div>
+        <div class="pca-lang-switch" id="pca-mode-switch">
+          <button type="button" class="pca-lang-btn active" id="pca-mode-dark" onclick="applyColorMode('dark',true)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg> <span data-i18n="settings.color_mode_dark">Koyu</span></button>
+          <button type="button" class="pca-lang-btn" id="pca-mode-light" onclick="applyColorMode('light',true)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> <span data-i18n="settings.color_mode_light">Açık</span></button>
+        </div>
+      </div>
       <div class="pca-row pca-row-theme">
         <div class="pca-row-info">
           <div class="pca-row-title" data-i18n="settings.theme_color">Tema Rengi</div>
@@ -518,8 +540,8 @@
       </div>
       <div class="pca-row" style="cursor:pointer" onclick="try{localStorage.removeItem(CONFIG.storageKeys.tutorialSeen);}catch(e){} maybeShowTutorial()">
         <div class="pca-row-info">
-          <div class="pca-row-title">🧭 Tanıtımı Tekrar Göster</div>
-          <div class="pca-row-desc">Oyuna başlangıç rehberini yeniden aç</div>
+          <div class="pca-row-title" data-i18n="settings.replay_tutorial">🧭 Tanıtımı Tekrar Göster</div>
+          <div class="pca-row-desc" data-i18n="settings.replay_tutorial_desc">Oyuna başlangıç rehberini yeniden aç</div>
         </div>
       </div>
       <div class="pca-row" id="pca-row-language">
@@ -658,7 +680,7 @@
 <div id="quest-complete-notif">
   <div class="qcn-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/></svg></div>
   <div class="qcn-body">
-    <div class="qcn-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> Görev Tamamlandı!</div>
+    <div class="qcn-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="quest.completed_notif">Görev Tamamlandı!</span></div>
     <div class="qcn-name" id="qcn-name">—</div>
     <div class="qcn-reward" id="qcn-reward">+10 XP · +2 Piksel</div>
   </div>
@@ -670,7 +692,7 @@
     <div class="quest-header">
       <div class="quest-header-left">
         <div class="quest-header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/></svg></div>
-        <h2>Görevler</h2>
+        <h2 data-i18n="menu.quest_name">Görevler</h2>
       </div>
       <button class="quest-close" onclick="closeQuestPanel()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
     </div>
@@ -679,25 +701,25 @@
     <div class="quest-summary">
       <div class="quest-sum-item">
         <div class="quest-sum-val" id="q-sum-done">0</div>
-        <div class="quest-sum-lbl">Tamamlandı</div>
+        <div class="quest-sum-lbl" data-i18n="quest.sum_done">Tamamlandı</div>
       </div>
       <div class="quest-sum-sep"></div>
       <div class="quest-sum-item">
         <div class="quest-sum-val" id="q-sum-total">0</div>
-        <div class="quest-sum-lbl">Toplam</div>
+        <div class="quest-sum-lbl" data-i18n="quest.sum_total">Toplam</div>
       </div>
       <div class="quest-sum-sep"></div>
       <div class="quest-sum-item">
         <div class="quest-sum-val" id="q-sum-xp">0</div>
-        <div class="quest-sum-lbl">XP Kazanıldı</div>
+        <div class="quest-sum-lbl" data-i18n="quest.sum_xp">XP Kazanıldı</div>
       </div>
     </div>
 
     <!-- Sekmeler -->
     <div class="quest-tabs">
-      <button class="quest-tab active" id="qtab-daily" onclick="switchQuestTab('daily')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 22 4-10 4 10"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> Günlük</button>
-      <button class="quest-tab" id="qtab-weekly" onclick="switchQuestTab('weekly')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg> Haftalık</button>
-      <button class="quest-tab" id="qtab-milestone" onclick="switchQuestTab('milestone')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> Kilometre Taşı</button>
+      <button class="quest-tab active" id="qtab-daily" onclick="switchQuestTab('daily')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 22 4-10 4 10"/><path d="M16 18a4 4 0 0 0-8 0"/></svg> <span data-i18n="quest.tab_daily">Günlük</span></button>
+      <button class="quest-tab" id="qtab-weekly" onclick="switchQuestTab('weekly')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg> <span data-i18n="quest.tab_weekly">Haftalık</span></button>
+      <button class="quest-tab" id="qtab-milestone" onclick="switchQuestTab('milestone')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> <span data-i18n="quest.tab_milestone">Kilometre Taşı</span></button>
     </div>
 
     <!-- Görev listesi -->
@@ -761,7 +783,7 @@
 <div id="timelapse-modal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
   <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:20px;width:460px;max-width:95vw;padding:1.8rem;display:flex;flex-direction:column;gap:1.1rem;box-shadow:0 24px 64px rgba(0,0,0,.8);max-height:90vh;overflow-y:auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2 style="font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,#3b82f6,#9b7fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M2 6h20v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/><path d="M7 2h10"/><path d="M12 6v16"/><path d="M2 12h20"/></svg> Timelapse Oluştur</h2>
+      <h2 style="font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,#3b82f6,#9b7fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M2 6h20v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/><path d="M7 2h10"/><path d="M12 6v16"/><path d="M2 12h20"/></svg> <span data-i18n="tl.title">Timelapse Oluştur</span></h2>
       <button onclick="closeTimelapseModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
     </div>
 
@@ -771,42 +793,42 @@
 
     <div id="tl-form" style="display:flex;flex-direction:column;gap:.85rem;">
       <div style="display:flex;flex-direction:column;gap:.35rem;">
-        <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Zaman Aralığı</label>
+        <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);" data-i18n="tl.range_label">Zaman Aralığı</label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
-          <button class="tl-range-btn tl-sel" onclick="selectTLRange(this,1)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> Son 1 Saat</button>
-          <button class="tl-range-btn" onclick="selectTLRange(this,6)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Son 6 Saat</button>
-          <button class="tl-range-btn" onclick="selectTLRange(this,24)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Bugün (24s)</button>
-          <button class="tl-range-btn" onclick="selectTLRange(this,72)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg> Son 3 Gün</button>
-          <button class="tl-range-btn" onclick="selectTLRange(this,168)" style="grid-column:span 2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h2v4H8zM14 14h2v4h-2z"/></svg> Son 7 Gün</button>
+          <button class="tl-range-btn tl-sel" onclick="selectTLRange(this,1)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> <span data-i18n="tl.range_1h">Son 1 Saat</span></button>
+          <button class="tl-range-btn" onclick="selectTLRange(this,6)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> <span data-i18n="tl.range_6h">Son 6 Saat</span></button>
+          <button class="tl-range-btn" onclick="selectTLRange(this,24)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <span data-i18n="tl.range_24h">Bugün (24s)</span></button>
+          <button class="tl-range-btn" onclick="selectTLRange(this,72)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg> <span data-i18n="tl.range_3d">Son 3 Gün</span></button>
+          <button class="tl-range-btn" onclick="selectTLRange(this,168)" style="grid-column:span 2"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h2v4H8zM14 14h2v4h-2z"/></svg> <span data-i18n="stats.last_7_days">Son 7 Gün</span></button>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:.35rem;">
-        <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Video Hızı</label>
+        <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);" data-i18n="tl.speed_section_label">Video Hızı</label>
         <div style="display:flex;gap:.5rem;">
-          <button class="tl-speed-btn tl-ssel" onclick="selectTLSpeed(this,2)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M10 2h4"/><path d="M12 14v-4"/><path d="M4 13a8 8 0 0 1 8-7 8 8 0 0 1 8 7 8 8 0 0 1-8 7 8 8 0 0 1-8-7"/></svg> Yavaş</button>
-          <button class="tl-speed-btn" onclick="selectTLSpeed(this,5)">▶ Normal</button>
-          <button class="tl-speed-btn" onclick="selectTLSpeed(this,12)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> Hızlı</button>
+          <button class="tl-speed-btn tl-ssel" onclick="selectTLSpeed(this,2)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M10 2h4"/><path d="M12 14v-4"/><path d="M4 13a8 8 0 0 1 8-7 8 8 0 0 1 8 7 8 8 0 0 1-8 7 8 8 0 0 1-8-7"/></svg> <span data-i18n="tl.speed_slow">Yavaş</span></button>
+          <button class="tl-speed-btn" onclick="selectTLSpeed(this,5)">▶ <span data-i18n="tl.speed_normal">Normal</span></button>
+          <button class="tl-speed-btn" onclick="selectTLSpeed(this,12)"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> <span data-i18n="tl.speed_fast">Hızlı</span></button>
         </div>
       </div>
       <div id="tl-preview-info" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:.7rem .9rem;font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);line-height:1.8;">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M10 2h4"/><path d="M12 14v-4"/><path d="M4 13a8 8 0 0 1 8-7 8 8 0 0 1 8 7 8 8 0 0 1-8 7 8 8 0 0 1-8-7"/></svg> Aralık: <b style="color:var(--txt)">Son 1 saat</b><br><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M7 2h10"/><path d="M5 2h14"/><path d="M2 8h20"/><path d="M2 16h20"/><path d="M2 6h20v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/></svg> Hız: <b style="color:var(--txt)">Yavaş (2 FPS)</b><br><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/></svg> Tahmini kare: ~60<br><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M2 6h20v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/><path d="M7 2h10"/><path d="M12 6v16"/><path d="M2 12h20"/></svg> Tahmini süre: ~30 saniye
       </div>
       <button id="tl-start-btn" onclick="startTimelapse()" style="background:linear-gradient(135deg,#1e40af,#6b2ef5);color:#fff;border:none;border-radius:10px;padding:.75rem 1rem;font-family:'Outfit',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M2 6h20v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/><path d="M7 2h10"/><path d="M12 6v16"/><path d="M2 12h20"/></svg> Timelapse Başlat
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M2 6h20v16a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/><path d="M7 2h10"/><path d="M12 6v16"/><path d="M2 12h20"/></svg> <span data-i18n="tl.start_btn">Timelapse Başlat</span>
       </button>
     </div>
 
     <div id="tl-progress" style="display:none;flex-direction:column;gap:.8rem;">
-      <div id="tl-status-text" style="font-size:.78rem;color:var(--muted);text-align:center;">Veri yükleniyor...</div>
+      <div id="tl-status-text" style="font-size:.78rem;color:var(--muted);text-align:center;" data-i18n="tl.loading_data">Veri yükleniyor...</div>
       <div style="background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;height:10px;overflow:hidden;">
         <div id="tl-prog-bar" style="height:100%;background:linear-gradient(90deg,#3b82f6,#9b7fff);border-radius:8px;width:0%;transition:width .3s ease;"></div>
       </div>
       <canvas id="tl-canvas" style="width:100%;border-radius:10px;border:1px solid var(--bdr);background:#06060f;display:none;image-rendering:pixelated;"></canvas>
       <div id="tl-download-wrap" style="display:none;flex-direction:column;gap:.5rem;align-items:stretch;">
-        <div style="font-size:.75rem;color:#00d4a0;text-align:center;font-weight:700;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> Video hazır!</div>
-        <a id="tl-download-link" style="background:linear-gradient(135deg,#00b888,#00d4a0);color:#fff;border:none;border-radius:10px;padding:.7rem 1rem;font-family:'Outfit',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;text-align:center;text-decoration:none;display:block;">⬇ Videoyu İndir (.webm)</a>
+        <div style="font-size:.75rem;color:#00d4a0;text-align:center;font-weight:700;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg> <span data-i18n="tl.ready">Video hazır!</span></div>
+        <a id="tl-download-link" style="background:linear-gradient(135deg,#00b888,#00d4a0);color:#fff;border:none;border-radius:10px;padding:.7rem 1rem;font-family:'Outfit',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;text-align:center;text-decoration:none;display:block;" data-i18n="tl.download_btn">⬇ Videoyu İndir (.webm)</a>
       </div>
-      <button onclick="resetTimelapse()" style="background:var(--surf2);border:1px solid var(--bdr);color:var(--muted);border-radius:8px;padding:.5rem 1rem;font-size:.75rem;font-family:'Outfit',sans-serif;cursor:pointer;">← Yeniden Ayarla</button>
+      <button onclick="resetTimelapse()" style="background:var(--surf2);border:1px solid var(--bdr);color:var(--muted);border-radius:8px;padding:.5rem 1rem;font-size:.75rem;font-family:'Outfit',sans-serif;cursor:pointer;" data-i18n="tl.reset_btn">← Yeniden Ayarla</button>
     </div>
   </div>
 </div>
@@ -819,7 +841,7 @@
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div style="display:flex;align-items:center;gap:.6rem;">
         <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6b2ef5,#e8186a);display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 0 14px rgba(232,24,106,.35);"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></div>
-        <h2 style="font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Piksel Etkinliği</h2>
+        <h2 style="font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;" data-i18n="pe.title">Piksel Etkinliği</h2>
       </div>
       <button onclick="closePixelEventModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background .15s;" onmouseover="this.style.background='var(--surf2)'" onmouseout="this.style.background='none'"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
     </div>
@@ -827,33 +849,33 @@
     <!-- Bilgi kutusu (her zaman görünür) -->
     <div style="background:rgba(124,58,237,.07);border:1px solid rgba(124,58,237,.2);border-radius:12px;padding:.8rem 1rem;font-size:.77rem;color:var(--txt);line-height:1.7;">
       <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
-        <span style="font-size:.65rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#a78bfa;">Normal hız</span>
+        <span style="font-size:.65rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#a78bfa;" data-i18n="pe.normal_rate">Normal hız</span>
         <span style="flex:1;height:1px;background:rgba(124,58,237,.2);"></span>
-        <span style="font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);">3dk → 7 piksel</span>
+        <span style="font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);" data-i18n="pe.normal_rate_val">3dk → 7 piksel</span>
       </div>
       <div style="display:flex;align-items:center;gap:.5rem;">
-        <span style="font-size:.65rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#f472b6;">Etkinlik hızı</span>
+        <span style="font-size:.65rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#f472b6;" data-i18n="pe.event_rate">Etkinlik hızı</span>
         <span style="flex:1;height:1px;background:rgba(232,24,106,.2);"></span>
-        <span style="font-family:'Space Mono',monospace;font-size:.72rem;color:#f9a8d4;">1dk → 6 piksel <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
+        <span style="font-family:'Space Mono',monospace;font-size:.72rem;color:#f9a8d4;"><span data-i18n="pe.event_rate_val">1dk → 6 piksel</span> <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
       </div>
     </div>
 
     <!-- Süre seçimi (her zaman görünür — hem başlatmak hem yenilemek için) -->
     <div style="display:flex;flex-direction:column;gap:.45rem;">
-      <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Etkinlik Süresi</label>
+      <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);" data-i18n="pe.duration_label">Etkinlik Süresi</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
         <button class="pe-dur-btn pe-dur-sel" onclick="selectPEDuration(this,5)">
           <span style="font-size:1rem;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
           <span style="display:flex;flex-direction:column;align-items:flex-start;gap:1px;">
-            <span style="font-size:.82rem;font-weight:800;">5 Dakika</span>
-            <span style="font-size:.62rem;opacity:.7;">Kısa etkinlik</span>
+            <span style="font-size:.82rem;font-weight:800;" data-i18n="pe.dur_5min">5 Dakika</span>
+            <span style="font-size:.62rem;opacity:.7;" data-i18n="pe.dur_5min_sub">Kısa etkinlik</span>
           </span>
         </button>
         <button class="pe-dur-btn" onclick="selectPEDuration(this,10)">
           <span style="font-size:1rem;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span>
           <span style="display:flex;flex-direction:column;align-items:flex-start;gap:1px;">
-            <span style="font-size:.82rem;font-weight:800;">10 Dakika</span>
-            <span style="font-size:.62rem;opacity:.7;">Uzun etkinlik</span>
+            <span style="font-size:.82rem;font-weight:800;" data-i18n="pe.dur_10min">10 Dakika</span>
+            <span style="font-size:.62rem;opacity:.7;" data-i18n="pe.dur_10min_sub">Uzun etkinlik</span>
           </span>
         </button>
       </div>
@@ -862,7 +884,7 @@
     <!-- Etkinlik kapalıyken: Başlat butonu -->
     <div id="pe-setup" style="display:flex;flex-direction:column;gap:.7rem;">
       <button id="pe-start-btn" onclick="startPixelEvent()" style="background:linear-gradient(135deg,#6b2ef5,#e8186a);color:#fff;border:none;border-radius:10px;padding:.8rem 1rem;font-family:'Outfit',sans-serif;font-weight:800;font-size:.92rem;cursor:pointer;transition:opacity .2s,transform .1s;display:flex;align-items:center;justify-content:center;gap:.55rem;box-shadow:0 4px 20px rgba(124,58,237,.35);" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> Etkinliği Başlat
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> <span data-i18n="pe.start_btn">Etkinliği Başlat</span>
       </button>
     </div>
 
@@ -873,9 +895,9 @@
       <div style="background:linear-gradient(135deg,rgba(124,58,237,.14),rgba(232,24,106,.1));border:1px solid rgba(232,24,106,.3);border-radius:12px;padding:.9rem 1.1rem;display:flex;align-items:center;gap:.9rem;">
         <div style="width:10px;height:10px;border-radius:50%;background:#f472b6;box-shadow:0 0 10px #f472b6;animation:blink-dot 1.2s ease-in-out infinite;flex-shrink:0;"></div>
         <div style="flex:1;">
-          <div style="font-size:.72rem;font-weight:800;color:#f9a8d4;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.25rem;">Etkinlik Aktif — 1dk'da 6 piksel</div>
+          <div style="font-size:.72rem;font-weight:800;color:#f9a8d4;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.25rem;" data-i18n="pe.active_label">Etkinlik Aktif — 1dk'da 6 piksel</div>
           <div style="display:flex;align-items:center;gap:.4rem;">
-            <span style="font-size:.72rem;color:var(--muted);">Kalan süre:</span>
+            <span style="font-size:.72rem;color:var(--muted);" data-i18n="pe.remaining">Kalan süre:</span>
             <span id="pe-modal-timer" style="font-family:'Space Mono',monospace;font-size:.8rem;font-weight:800;color:#c4aaff;">—</span>
           </div>
         </div>
@@ -883,12 +905,12 @@
 
       <!-- Yenile butonu -->
       <button id="pe-refresh-btn" onclick="refreshPixelEvent()" style="background:linear-gradient(135deg,rgba(124,58,237,.18),rgba(232,24,106,.12));border:1px solid rgba(124,58,237,.45);color:#c4aaff;border-radius:10px;padding:.7rem 1rem;font-family:'Outfit',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:.5rem;" onmouseover="this.style.borderColor='#a78bfa';this.style.background='rgba(124,58,237,.28)'" onmouseout="this.style.borderColor='rgba(124,58,237,.45)';this.style.background='linear-gradient(135deg,rgba(124,58,237,.18),rgba(232,24,106,.12))'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/></svg> Süreyi Yenile <span id="pe-refresh-label" style="font-family:'Space Mono',monospace;font-size:.78rem;opacity:.8;">(+5dk)</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/></svg> <span data-i18n="pe.refresh_btn">Süreyi Yenile </span><span id="pe-refresh-label" style="font-family:'Space Mono',monospace;font-size:.78rem;opacity:.8;">(+5dk)</span>
       </button>
 
       <!-- Durdur butonu -->
       <button onclick="stopPixelEvent()" style="background:var(--surf2);border:1px solid rgba(220,38,38,.4);color:#ff7373;border-radius:10px;padding:.65rem 1rem;font-family:'Outfit',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:.45rem;" onmouseover="this.style.background='rgba(220,38,38,.1)';this.style.borderColor='#dc2626'" onmouseout="this.style.background='var(--surf2)';this.style.borderColor='rgba(220,38,38,.4)'">
-        ⏹ Etkinliği Şimdi Durdur
+        <span data-i18n="pe.stop_btn">⏹ Etkinliği Şimdi Durdur</span>
       </button>
     </div>
 
@@ -903,20 +925,20 @@
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div style="display:flex;align-items:center;gap:.6rem;">
         <div style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 0 14px rgba(123,97,255,.42);"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 11l19-9v18L3 13"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div>
-        <h2 style="font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,#a29bfe,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Duyuru Yayınla</h2>
+        <h2 style="font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,#a29bfe,#6c5ce7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;" data-i18n="am.title">Duyuru Yayınla</h2>
       </div>
       <button onclick="closeAnnounceModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background .15s;" onmouseover="this.style.background='var(--surf2)'" onmouseout="this.style.background='none'"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
     </div>
 
     <!-- Bilgi kutusu -->
     <div style="background:rgba(123,97,255,.09);border:1px solid rgba(123,97,255,.25);border-radius:12px;padding:.7rem 1rem;font-size:.74rem;color:var(--muted);line-height:1.6;">
-      Yazdığın duyuru, oyundaki tüm oyuncuların ekranının üst kısmında bir ses efektiyle birlikte şerit olarak belirir. Şerit 2 kez gösterildikten sonra otomatik olarak kaybolur.
+      <span data-i18n="am.info">Yazdığın duyuru, oyundaki tüm oyuncuların ekranının üst kısmında bir ses efektiyle birlikte şerit olarak belirir. Şerit 2 kez gösterildikten sonra otomatik olarak kaybolur.</span>
     </div>
 
     <!-- Duyuru metni -->
     <div style="display:flex;flex-direction:column;gap:.45rem;">
       <label style="font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);">Duyuru Metni</label>
-      <textarea id="announce-text-input" maxlength="180" placeholder="Örn: Sunucu 5 dakika içinde bakıma girecek!" style="background:var(--bg);border:1px solid var(--bdr2);border-radius:12px;padding:.7rem .9rem;color:var(--txt);font-family:'Outfit',sans-serif;font-size:.88rem;outline:none;width:100%;resize:vertical;min-height:64px;max-height:140px;transition:border-color .2s, box-shadow .2s;" oninput="document.getElementById('announce-char-count').textContent=this.value.length+'/180'"></textarea>
+      <textarea id="announce-text-input" maxlength="180" placeholder="Örn: Sunucu 5 dakika içinde bakıma girecek!" data-i18n-placeholder="am.text_ph" style="background:var(--bg);border:1px solid var(--bdr2);border-radius:12px;padding:.7rem .9rem;color:var(--txt);font-family:'Outfit',sans-serif;font-size:.88rem;outline:none;width:100%;resize:vertical;min-height:64px;max-height:140px;transition:border-color .2s, box-shadow .2s;" oninput="document.getElementById('announce-char-count').textContent=this.value.length+'/180'"></textarea>
       <div style="display:flex;justify-content:flex-end;">
         <span id="announce-char-count" style="font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);">0/180</span>
       </div>
@@ -943,13 +965,13 @@
 <div id="mailbox-modal" onclick="if(event.target===this)closeMailbox()">
   <div class="mailbox-box">
     <div class="mailbox-hdr">
-      <div class="mailbox-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg> Posta Kutusu</div>
+      <div class="mailbox-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg> <span data-i18n="mailbox.title">Posta Kutusu</span></div>
       <button class="mailbox-close" onclick="closeMailbox()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
     </div>
     <div class="mailbox-list" id="mailbox-list">
-      <div class="mail-empty">Posta kutunuz boş.</div>
+      <div class="mail-empty" data-i18n="mailbox.empty">Posta kutunuz boş.</div>
     </div>
-    <button onclick="clearReadMails()" style="background:none;border:1px solid var(--bdr);color:var(--muted);border-radius:7px;padding:.3rem .7rem;font-size:.62rem;font-family:'Outfit',sans-serif;cursor:pointer;align-self:flex-end;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> Okunanları Temizle</button>
+    <button onclick="clearReadMails()" style="background:none;border:1px solid var(--bdr);color:var(--muted);border-radius:7px;padding:.3rem .7rem;font-size:.62rem;font-family:'Outfit',sans-serif;cursor:pointer;align-self:flex-end;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><path d="M10 11v6"/><path d="M14 11v6"/></svg> <span data-i18n="mailbox.clear_read">Okunanları Temizle</span></button>
   </div>
 </div>
 
@@ -968,8 +990,8 @@
       <div class="war-faction-tag" id="wb-def-tag"></div>
     </div>
   </div>
-  <div class="war-desc" id="wb-desc">Harita artık daha tehlikeli bir yer.</div>
-  <button class="war-close-btn" onclick="closeWarBanner()">Tamam, Savaşa Hazırım <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 9-9"/><path d="m2 6 6 6"/><path d="m17 13 4 4-4 4-4-4"/><path d="m5 5 4 4-4 4-4-4"/></svg></button>
+  <div class="war-desc" id="wb-desc" data-i18n="war.banner_default_desc">Harita artık daha tehlikeli bir yer.</div>
+  <button class="war-close-btn" onclick="closeWarBanner()"><span data-i18n="war.banner_close_btn">Tamam, Savaşa Hazırım</span> <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 9-9"/><path d="m2 6 6 6"/><path d="m17 13 4 4-4 4-4-4"/><path d="m5 5 4 4-4 4-4-4"/></svg></button>
 </div>
 
 <!-- İttifak Kartı -->
@@ -977,7 +999,7 @@
   <div class="ally-title"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M11 17a4 4 0 0 0 7.83.8"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/><path d="M3 17h3.5l1-.5 3.5.5-1 2H5z"/></svg> — İTTİFAK KURULDU — <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M11 17a4 4 0 0 0 7.83.8"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/><path d="M3 17h3.5l1-.5 3.5.5-1 2H5z"/></svg></div>
   <div class="ally-handshake"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M11 17a4 4 0 0 0 7.83.8"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/><path d="M3 17h3.5l1-.5 3.5.5-1 2H5z"/></svg></div>
   <div class="ally-names" id="ab-names">—</div>
-  <button class="ally-close-btn" onclick="closeAllyBanner()">Harika! Birlikte Güçlüyüz</button>
+  <button class="ally-close-btn" onclick="closeAllyBanner()" data-i18n="ally.banner_close_btn">Harika! Birlikte Güçlüyüz</button>
 </div>
 
 
@@ -989,16 +1011,16 @@
 <div id="tpl-region-overlay">
   <div id="tpl-region-rect"></div>
   <div id="tpl-region-info">
-    <strong>🗺️ Şablon Bölgesi Seç</strong>
-    Haritada çizmek istediğin alanı <b>sürükleyerek</b> seç &nbsp;·&nbsp; <kbd style="background:rgba(255,255,255,.12);border-radius:4px;padding:.1em .4em;font-size:.75rem">Esc</kbd> ile çık
+    <strong data-i18n="tpl.region_select_title">🗺️ Şablon Bölgesi Seç</strong>
+    <span data-i18n-html="tpl.region_select_desc_html">Haritada çizmek istediğin alanı <b>sürükleyerek</b> seç &nbsp;·&nbsp; <kbd style="background:rgba(255,255,255,.12);border-radius:4px;padding:.1em .4em;font-size:.75rem">Esc</kbd> ile çık</span>
     <div class="tpl-ri-dim" id="tpl-ri-dim-text"></div>
   </div>
-  <button id="tpl-region-x" onclick="_tplRegionCancel()" title="Kapat (Esc)"
+  <button id="tpl-region-x" onclick="_tplRegionCancel()" title="Kapat (Esc)" data-i18n-title="tpl.close_esc_title"
     style="position:fixed;top:14px;right:16px;z-index:3;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:8px;width:32px;height:32px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;pointer-events:all">✕</button>
   <div id="tpl-region-actions">
-    <button id="tpl-region-reset" onclick="_tplRegionReset()">↺ Yeniden Seç</button>
-    <button id="tpl-region-cancel" onclick="_tplRegionCancel()">İptal</button>
-    <button id="tpl-region-confirm" onclick="_tplRegionConfirm()">✓ Bu Bölgede Şablon Yap</button>
+    <button id="tpl-region-reset" onclick="_tplRegionReset()" data-i18n="tpl.region_reset_btn">↺ Yeniden Seç</button>
+    <button id="tpl-region-cancel" onclick="_tplRegionCancel()" data-i18n="common.cancel">İptal</button>
+    <button id="tpl-region-confirm" onclick="_tplRegionConfirm()" data-i18n="tpl.region_confirm_btn">✓ Bu Bölgede Şablon Yap</button>
   </div>
 </div>
 
@@ -1052,42 +1074,42 @@
     <div class="tpl-opt-sep"></div>
 
     <!-- Brush Size -->
-    <span class="tpl-opt-label">Boyut</span>
+    <span class="tpl-opt-label" data-i18n="tpl.size_label">Boyut</span>
     <input class="tpl-opt-slider" id="tpl-size-slider" type="range" min="1" max="9" step="2" value="1"
       oninput="tplSetBrushSize(+this.value); tplUpdateBrushPreview()">
     <span class="tpl-opt-val" id="tpl-size-val">1px</span>
     <div class="tpl-opt-sep"></div>
 
     <!-- Opacity -->
-    <span class="tpl-opt-label">Opaklık</span>
+    <span class="tpl-opt-label" data-i18n="tpl.opacity_label">Opaklık</span>
     <input class="tpl-opt-slider" id="tpl-opacity-slider" type="range" min="10" max="100" step="5" value="100"
       oninput="tplSetOpacity(+this.value); tplUpdateBrushPreview()">
     <span class="tpl-opt-val" id="tpl-opacity-val">100%</span>
     <div class="tpl-opt-sep"></div>
 
     <!-- Mirror checkboxes -->
-    <label class="tpl-opt-check" title="Yatay Simetri">
+    <label class="tpl-opt-check" title="Yatay Simetri" data-i18n-title="tpl.mirror_x_title">
       <input type="checkbox" id="tpl-mirrorx-check" onchange="tplToggleMirror('x')"> ↔ X
     </label>
-    <label class="tpl-opt-check" title="Dikey Simetri">
+    <label class="tpl-opt-check" title="Dikey Simetri" data-i18n-title="tpl.mirror_y_title">
       <input type="checkbox" id="tpl-mirrory-check" onchange="tplToggleMirror('y')"> ↕ Y
     </label>
     <div class="tpl-opt-sep"></div>
 
     <!-- Sağ tık silgi -->
-    <label class="tpl-opt-check" title="Sağ Tık = Silgi">
-      <input type="checkbox" id="tpl-rclick-check" checked onchange="tplToggleRightClickErase()"> ⌥ Sağ=Silgi
+    <label class="tpl-opt-check" title="Sağ Tık = Silgi" data-i18n-title="tpl.rclick_erase_title">
+      <input type="checkbox" id="tpl-rclick-check" checked onchange="tplToggleRightClickErase()"> ⌥ <span data-i18n="tpl.rclick_erase_short">Sağ=Silgi</span>
     </label>
     <div class="tpl-opt-sep"></div>
 
     <!-- Undo/Redo -->
-    <button class="tpl-menu-btn" id="tpl-undo-btn" onclick="tplUndo()" title="Geri Al (Ctrl+Z)" disabled>
+    <button class="tpl-menu-btn" id="tpl-undo-btn" onclick="tplUndo()" title="Geri Al (Ctrl+Z)" data-i18n-title="tpl.undo_title" disabled>
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-.1em"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
-      Geri
+      <span data-i18n="tpl.undo_label">Geri</span>
     </button>
-    <button class="tpl-menu-btn" id="tpl-redo-btn" onclick="tplRedo()" title="İleri Al (Ctrl+Y)" disabled>
+    <button class="tpl-menu-btn" id="tpl-redo-btn" onclick="tplRedo()" title="İleri Al (Ctrl+Y)" data-i18n-title="tpl.redo_title" disabled>
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-.1em"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
-      İleri
+      <span data-i18n="tpl.redo_label">İleri</span>
     </button>
   </div>
 
@@ -1097,82 +1119,82 @@
     <!-- LEFT TOOLS PANEL -->
     <div id="tpl-left-panel">
       <!-- Active Color -->
-      <div id="tpl-active-color-swatch" style="background:#e50000" onclick="tplOpenColorPicker()" title="Renk seç"></div>
+      <div id="tpl-active-color-swatch" style="background:#e50000" onclick="tplOpenColorPicker()" title="Renk seç" data-i18n-title="palette.title"></div>
 
       <div class="tpl-tool-sep"></div>
 
       <!-- Pencil / Brush -->
-      <button class="tpl-tool active" id="tplb-brush" onclick="tplEditorSetTool('brush')" title="Piksel Fırçası (B)">
+      <button class="tpl-tool active" id="tplb-brush" onclick="tplEditorSetTool('brush')" title="Piksel Fırçası (B)" data-i18n-title="tpl.tool_brush_title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="4" y="4" width="5" height="5" rx="1"/><rect x="15" y="15" width="5" height="5" rx="1"/>
           <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
         </svg>
-        <span class="tpl-tool-label">piksel</span>
+        <span class="tpl-tool-label" data-i18n="tpl.tool_brush_label">piksel</span>
       </button>
 
       <!-- Eraser -->
-      <button class="tpl-tool" id="tplb-eraser" onclick="tplEditorSetTool('eraser')" title="Silgi (E)">
+      <button class="tpl-tool" id="tplb-eraser" onclick="tplEditorSetTool('eraser')" title="Silgi (E)" data-i18n-title="tpl.tool_eraser_title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/>
           <path d="M22 21H7"/><path d="m5 11 9 9"/>
         </svg>
-        <span class="tpl-tool-label">silgi</span>
+        <span class="tpl-tool-label" data-i18n="tpl.tool_eraser_label">silgi</span>
       </button>
 
       <!-- Fill -->
-      <button class="tpl-tool" id="tplb-fill" onclick="tplEditorSetTool('fill')" title="Doldur / Bucket (G)">
+      <button class="tpl-tool" id="tplb-fill" onclick="tplEditorSetTool('fill')" title="Doldur / Bucket (G)" data-i18n-title="tpl.tool_fill_title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2a2 2 0 0 0 2.8 0L19 11Z"/>
           <path d="m5 2 5 5"/><path d="M2 13h15"/>
           <path d="M22 20a2 2 0 1 1-4 0c0-1.6 2-3 2-3s2 1.4 2 3Z"/>
         </svg>
-        <span class="tpl-tool-label">doldur</span>
+        <span class="tpl-tool-label" data-i18n="tpl.tool_fill_label">doldur</span>
       </button>
 
       <!-- Line -->
-      <button class="tpl-tool" id="tplb-line" onclick="tplEditorSetTool('line')" title="Çizgi (L)">
+      <button class="tpl-tool" id="tplb-line" onclick="tplEditorSetTool('line')" title="Çizgi (L)" data-i18n-title="tpl.tool_line_title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="19" x2="19" y2="5"/>
         </svg>
-        <span class="tpl-tool-label">çizgi</span>
+        <span class="tpl-tool-label" data-i18n="tpl.tool_line_label">çizgi</span>
       </button>
 
       <!-- Rectangle -->
-      <button class="tpl-tool" id="tplb-rect" onclick="tplEditorSetTool('rect')" title="Dikdörtgen (R)">
+      <button class="tpl-tool" id="tplb-rect" onclick="tplEditorSetTool('rect')" title="Dikdörtgen (R)" data-i18n-title="tpl.tool_rect_title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="5" width="18" height="14" rx="1"/>
         </svg>
-        <span class="tpl-tool-label">kare</span>
+        <span class="tpl-tool-label" data-i18n="tpl.tool_rect_label">kare</span>
       </button>
 
       <!-- Filled Rect -->
-      <button class="tpl-tool" id="tplb-rectfill" onclick="tplEditorSetTool('rectfill')" title="Dolu Dikdörtgen (F)">
+      <button class="tpl-tool" id="tplb-rectfill" onclick="tplEditorSetTool('rectfill')" title="Dolu Dikdörtgen (F)" data-i18n-title="tpl.tool_rectfill_title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
           <rect x="3" y="5" width="18" height="14" rx="1"/>
         </svg>
-        <span class="tpl-tool-label">dolu</span>
+        <span class="tpl-tool-label" data-i18n="tpl.tool_rectfill_label">dolu</span>
       </button>
 
       <div class="tpl-tool-sep"></div>
 
       <!-- Eyedropper -->
-      <button class="tpl-tool" id="tplb-picker" onclick="tplEditorSetTool('picker')" title="Renk Al (I)">
+      <button class="tpl-tool" id="tplb-picker" onclick="tplEditorSetTool('picker')" title="Renk Al (I)" data-i18n-title="tpl.tool_picker_title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/>
           <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8Z"/>
         </svg>
-        <span class="tpl-tool-label">damlalık</span>
+        <span class="tpl-tool-label" data-i18n="tpl.tool_picker_label">damlalık</span>
       </button>
 
       <div class="tpl-tool-sep"></div>
 
       <!-- Clear -->
-      <button class="tpl-tool" onclick="tplEditorClear()" title="Tümünü Temizle">
+      <button class="tpl-tool" onclick="tplEditorClear()" title="Tümünü Temizle" data-i18n-title="tpl.tool_clear_title">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
         </svg>
-        <span class="tpl-tool-label">temizle</span>
+        <span class="tpl-tool-label" data-i18n="tpl.tool_clear_label">temizle</span>
       </button>
     </div>
 
@@ -1186,9 +1208,9 @@
 
       <!-- Zoom controls -->
       <div id="tpl-canvas-controls">
-        <button class="tpl-zoom-btn" onclick="tplZoomOut()" title="Uzaklaştır (-)">−</button>
+        <button class="tpl-zoom-btn" onclick="tplZoomOut()" title="Uzaklaştır (-)" data-i18n-title="tpl.zoom_out_title">−</button>
         <span id="tpl-zoom-label">1×</span>
-        <button class="tpl-zoom-btn" onclick="tplZoomIn()" title="Yaklaştır (+)">+</button>
+        <button class="tpl-zoom-btn" onclick="tplZoomIn()" title="Yaklaştır (+)" data-i18n-title="tpl.zoom_in_title">+</button>
         <div style="width:1px;height:14px;background:rgba(255,255,255,.1)"></div>
         <span id="tpl-coords-label">x:— y:—</span>
       </div>
@@ -1201,7 +1223,7 @@
         <!-- Navigation -->
         <div class="tpl-rpanel-section">
           <div class="tpl-rpanel-hdr" onclick="tplToggleSection('nav')">
-            <span class="tpl-rpanel-hdr-title">Navigasyon</span>
+            <span class="tpl-rpanel-hdr-title" data-i18n="tpl.section_nav">Navigasyon</span>
             <span class="tpl-rpanel-hdr-arrow open" id="tpl-nav-arrow">▶</span>
           </div>
           <div class="tpl-rpanel-body" id="tpl-section-nav">
@@ -1215,14 +1237,14 @@
         <!-- Layers -->
         <div class="tpl-rpanel-section">
           <div class="tpl-rpanel-hdr" onclick="tplToggleSection('layers')">
-            <span class="tpl-rpanel-hdr-title">Katmanlar</span>
+            <span class="tpl-rpanel-hdr-title" data-i18n="tpl.section_layers">Katmanlar</span>
             <span class="tpl-rpanel-hdr-arrow open" id="tpl-layers-arrow">▶</span>
           </div>
           <div class="tpl-rpanel-body" id="tpl-section-layers">
             <div id="tpl-layer-list">
               <div class="tpl-layer-row">
                 <canvas class="tpl-layer-thumb" id="tpl-layer-thumb-1" width="24" height="24"></canvas>
-                <span class="tpl-layer-name">Şablon</span>
+                <span class="tpl-layer-name" data-i18n="tpl.layer_name_default">Şablon</span>
                 <svg class="tpl-layer-vis" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                   <circle cx="12" cy="12" r="3"/>
@@ -1235,7 +1257,7 @@
         <!-- Colors -->
         <div class="tpl-rpanel-section">
           <div class="tpl-rpanel-hdr" onclick="tplToggleSection('colors')">
-            <span class="tpl-rpanel-hdr-title">Renkler</span>
+            <span class="tpl-rpanel-hdr-title" data-i18n="tpl.section_colors">Renkler</span>
             <span class="tpl-rpanel-hdr-arrow open" id="tpl-colors-arrow">▶</span>
           </div>
           <div class="tpl-rpanel-body" id="tpl-section-colors">
@@ -1245,8 +1267,8 @@
                 <div id="tpl-brush-preview-dot" style="width:8px;height:8px;background:#e50000;border-radius:1px"></div>
               </div>
               <div class="tpl-brush-info">
-                <div id="tpl-brush-info-size">Boyut: 1px</div>
-                <div id="tpl-brush-info-opacity">Opaklık: 100%</div>
+                <div id="tpl-brush-info-size" data-i18n-html="tpl.brush_info_size_default">Boyut: 1px</div>
+                <div id="tpl-brush-info-opacity" data-i18n-html="tpl.brush_info_opacity_default">Opaklık: 100%</div>
                 <div id="tpl-brush-info-color" style="color:#e50000;font-weight:700">#e50000</div>
               </div>
             </div>
@@ -1258,25 +1280,25 @@
         <!-- Stats -->
         <div class="tpl-rpanel-section">
           <div class="tpl-rpanel-hdr" onclick="tplToggleSection('stats')">
-            <span class="tpl-rpanel-hdr-title">Bilgi</span>
+            <span class="tpl-rpanel-hdr-title" data-i18n="tpl.section_stats">Bilgi</span>
             <span class="tpl-rpanel-hdr-arrow open" id="tpl-stats-arrow">▶</span>
           </div>
           <div class="tpl-rpanel-body" id="tpl-section-stats">
             <div id="tpl-stats-wrap">
               <div class="tpl-stat-row">
-                <span class="tpl-stat-lbl">Harita boyutu</span>
+                <span class="tpl-stat-lbl" data-i18n="tpl.stat_map_size">Harita boyutu</span>
                 <span class="tpl-stat-val" id="tpl-stat-size">—</span>
               </div>
               <div class="tpl-stat-row">
-                <span class="tpl-stat-lbl">Piksel sayısı</span>
+                <span class="tpl-stat-lbl" data-i18n="tpl.stat_pixel_count">Piksel sayısı</span>
                 <span class="tpl-stat-val" id="tpl-stat-pixels">0</span>
               </div>
               <div class="tpl-stat-row">
-                <span class="tpl-stat-lbl">Zoom</span>
+                <span class="tpl-stat-lbl" data-i18n="tpl.stat_zoom">Zoom</span>
                 <span class="tpl-stat-val" id="tpl-stat-zoom">1×</span>
               </div>
               <div class="tpl-stat-row">
-                <span class="tpl-stat-lbl">İmleç</span>
+                <span class="tpl-stat-lbl" data-i18n="tpl.stat_cursor">İmleç</span>
                 <span class="tpl-stat-val" id="tpl-stat-cursor">—</span>
               </div>
             </div>
@@ -1301,14 +1323,14 @@
 ════════════════════════════════════════════════════════ -->
 <div id="tpl-result-popup">
   <div id="tpl-result-box">
-    <div id="tpl-result-title">✦ Şablonun Hazır!</div>
-    <img id="tpl-result-preview" src="" alt="Şablon önizleme">
+    <div id="tpl-result-title" data-i18n="tpl.result_ready_title">✦ Şablonun Hazır!</div>
+    <img id="tpl-result-preview" src="" alt="Şablon önizleme" data-i18n-alt="tpl.result_preview_alt">
     <a id="tpl-dl-link" class="tpl-dl-btn" download="sablonun.png" href="#">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Şablonu İndir (PNG)
+      <span data-i18n="tpl.download_png_btn">Şablonu İndir (PNG)</span>
     </a>
     <div id="tpl-upload-status"></div>
-    <button class="tpl-dl-btn secondary" onclick="closeTplResultPopup()">Kapat</button>
+    <button class="tpl-dl-btn secondary" onclick="closeTplResultPopup()" data-i18n="common.close">Kapat</button>
   </div>
 </div>
 
@@ -1450,6 +1472,7 @@
 <script src="progression.js"></script>
 <script src="profile.js"></script>
 <script src="theme.js"></script>
+<script src="mode.js"></script>
 <script src="faction.js"></script>
 <script src="chat.js"></script>
 <script src="pixel-event.js"></script>

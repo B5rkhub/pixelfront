@@ -68,9 +68,9 @@ function updateTLPreviewInfo() {
   const totalMinutes = hours * 60;
   const frameCount = Math.min(totalMinutes, 300);
   const estSec = Math.ceil(frameCount / fps);
-  const rangeLabels = {1:'Son 1 saat',6:'Son 6 saat',24:'Bugün (24s)',72:'Son 3 gün',168:'Son 7 gün'};
-  const speedLabels = {2:'Yavaş',5:'Normal',12:'Hızlı'};
-  preview.innerHTML = `⏱ Aralık: <b style="color:var(--txt)">${rangeLabels[hours]||hours+'s'}</b><br>🎞 Hız: <b style="color:var(--txt)">${speedLabels[fps]||fps} FPS</b><br>📐 Tahmini kare: ~${frameCount}<br>🎬 Tahmini süre: ~${estSec} saniye`;
+  const rangeLabels = {1:t('tl.range_1h_short'),6:t('tl.range_6h_short'),24:t('tl.range_24h'),72:t('tl.range_3d_short'),168:t('tl.range_7d_short')};
+  const speedLabels = {2:t('tl.speed_slow'),5:t('tl.speed_normal'),12:t('tl.speed_fast')};
+  preview.innerHTML = `${t('tl.preview_range')}<b style="color:var(--txt)">${rangeLabels[hours]||hours+'s'}</b><br>${t('tl.preview_speed')}<b style="color:var(--txt)">${speedLabels[fps]||fps} FPS</b><br>${t('tl.preview_frames')}${frameCount}<br>${t('tl.preview_duration',{s:estSec})}`;
 }
 
 async function startTimelapse() {
@@ -96,7 +96,7 @@ async function startTimelapse() {
   const barEl = document.getElementById('tl-prog-bar');
 
   try {
-    statusEl.textContent = 'Supabase\'den veriler çekiliyor...';
+    statusEl.textContent = t('tl.fetching');
     barEl.style.width = '5%';
 
     const sinceMs = Date.now() - (tlSelectedHours * 3600 * 1000);
@@ -111,14 +111,14 @@ async function startTimelapse() {
     if (error) throw error;
 
     if (!pixelHistory || pixelHistory.length === 0) {
-      statusEl.textContent = '⚠ Bu zaman aralığında hiç piksel bulunamadı.';
+      statusEl.textContent = t('tl.no_pixels_found');
       barEl.style.width = '100%';
       barEl.style.background = '#f04a4a';
       try { localStorage.removeItem(TL_DAILY_KEY); } catch(e) {}
       return;
     }
 
-    statusEl.textContent = `${pixelHistory.length} piksel değişimi bulundu. Video hazırlanıyor...`;
+    statusEl.textContent = t('tl.changes_found', {n: pixelHistory.length});
     barEl.style.width = '20%';
 
     // Fetch base state (pixels before the selected range)
@@ -219,13 +219,13 @@ async function startTimelapse() {
       tlCtx.fillRect(0, IMG_H - 4, Math.floor(IMG_W * progress), 4);
 
       barEl.style.width = (35 + Math.floor(progress * 55)) + '%';
-      statusEl.textContent = `Kare ${i + 1} / ${totalBuckets}`;
+      statusEl.textContent = t('tl.frame_counter', {i: i + 1, total: totalBuckets});
 
       await new Promise(r => setTimeout(r, frameDelay));
     }
 
     // Stop recording
-    statusEl.textContent = 'Video dosyası oluşturuluyor...';
+    statusEl.textContent = t('tl.building_video');
     barEl.style.width = '96%';
     tlRecorder.stop();
     await new Promise(r => { tlRecorder.onstop = r; });
@@ -238,12 +238,12 @@ async function startTimelapse() {
     link.download = `pixelfront_timelapse_${dateStr}_${tlSelectedHours}s.webm`;
 
     barEl.style.width = '100%';
-    statusEl.textContent = '✅ Video hazır, indirebilirsin!';
+    statusEl.textContent = t('tl.video_ready_full');
     document.getElementById('tl-download-wrap').style.display = 'flex';
 
   } catch(err) {
     console.error('Timelapse hatası:', err);
-    statusEl.textContent = '⚠ Hata: ' + (err.message || 'Bilinmeyen hata');
+    statusEl.textContent = t('tl.error_prefix') + (err.message || t('msg.unknown_error'));
     barEl.style.background = '#f04a4a';
     try { localStorage.removeItem(TL_DAILY_KEY); } catch(e) {}
   }

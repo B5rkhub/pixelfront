@@ -211,10 +211,10 @@ button, [onclick], .pc-frame, .psw, .zb {
     padding: .32rem .55rem !important;
     border-radius: 10px !important;
     gap: .4rem !important;
-    background: rgba(15,16,32,.78) !important;
+    background: rgba(var(--surf2-rgb),.78) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
-    border: 1px solid rgba(255,255,255,.08) !important;
+    border: 1px solid rgba(var(--shine-rgb),.08) !important;
     box-shadow: 0 2px 10px rgba(0,0,0,.3) !important;
     min-height: 0 !important;
     width: auto !important;
@@ -291,7 +291,7 @@ button, [onclick], .pc-frame, .psw, .zb {
     padding: .2rem .5rem !important;
     font-size: .54rem !important;
     min-height: 26px !important;
-    background: rgba(15,16,32,.78) !important;
+    background: rgba(var(--surf2-rgb),.78) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
     opacity: .92;
@@ -319,9 +319,9 @@ button, [onclick], .pc-frame, .psw, .zb {
     background: rgba(20,21,40,.46) !important;
     backdrop-filter: blur(10px) saturate(1.4) !important;
     -webkit-backdrop-filter: blur(10px) saturate(1.4) !important;
-    border: 1px solid rgba(255,255,255,.14) !important;
-    box-shadow: 0 3px 10px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06) !important;
-    color: rgba(255,255,255,.92) !important;
+    border: 1px solid rgba(var(--shine-rgb),.14) !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,.28), inset 0 1px 0 rgba(var(--shine-rgb),.06) !important;
+    color: rgba(var(--shine-rgb),.92) !important;
     opacity: 1;
     transition: transform .12s ease, background .15s, box-shadow .15s;
     -webkit-tap-highlight-color: transparent;
@@ -330,7 +330,7 @@ button, [onclick], .pc-frame, .psw, .zb {
   .zb:active {
     transform: scale(.9);
     background: rgba(var(--accent-rgb),.55) !important;
-    border-color: rgba(255,255,255,.3) !important;
+    border-color: rgba(var(--shine-rgb),.3) !important;
     box-shadow: 0 2px 6px rgba(0,0,0,.3) !important;
   }
   /* Reset (⌂) butonu görsel olarak ikincil — biraz daha küçük ve sönük */
@@ -352,7 +352,7 @@ button, [onclick], .pc-frame, .psw, .zb {
     border-radius: 9px !important;
     background: rgba(12,13,26,.66) !important;
     backdrop-filter: blur(8px) !important;
-    border: 1px solid rgba(255,255,255,.06) !important;
+    border: 1px solid rgba(var(--shine-rgb),.06) !important;
     box-shadow: 0 2px 8px rgba(0,0,0,.3) !important;
     white-space: nowrap;
     pointer-events: none;
@@ -388,7 +388,7 @@ button, [onclick], .pc-frame, .psw, .zb {
     background: rgba(12,13,26,.82) !important;
     backdrop-filter: blur(14px) saturate(1.3) !important;
     -webkit-backdrop-filter: blur(14px) saturate(1.3) !important;
-    border: 1px solid rgba(255,255,255,.1) !important;
+    border: 1px solid rgba(var(--shine-rgb),.1) !important;
     box-shadow: 0 4px 18px rgba(0,0,0,.35) !important;
     /* Kaydırılabilir olduğunu belirten kenar soluklaşması (modern ipucu) */
     -webkit-mask-image: linear-gradient(to right, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
@@ -412,7 +412,7 @@ button, [onclick], .pc-frame, .psw, .zb {
     flex-shrink: 0 !important;
     display: block !important;
     border-radius: 9px !important;
-    border: 2px solid rgba(255,255,255,.12) !important;
+    border: 2px solid rgba(var(--shine-rgb),.12) !important;
     box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
     transition: transform .15s, border-color .15s, box-shadow .15s !important;
     position: relative;
@@ -421,7 +421,7 @@ button, [onclick], .pc-frame, .psw, .zb {
   .psw.sel {
     border-color: #fff !important;
     transform: scale(1.16) !important;
-    box-shadow: 0 0 0 2px rgba(255,255,255,.55), 0 2px 8px rgba(0,0,0,.5) !important;
+    box-shadow: 0 0 0 2px rgba(var(--shine-rgb),.55), 0 2px 8px rgba(0,0,0,.5) !important;
     z-index: 1;
   }
   /* Seçili rengin üstünde küçük bir onay rozeti — her renkte (beyaz dahil) net okunur */
@@ -555,7 +555,7 @@ button, [onclick], .pc-frame, .psw, .zb {
     padding: 1.1rem .95rem !important;
     padding-bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)) !important;
     /* Glassmorphism kart */
-    background: rgba(12,13,26,.98) !important;
+    background: rgba(var(--surf-rgb),.98) !important;
     backdrop-filter: blur(16px) !important;
   }
   .pc-header h2     { font-size: .88rem; }
@@ -593,7 +593,7 @@ button, [onclick], .pc-frame, .psw, .zb {
     max-height: 90vh !important;
     padding: 1.1rem .95rem !important;
     padding-bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)) !important;
-    background: rgba(12,13,26,.98) !important;
+    background: rgba(var(--surf-rgb),.98) !important;
     backdrop-filter: blur(16px) !important;
   }
   .fc-header h2  { font-size: .88rem; }

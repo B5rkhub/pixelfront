@@ -44,14 +44,15 @@ function toggleRollbackTool(){
   if(!adminMode) return;
   rollbackToolActive = !rollbackToolActive;
   const btn = document.getElementById('pt-rollback-toggle');
+  const btnLabel = document.getElementById('pt-rollback-toggle-label');
   if(rollbackToolActive){
-    btn.textContent = '🕰 Rollback Aracı: ON';
+    if(btnLabel) btnLabel.textContent = t('rb.toggle_on');
     btn.classList.add('event-on');
     rbCanvas.classList.add('active');
     resizeRollbackCanvas();
     showPopup(t('msg.rollback_tool_on'));
   } else {
-    btn.textContent = '🕰 Rollback Aracı: OFF';
+    if(btnLabel) btnLabel.textContent = t('rb.toggle_off');
     btn.classList.remove('event-on');
     rbCanvas.classList.remove('active');
     rbSelecting = false;
@@ -494,7 +495,8 @@ async function confirmRollbackApply(){
     closeRollbackModal();
     rollbackToolActive = false;
     const tbtn = document.getElementById('pt-rollback-toggle');
-    tbtn.textContent = t('rb.toggle_off');
+    const tbtnLabel = document.getElementById('pt-rollback-toggle-label');
+    if(tbtnLabel) tbtnLabel.textContent = t('rb.toggle_off');
     tbtn.classList.remove('event-on');
     rbCanvas.classList.remove('active');
 
@@ -587,7 +589,8 @@ window.toggleAdmin = function(){
     rbStartCanvasXY = null; rbCurCanvasXY = null;
     if(rbCanvas) rbCanvas.classList.remove('active');
     const btn = document.getElementById('pt-rollback-toggle');
-    if(btn){ btn.textContent = t('rb.toggle_off'); btn.classList.remove('event-on'); }
+    const btnLabel = document.getElementById('pt-rollback-toggle-label');
+    if(btn){ if(btnLabel) btnLabel.textContent = t('rb.toggle_off'); btn.classList.remove('event-on'); }
   }
 };
 

@@ -385,8 +385,8 @@ function tplUpdateBrushPreview() {
   dot.style.borderRadius = '1px';
   const bi = document.getElementById('tpl-brush-info-size');
   const bo = document.getElementById('tpl-brush-info-opacity');
-  if (bi) bi.textContent = 'Boyut: ' + _tplBrushSize + 'px';
-  if (bo) bo.textContent = 'Opaklık: ' + Math.round(_tplOpacity * 100) + '%';
+  if (bi) bi.textContent = t('tpl.size_label') + ': ' + _tplBrushSize + 'px';
+  if (bo) bo.textContent = t('tpl.opacity_label') + ': ' + Math.round(_tplOpacity * 100) + '%';
 }
 
 /* ══════════════════════════════════════════════════════════

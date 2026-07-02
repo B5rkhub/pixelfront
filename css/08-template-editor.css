@@ -5,6 +5,7 @@
   inset: 0;
   z-index: 2000;
   background: #1a1a2a;
+  color: #e8eaf8; /* piksel editörü, çoğu tasarım aracı gibi moddan bağımsız her zaman koyu */
   flex-direction: column;
 }
 #tpl-editor-modal.active { display: flex; }

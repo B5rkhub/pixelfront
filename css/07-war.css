@@ -25,6 +25,7 @@
   z-index:951;
   width:min(560px, 96vw);
   background:linear-gradient(165deg,#0d0a1a 0%,#1a0d14 50%,#0d0a1a 100%);
+  color:#e8eaf8; /* açık/koyu moddan bağımsız — bu kart her zaman koyu, savaş temalı sabit tasarım */
   border:2px solid rgba(240,74,74,.6);
   border-radius:22px;
   padding:1.8rem 1.6rem 1.6rem;
@@ -141,6 +142,7 @@
   z-index:951;
   width:min(500px,96vw);
   background:linear-gradient(160deg,#0a1a12 0%,#0d2018 50%,#0a1a12 100%);
+  color:#e8eaf8; /* açık/koyu moddan bağımsız — bu kart her zaman koyu, sabit tasarım */
   border:2px solid rgba(0,212,160,.5);
   border-radius:20px;
   padding:1.6rem 1.4rem 1.4rem;

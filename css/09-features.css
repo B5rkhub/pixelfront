@@ -15,6 +15,7 @@
   align-items: center;
   gap: 3px;
   background: rgba(8, 6, 22, 0.92);
+  color: #e8eaf8; /* haritanın üzerinde yüzer, moddan bağımsız her zaman koyu */
   backdrop-filter: blur(10px);
   border-radius: 10px;
   padding: 6px 10px 6px 8px;
@@ -140,6 +141,7 @@
 
 #war-popup-inner {
   background: rgba(10, 10, 24, .97);
+  color: #e8eaf8; /* moddan bağımsız her zaman koyu, sabit savaş teması */
   border: 1px solid rgba(240,74,74,.35);
   border-radius: 18px;
   padding: 1.4rem 1.5rem;
@@ -534,6 +536,7 @@
 
 #war-decl-inner {
   background: linear-gradient(145deg, #100616, #1a0a0a, #130d22);
+  color: #e8eaf8; /* moddan bağımsız her zaman koyu, sabit savaş teması */
   border: 1px solid rgba(240,74,74,.45);
   border-radius: 22px;
   padding: 2rem 2rem 1.6rem;

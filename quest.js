@@ -6,32 +6,35 @@
 // ══════════════════════════════════════════════════════════
 
 /* ── Görev Tanımları ── */
+// NOT: name/desc alanları i18n ANAHTARI tutuyor (metin değil) — render
+// anında t() ile çözülüyor (bkz. renderQuestList/quest bildirimleri),
+// TUTORIAL_STEPS'teki aynı desen için bkz. tutorial.js.
 const QUEST_DEFS = {
   daily: [
-    { id:'d_place5',    icon:'🎯', name:'İlk Adım',        desc:'Bugün 5 piksel bas.',                          type:'place',  target:5,  xp:8,   pixels:2 },
-    { id:'d_place20',   icon:'🖌',  name:'Çizici',          desc:'Bugün 20 piksel bas.',                         type:'place',  target:20, xp:18,  pixels:4 },
-    { id:'d_place50',   icon:'⚡',  name:'Fırtına',         desc:'Bugün 50 piksel bas.',                         type:'place',  target:50, xp:35,  pixels:7 },
-    { id:'d_login',     icon:'🔥',  name:'Günlük Giriş',    desc:'Bugün giriş yaparak haritayı ziyaret et.',     type:'login',  target:1,  xp:5,   pixels:1 },
-    { id:'d_3prov',     icon:'🗺', name:'Gezgin',           desc:'Bugün 3 farklı ile piksel bas.',               type:'provinces', target:3, xp:12, pixels:3 },
+    { id:'d_place5',    icon:'🎯', name:'quest.d_place5_name',    desc:'quest.d_place5_desc',    type:'place',  target:5,  xp:8,   pixels:2 },
+    { id:'d_place20',   icon:'🖌',  name:'quest.d_place20_name',   desc:'quest.d_place20_desc',   type:'place',  target:20, xp:18,  pixels:4 },
+    { id:'d_place50',   icon:'⚡',  name:'quest.d_place50_name',   desc:'quest.d_place50_desc',   type:'place',  target:50, xp:35,  pixels:7 },
+    { id:'d_login',     icon:'🔥',  name:'quest.d_login_name',     desc:'quest.d_login_desc',     type:'login',  target:1,  xp:5,   pixels:1 },
+    { id:'d_3prov',     icon:'🗺', name:'quest.d_3prov_name',      desc:'quest.d_3prov_desc',     type:'provinces', target:3, xp:12, pixels:3 },
   ],
   weekly: [
-    { id:'w_place100',  icon:'🌟', name:'Haftalık Çizici',  desc:'Bu hafta 100 piksel bas.',                     type:'place',  target:100, xp:40,  pixels:8  },
-    { id:'w_place300',  icon:'💎', name:'Piksel Ustası',    desc:'Bu hafta 300 piksel bas.',                     type:'place',  target:300, xp:90,  pixels:18 },
-    { id:'w_streak3',   icon:'🔥', name:'3 Günlük Seri',    desc:'3 gün üst üste giriş yap.',                   type:'streak', target:3,  xp:30,  pixels:6  },
-    { id:'w_streak7',   icon:'👑', name:'Tam Seri',          desc:'7 gün üst üste giriş yap.',                   type:'streak', target:7,  xp:70,  pixels:14 },
-    { id:'w_5prov',     icon:'🗺', name:'Harita Gezgini',   desc:'Bu hafta 5 farklı ile piksel bas.',            type:'provinces', target:5, xp:25, pixels:5 },
-    { id:'w_faction',   icon:'🏴', name:'Fraksiyoncu',      desc:'Bir fraksiyona katıl veya kur.',               type:'faction', target:1, xp:20,  pixels:4  },
+    { id:'w_place100',  icon:'🌟', name:'quest.w_place100_name',  desc:'quest.w_place100_desc',  type:'place',  target:100, xp:40,  pixels:8  },
+    { id:'w_place300',  icon:'💎', name:'quest.w_place300_name',  desc:'quest.w_place300_desc',  type:'place',  target:300, xp:90,  pixels:18 },
+    { id:'w_streak3',   icon:'🔥', name:'quest.w_streak3_name',   desc:'quest.w_streak3_desc',   type:'streak', target:3,  xp:30,  pixels:6  },
+    { id:'w_streak7',   icon:'👑', name:'quest.w_streak7_name',   desc:'quest.w_streak7_desc',   type:'streak', target:7,  xp:70,  pixels:14 },
+    { id:'w_5prov',     icon:'🗺', name:'quest.w_5prov_name',      desc:'quest.w_5prov_desc',     type:'provinces', target:5, xp:25, pixels:5 },
+    { id:'w_faction',   icon:'🏴', name:'quest.w_faction_name',   desc:'quest.w_faction_desc',   type:'faction', target:1, xp:20,  pixels:4  },
   ],
   milestone: [
-    { id:'m_place10',   icon:'🌱', name:'Başlangıç',        desc:'Toplamda 10 piksel bas.',                      type:'total_place', target:10,   xp:15,  pixels:3  },
-    { id:'m_place50',   icon:'🌿', name:'Büyüyor',          desc:'Toplamda 50 piksel bas.',                      type:'total_place', target:50,   xp:30,  pixels:6  },
-    { id:'m_place200',  icon:'🌳', name:'Kök Saldı',        desc:'Toplamda 200 piksel bas.',                     type:'total_place', target:200,  xp:60,  pixels:12 },
-    { id:'m_place500',  icon:'🏅', name:'Deneyimli',        desc:'Toplamda 500 piksel bas.',                     type:'total_place', target:500,  xp:100, pixels:20 },
-    { id:'m_place1000', icon:'🥇', name:'Efsane Pikselci',  desc:'Toplamda 1000 piksel bas.',                    type:'total_place', target:1000, xp:200, pixels:35 },
-    { id:'m_place5000', icon:'👑', name:'Haritanın Efendisi',desc:'Toplamda 5000 piksel bas.',                   type:'total_place', target:5000, xp:500, pixels:80 },
-    { id:'m_lv5',       icon:'⭐', name:'Seviye 5',          desc:'5. seviyeye ulaş.',                            type:'level',  target:5,   xp:25,  pixels:5  },
-    { id:'m_lv10',      icon:'💫', name:'Seviye 10',         desc:'10. seviyeye ulaş.',                           type:'level',  target:10,  xp:50,  pixels:10 },
-    { id:'m_streak7',   icon:'🔥', name:'Haftalık Seri',    desc:'İlk 7 gün serisini tamamla.',                  type:'streak', target:7,   xp:40,  pixels:8  },
+    { id:'m_place10',   icon:'🌱', name:'quest.m_place10_name',   desc:'quest.m_place10_desc',   type:'total_place', target:10,   xp:15,  pixels:3  },
+    { id:'m_place50',   icon:'🌿', name:'quest.m_place50_name',   desc:'quest.m_place50_desc',   type:'total_place', target:50,   xp:30,  pixels:6  },
+    { id:'m_place200',  icon:'🌳', name:'quest.m_place200_name',  desc:'quest.m_place200_desc',  type:'total_place', target:200,  xp:60,  pixels:12 },
+    { id:'m_place500',  icon:'🏅', name:'quest.m_place500_name',  desc:'quest.m_place500_desc',  type:'total_place', target:500,  xp:100, pixels:20 },
+    { id:'m_place1000', icon:'🥇', name:'quest.m_place1000_name', desc:'quest.m_place1000_desc', type:'total_place', target:1000, xp:200, pixels:35 },
+    { id:'m_place5000', icon:'👑', name:'quest.m_place5000_name', desc:'quest.m_place5000_desc', type:'total_place', target:5000, xp:500, pixels:80 },
+    { id:'m_lv5',       icon:'⭐', name:'quest.m_lv5_name',       desc:'quest.m_lv5_desc',       type:'level',  target:5,   xp:25,  pixels:5  },
+    { id:'m_lv10',      icon:'💫', name:'quest.m_lv10_name',      desc:'quest.m_lv10_desc',      type:'level',  target:10,  xp:50,  pixels:10 },
+    { id:'m_streak7',   icon:'🔥', name:'quest.m_streak7_name',   desc:'quest.m_streak7_desc',   type:'streak', target:7,   xp:40,  pixels:8  },
   ]
 };
 
@@ -222,16 +225,16 @@ function renderQuestList(){
     const isDone = prog >= q.target;
     const isClaimed = claimBucket[q.id] && (isDone); // claimed sadece done iken geçerli
 
-    const claimLabel = isClaimed ? '✓ Alındı' : isDone ? 'Al →' : `${prog}/${q.target}`;
+    const claimLabel = isClaimed ? t('quest.claimed') : isDone ? t('quest.claim_btn') : `${prog}/${q.target}`;
     const claimClass = isClaimed ? 'claimed-lbl' : isDone ? 'ready' : 'not-ready';
 
     return `<div class="qcard${isDone?' done':''}${isClaimed?' claimed':''}">
       ${isClaimed ? '<div class="qcard-done-badge">✓</div>' : ''}
       <div class="qcard-icon">${q.icon}</div>
       <div class="qcard-body">
-        <div class="qcard-name">${q.name}</div>
-        <div class="qcard-desc">${q.desc}</div>
-        <div class="qcard-reward">+${q.xp} XP · +${q.pixels} Piksel</div>
+        <div class="qcard-name">${t(q.name)}</div>
+        <div class="qcard-desc">${t(q.desc)}</div>
+        <div class="qcard-reward">+${q.xp} XP · +${q.pixels}${t('pixel.unit')}</div>
         <div class="qcard-bar-wrap">
           <div class="qcard-bar" style="width:${pct}%"></div>
         </div>
@@ -287,8 +290,8 @@ let _qcnTimer = null;
 function showQuestComplete(q){
   const el = document.getElementById('quest-complete-notif');
   if(!el) return;
-  document.getElementById('qcn-name').textContent = q.name;
-  document.getElementById('qcn-reward').textContent = `+${q.xp} XP · +${q.pixels} Piksel`;
+  document.getElementById('qcn-name').textContent = t(q.name);
+  document.getElementById('qcn-reward').textContent = `+${q.xp} XP · +${q.pixels}${t('pixel.unit')}`;
   el.classList.add('show');
   clearTimeout(_qcnTimer);
   _qcnTimer = setTimeout(() => el.classList.remove('show'), 3200);

@@ -282,11 +282,15 @@ function buildLOD(){
   lctx.drawImage(baseCanvas,0,0,lodCanvas.width,lodCanvas.height);
 }
 
+// Canvas'ın piksel verisi olmayan alanlarının (harita dışı boşluk) dolgu
+// rengi — CSS değil, Canvas 2D çizimi olduğu için --bg değişkeninden
+// otomatik gelmiyor; mode.js açık/koyu mod değiştiğinde bunu günceller.
+let _canvasBgColor = '#05060e';
 function draw(){
   if(!baseCanvas) return;
   const cw=canvas.width,ch=canvas.height;
   ctx.clearRect(0,0,cw,ch);
-  ctx.fillStyle='#06060f';
+  ctx.fillStyle=_canvasBgColor;
   ctx.fillRect(0,0,cw,ch);
   const iw=IMG_W*scale,ih=IMG_H*scale;
   ctx.save();
@@ -1104,13 +1108,13 @@ function switchAuthTab(mode){
   const btn = document.getElementById('login-btn');
   document.getElementById('login-err').textContent = '';
   if(mode === 'signup'){
-    su.classList.add('active'); su.style.background='#ffffff14'; su.style.color='#fff';
-    si.classList.remove('active'); si.style.background='transparent'; si.style.color='#aaa';
+    su.classList.add('active');
+    si.classList.remove('active');
     unameEl.style.display = '';
     btn.textContent = t('login.submit_signup');
   } else {
-    si.classList.add('active'); si.style.background='#ffffff14'; si.style.color='#fff';
-    su.classList.remove('active'); su.style.background='transparent'; su.style.color='#aaa';
+    si.classList.add('active');
+    su.classList.remove('active');
     unameEl.style.display = 'none';
     btn.textContent = t('login.submit_signin');
   }

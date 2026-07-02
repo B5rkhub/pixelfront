@@ -692,10 +692,10 @@ body {
 ════════════════════════════════════════════════════════════════ */
 
 /* ── TOPBAR — Daha premium cam efekti ── */
-#topbar { background: rgba(5,6,14,.97) !important; border-bottom-color: rgba(var(--accent-rgb),.12) !important; }
+#topbar { background: rgba(var(--bg-rgb),.97) !important; border-bottom-color: rgba(var(--accent-rgb),.12) !important; }
 
 /* ── LOGIN KUTUSU ── */
-#login { background: rgba(5,6,14,.92) !important; }
+#login { background: rgba(var(--bg-rgb),.92) !important; }
 .lbox {
   box-shadow: 0 0 0 1px rgba(var(--accent-rgb),.12), 0 32px 80px rgba(0,0,0,.70), 0 0 80px rgba(var(--accent-rgb),.10) !important;
 }
@@ -731,11 +731,11 @@ body {
 
 /* ── LEVEL-UP BİLDİRİMİ — Daha çarpıcı border gradient ── */
 #levelup-notif { background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, #f5a623 100%) !important; box-shadow: 0 0 50px rgba(var(--accent-rgb),.80) !important; }
-#levelup-inner { background: #080918 !important; }
-#levelup-label { color: var(--accent2) !important; }
+#levelup-inner { background: var(--bg) !important; }
+#levelup-label { color: var(--accent-text) !important; }
 
 /* ── STREAK BİLDİRİMİ ── */
-#streak-inner { background: #080918 !important; }
+#streak-inner { background: var(--bg) !important; }
 #streak-label { color: #ffc53d !important; }
 
 /* ── CHAT BTN PULSE ── */
@@ -778,7 +778,7 @@ body {
 #sidebar-toggle:hover { color: var(--accent2) !important; }
 
 /* ── FACTION INVITE CODE ── */
-.fc-invite-code { color: var(--accent2) !important; }
+.fc-invite-code { color: var(--accent-text) !important; }
 
 /* ── PRTOP ACCENT (Oy yüzdesi) ── */
 .prpct { color: var(--accent2) !important; }
@@ -812,7 +812,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,0) 60%);
+  background: linear-gradient(180deg, rgba(var(--shine-rgb),.12) 0%, rgba(var(--shine-rgb),0) 60%);
   border-radius: inherit;
   pointer-events: none;
 }
@@ -832,7 +832,7 @@ body {
 .tb-btn {
   position: relative !important;
   overflow: hidden !important;
-  border: 1px solid rgba(255,255,255,.10) !important;
+  border: 1px solid rgba(var(--shine-rgb),.10) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     box-shadow var(--btn-duration) ease,
@@ -843,7 +843,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.08) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(var(--shine-rgb),.08) 0%, transparent 100%);
   border-radius: inherit;
   pointer-events: none;
   opacity: 0;
@@ -853,7 +853,7 @@ body {
   opacity: 1 !important;
   transform: translateY(-2px) scale(1.04) !important;
   border-color: rgba(var(--accent2-rgb),.30) !important;
-  box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(var(--shine-rgb),.10) !important;
 }
 .tb-btn:hover::before { opacity: 1; }
 .tb-btn:active {
@@ -888,7 +888,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 55%);
+  background: linear-gradient(180deg, rgba(var(--shine-rgb),.10) 0%, rgba(var(--shine-rgb),0) 55%);
   border-radius: inherit;
   pointer-events: none;
 }
@@ -912,8 +912,8 @@ body {
   border-color: rgba(240,74,74,.55) !important;
 }
 .fc-btn.secondary {
-  border-color: rgba(255,255,255,.10) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+  border-color: rgba(var(--shine-rgb),.10) !important;
+  box-shadow: inset 0 1px 0 rgba(var(--shine-rgb),.06) !important;
 }
 .fc-btn.secondary:hover {
   border-color: rgba(var(--accent-rgb),.45) !important;
@@ -923,7 +923,7 @@ body {
 
 /* ── FC-SMALL-BTN (Küçük aksiyonlar) ── */
 .fc-small-btn {
-  border: 1px solid rgba(255,255,255,.10) !important;
+  border: 1px solid rgba(var(--shine-rgb),.10) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     border-color .15s ease,
@@ -932,7 +932,7 @@ body {
 }
 .fc-small-btn:hover {
   border-color: rgba(var(--accent-rgb),.55) !important;
-  color: var(--accent2) !important;
+  color: var(--accent-text) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 12px rgba(var(--accent-rgb),.20) !important;
 }
@@ -961,7 +961,7 @@ body {
 
 /* ── FC-DIPLO-BTN (Diplomasi aksiyonları) ── */
 .fc-diplo-btn {
-  border: 1px solid rgba(255,255,255,.10) !important;
+  border: 1px solid rgba(var(--shine-rgb),.10) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     border-color .15s ease,
@@ -1028,7 +1028,7 @@ body {
 
 /* ── PTBTN (Paint toolbar butonları) ── */
 .ptbtn {
-  border: 1px solid rgba(255,255,255,.09) !important;
+  border: 1px solid rgba(var(--shine-rgb),.09) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     background .12s ease,
@@ -1038,7 +1038,7 @@ body {
 }
 .ptbtn:hover {
   background: var(--surf2) !important;
-  border-color: rgba(255,255,255,.18) !important;
+  border-color: rgba(var(--shine-rgb),.18) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 12px rgba(0,0,0,.30) !important;
 }
@@ -1055,7 +1055,7 @@ body {
 
 /* ── ZB (Zoom butonları) ── */
 .zb {
-  border: 1px solid rgba(255,255,255,.09) !important;
+  border: 1px solid rgba(var(--shine-rgb),.09) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     background .12s ease,
@@ -1064,7 +1064,7 @@ body {
 }
 .zb:hover {
   background: var(--surf2) !important;
-  border-color: rgba(255,255,255,.18) !important;
+  border-color: rgba(var(--shine-rgb),.18) !important;
   transform: scale(1.12) !important;
   box-shadow: 0 4px 12px rgba(0,0,0,.30) !important;
 }
@@ -1102,8 +1102,8 @@ body {
 }
 .ch-tab:hover:not(.active) {
   transform: translateY(-1px) !important;
-  background: rgba(255,255,255,.07) !important;
-  border-color: rgba(255,255,255,.15) !important;
+  background: rgba(var(--shine-rgb),.07) !important;
+  border-color: rgba(var(--shine-rgb),.15) !important;
 }
 .ch-tab.active {
   box-shadow: 0 2px 10px rgba(var(--accent-rgb),.35) !important;
@@ -1169,15 +1169,15 @@ body {
 
 /* ── TB-HAMBURGER ── */
 #tb-hamburger {
-  border: 1px solid rgba(255,255,255,.12) !important;
+  border: 1px solid rgba(var(--shine-rgb),.12) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     background .15s ease,
     border-color .15s ease !important;
 }
 #tb-hamburger:hover {
-  background: rgba(255,255,255,.12) !important;
-  border-color: rgba(255,255,255,.20) !important;
+  background: rgba(var(--shine-rgb),.12) !important;
+  border-color: rgba(var(--shine-rgb),.20) !important;
   transform: scale(1.06) !important;
 }
 #tb-hamburger:active {
@@ -1206,7 +1206,7 @@ body {
 /* ── SAVAŞ & İTTİFAK KAPAT BUTONLARI ── */
 .war-close-btn {
   border: 1px solid rgba(240,74,74,.45) !important;
-  box-shadow: 0 2px 14px rgba(240,74,74,.18), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  box-shadow: 0 2px 14px rgba(240,74,74,.18), inset 0 1px 0 rgba(var(--shine-rgb),.06) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     background .15s ease,
@@ -1217,7 +1217,7 @@ body {
   background: rgba(240,74,74,.28) !important;
   border-color: rgba(240,74,74,.75) !important;
   transform: translateY(-2px) scale(1.03) !important;
-  box-shadow: 0 8px 24px rgba(240,74,74,.35), inset 0 1px 0 rgba(255,255,255,.10) !important;
+  box-shadow: 0 8px 24px rgba(240,74,74,.35), inset 0 1px 0 rgba(var(--shine-rgb),.10) !important;
 }
 .war-close-btn:active {
   transform: scale(0.95) !important;
@@ -1227,7 +1227,7 @@ body {
 
 .ally-close-btn {
   border: 1px solid rgba(0,212,160,.40) !important;
-  box-shadow: 0 2px 14px rgba(0,212,160,.15), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  box-shadow: 0 2px 14px rgba(0,212,160,.15), inset 0 1px 0 rgba(var(--shine-rgb),.06) !important;
   transition:
     transform var(--btn-duration) var(--btn-ease),
     background .15s ease,
@@ -1238,7 +1238,7 @@ body {
   background: rgba(0,212,160,.24) !important;
   border-color: rgba(0,212,160,.70) !important;
   transform: translateY(-2px) scale(1.03) !important;
-  box-shadow: 0 8px 24px rgba(0,212,160,.30), inset 0 1px 0 rgba(255,255,255,.10) !important;
+  box-shadow: 0 8px 24px rgba(0,212,160,.30), inset 0 1px 0 rgba(var(--shine-rgb),.10) !important;
 }
 .ally-close-btn:active {
   transform: scale(0.95) !important;
@@ -1253,7 +1253,7 @@ body {
     color .15s ease !important;
 }
 .pca-lang-btn:hover:not(.active) {
-  background: rgba(255,255,255,.08) !important;
+  background: rgba(var(--shine-rgb),.08) !important;
   color: var(--txt) !important;
   transform: scale(1.06) !important;
 }
@@ -1275,7 +1275,7 @@ body {
 }
 .fc-tab:hover:not(.active), .pc-tab:hover:not(.active) {
   transform: translateY(-1px) !important;
-  background: rgba(255,255,255,.07) !important;
+  background: rgba(var(--shine-rgb),.07) !important;
 }
 .fc-tab.active, .pc-tab.active {
   box-shadow: 0 2px 12px rgba(var(--accent-rgb),.40) !important;

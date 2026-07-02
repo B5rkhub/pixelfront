@@ -2,54 +2,58 @@
 // Belirli UI elementlerini aydınlatarak adım adım oyun tanıtımı yapar.
 // İlk girişte otomatik gösterilir, localStorage bayrağıyla bir kez.
 
+// NOT: title/desc alanları i18n ANAHTARI tutuyor (metin değil) — bu dizi
+// i18n.js yüklenmeden ÖNCE (script sırasında tutorial.js daha erken) modül
+// yüklenirken bir kez oluşturuluyor, bu yüzden t() burada değil render
+// anında (_tutRender içinde) çağrılıyor.
 const TUTORIAL_STEPS = [
   {
     target: null,
     icon: '🗺️',
-    title: 'PixelFront\'a Hoş Geldin!',
-    desc: 'Herkesin gerçek zamanlı birlikte boyadığı bir Türkiye haritası. Toprak kazan, fraksiyona katıl, savaşlara gir.',
+    title: 'tutorial.step1_title',
+    desc: 'tutorial.step1_desc',
   },
   {
     target: 'c',
     icon: '🖱️',
-    title: 'Haritaya Tıkla',
-    desc: 'Haritada istediğin kareye tıkla ya da dokunup tut. Renk seçici açılır, pikselini bas. Kaydırmak için sürükle, yakınlaştırmak için scroll/pinch.',
+    title: 'tutorial.step2_title',
+    desc: 'tutorial.step2_desc',
   },
   {
     target: 'pixel-widget',
     icon: '🎨',
-    title: 'Piksel Depon',
-    desc: 'Elindeki piksel sayısı burada görünür. Maks 49 biriktirip tek seferde basabilirsin — sabırlı oyuncular avantajlıdır.',
+    title: 'tutorial.step3_title',
+    desc: 'tutorial.step3_desc',
   },
   {
     target: 'cdlabel',
     icon: '⏳',
-    title: 'Cooldown',
-    desc: 'Piksel bastıktan sonra kısa bir bekleme başlar. Sayaç sıfırlanınca yeni hakkın gelir.',
+    title: 'tutorial.step4_title',
+    desc: 'tutorial.step4_desc',
   },
   {
     target: 'profile-btn',
     icon: '⭐',
-    title: 'Profil & XP',
-    desc: 'Her piksel XP kazandırır. Seviye atlayınca yeni çerçeveler ve unvanlar açılır. Lider tablosunu da buradan takip edebilirsin.',
+    title: 'tutorial.step5_title',
+    desc: 'tutorial.step5_desc',
   },
   {
     target: 'faction-btn',
     icon: '🏴',
-    title: 'Fraksiyonlar',
-    desc: 'Fraksiyona katıl ya da kendi grubunu kur. Müttefikler edin, savaş ilan et, haritada toprak savun.',
+    title: 'tutorial.step6_title',
+    desc: 'tutorial.step6_desc',
   },
   {
     target: 'chat-btn',
     icon: '💬',
-    title: 'Sohbet',
-    desc: 'Global sohbette herkesle konuş ya da fraksiyonunla özel kanalda strateji belirle.',
+    title: 'tutorial.step7_title',
+    desc: 'tutorial.step7_desc',
   },
   {
     target: null,
     icon: '🚀',
-    title: 'Hazırsın!',
-    desc: 'İlk pikselini bas, topraklarını büyüt. İyi oyunlar!',
+    title: 'tutorial.step8_title',
+    desc: 'tutorial.step8_desc',
   },
 ];
 
@@ -69,9 +73,9 @@ function _tutRender() {
   const isLast = _tutStep === TUTORIAL_STEPS.length - 1;
 
   document.getElementById('tut-icon').textContent = s.icon;
-  document.getElementById('tut-title').textContent = s.title;
-  document.getElementById('tut-desc').textContent = s.desc;
-  document.getElementById('tut-next').textContent = isLast ? 'Anladım, Başla! 🎉' : 'İleri →';
+  document.getElementById('tut-title').textContent = t(s.title);
+  document.getElementById('tut-desc').textContent = t(s.desc);
+  document.getElementById('tut-next').textContent = isLast ? t('tutorial.finish') : t('tutorial.next');
   document.getElementById('tut-progress').textContent = `${_tutStep + 1} / ${TUTORIAL_STEPS.length}`;
   document.getElementById('tut-dots').innerHTML = TUTORIAL_STEPS.map((_, i) =>
     `<span class="tut-dot${i === _tutStep ? ' active' : ''}"></span>`).join('');

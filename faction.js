@@ -878,35 +878,35 @@ function renderMailbox(){
   if(!list) return;
   const mails = getMails();
   if(mails.length===0){
-    list.innerHTML='<div class="mail-empty">📭 Posta kutunuz boş.</div>';
+    list.innerHTML=`<div class="mail-empty">${t('mailbox.empty')}</div>`;
     return;
   }
   list.innerHTML = mails.map(m=>{
-    const time = new Date(m.ts).toLocaleString('tr-TR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const time = new Date(m.ts).toLocaleString(_currentLang==='tr'?'tr-TR':'en-US',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
     let icon='📩', title='', body='', actions='';
     if(m.type==='ally_invite'){
-      icon='🤝'; title=`<b>${_esc(m.from)}</b> [${_esc(m.fromTag)}] İttifak Daveti`;
-      body=`<b>${_esc(m.from)}</b> fraksiyonu sizi ittifaka davet ediyor.`;
+      icon='🤝'; title=`<b>${_esc(m.from)}</b> [${_esc(m.fromTag)}] ${t('mail.ally_invite_title_suffix')}`;
+      body=`<b>${_esc(m.from)}</b> ${t('mail.ally_invite_body_suffix')}`;
       if(m.pending!==false){
-        actions=`<button class="mail-accept-btn" onclick="acceptAllyInvite('${m.id}','${m.fromTag}')">✅ Kabul Et</button>
-                 <button class="mail-reject-btn" onclick="rejectAllyInvite('${m.id}','${m.fromTag}')">❌ Reddet</button>`;
+        actions=`<button class="mail-accept-btn" onclick="acceptAllyInvite('${m.id}','${m.fromTag}')">${t('mail.accept_btn')}</button>
+                 <button class="mail-reject-btn" onclick="rejectAllyInvite('${m.id}','${m.fromTag}')">${t('mail.reject_btn')}</button>`;
       } else {
-        actions=`<span style="font-size:.62rem;color:var(--muted);">${m.resolved==='accepted'?'✅ Kabul edildi':'❌ Reddedildi'}</span>`;
+        actions=`<span style="font-size:.62rem;color:var(--muted);">${m.resolved==='accepted'?t('mail.accepted_label'):t('mail.rejected_label')}</span>`;
       }
     } else if(m.type==='ally_accept'){
-      icon='🎉'; title=`<b>${_esc(m.from)}</b> İttifak Davetini Kabul Etti`;
-      body=`<b>${_esc(m.from)}</b> fraksiyonu ittifak davetinizi kabul etti! Artık müttefiksiniz.`;
+      icon='🎉'; title=`<b>${_esc(m.from)}</b> ${t('mail.ally_accept_title_suffix')}`;
+      body=`<b>${_esc(m.from)}</b> ${t('mail.ally_accept_body_suffix')}`;
     } else if(m.type==='ally_reject'){
-      icon='💔'; title=`<b>${_esc(m.from)}</b> İttifak Davetini Reddetti`;
-      body=`<b>${_esc(m.from)}</b> fraksiyonu ittifak davetinizi reddetti.`;
+      icon='💔'; title=`<b>${_esc(m.from)}</b> ${t('mail.ally_reject_title_suffix')}`;
+      body=`<b>${_esc(m.from)}</b> ${t('mail.ally_reject_body_suffix')}`;
     } else if(m.type==='war_declared'){
-      icon='⚔️'; title=`<b>${_esc(m.from)}</b> Size Savaş İlan Etti!`;
-      body=`<b>${_esc(m.from)}</b> [${_esc(m.fromTag)}] fraksiyonunuza savaş ilan etti!`;
+      icon='⚔️'; title=`<b>${_esc(m.from)}</b> ${t('mail.war_declared_title_suffix')}`;
+      body=`<b>${_esc(m.from)}</b> [${_esc(m.fromTag)}] ${t('mail.war_declared_body_suffix')}`;
     } else if(m.type==='war_info'){
-      icon='📢'; title=m.subject||'Savaş Bildirimi';
+      icon='📢'; title=m.subject||t('mail.war_info_default_title');
       body=m.body||'';
     } else {
-      icon='📩'; title=m.subject||'Bildirim'; body=m.body||'';
+      icon='📩'; title=m.subject||t('mail.default_title'); body=m.body||'';
     }
     return `<div class="mail-item${m.read?'':' unread'}">
       <div class="mail-item-top">${icon} ${title} <span style="margin-left:auto;font-size:.55rem;color:var(--muted);font-weight:400;">${time}</span></div>

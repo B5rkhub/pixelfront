@@ -77,17 +77,18 @@ function applyPixelEventState(){
   const banner = document.getElementById('pixel-event-banner');
   const rc = document.getElementById('ripple-canvas');
   const btn = document.getElementById('pt-event-toggle');
+  const btnLabel = document.getElementById('pt-event-toggle-label');
   applyPixelEventRate();
   if(pixelEventActive){
     banner.classList.add('active');
     rc.classList.add('active');
-    if(btn){ btn.textContent='⚡ Pixel Event: ON'; btn.classList.add('event-on'); }
+    if(btn){ if(btnLabel) btnLabel.textContent=t('paint.event_on'); btn.classList.add('event-on'); }
   } else {
     banner.classList.remove('active');
     rc.classList.remove('active');
     activeRipples = [];
     if(rctx) rctx.clearRect(0,0,rippleCanvas.width,rippleCanvas.height);
-    if(btn){ btn.textContent='⚡ Pixel Event: OFF'; btn.classList.remove('event-on'); }
+    if(btn){ if(btnLabel) btnLabel.textContent=t('paint.event_off'); btn.classList.remove('event-on'); }
   }
   updatePixelEventModalView();
 }
