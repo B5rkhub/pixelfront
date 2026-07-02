@@ -258,8 +258,8 @@
   <div id="chat-header">
     <div class="ch-dot"></div>
     <div id="chat-tabs">
-      <button class="ch-tab active" id="ch-tab-global" onclick="switchChatTab('global')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> <span id="ch-tab-global-label">Genel</span><span id="chat-global-badge" class="ch-badge"></span></button>
-      <button class="ch-tab" id="ch-tab-faction" onclick="switchChatTab('faction')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> <span id="ch-tab-faction-label">Faction</span><span id="chat-faction-badge" class="ch-badge"></span></button>
+      <button class="ch-tab active" id="ch-tab-global" onclick="switchChatTab('global')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> <span id="ch-tab-global-label" data-i18n="chat.tab_global">Genel</span><span id="chat-global-badge" class="ch-badge"></span></button>
+      <button class="ch-tab" id="ch-tab-faction" onclick="switchChatTab('faction')"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg> <span id="ch-tab-faction-label" data-i18n="chat.tab_faction">Faction</span><span id="chat-faction-badge" class="ch-badge"></span></button>
     </div>
     <button class="ch-close" onclick="toggleChat()"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-.125em;flex-shrink:0;"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg></button>
   </div>
@@ -1041,28 +1041,28 @@
         <rect x="10" y="10" width="5" height="5" rx="1"/><rect x="3" y="17" width="5" height="5" rx="1"/>
         <rect x="10" y="17" width="5" height="5" rx="1"/><rect x="17" y="17" width="4" height="4" rx="1"/>
       </svg>
-      Şablon Editörü
+      <span data-i18n="tpl.editor_title">Şablon Editörü</span>
     </div>
 
-    <button class="tpl-menu-btn" onclick="tplMenuNew()">Yeni</button>
+    <button class="tpl-menu-btn" onclick="tplMenuNew()" data-i18n="tpl.menu_new">Yeni</button>
     <button class="tpl-menu-btn" onclick="tplMenuImport()">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-.1em;margin-right:.2rem"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      PNG Yükle
+      <span data-i18n="tpl.menu_import_png">PNG Yükle</span>
     </button>
     <button class="tpl-menu-btn" onclick="tplMenuExportPng()">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-.1em;margin-right:.2rem"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      İndir
+      <span data-i18n="tpl.menu_export">İndir</span>
     </button>
-    <button class="tpl-menu-btn" onclick="tplToggleGrid()">Izgara</button>
+    <button class="tpl-menu-btn" onclick="tplToggleGrid()" data-i18n="tpl.menu_grid">Izgara</button>
 
     <div id="tpl-menubar-spacer"></div>
 
     <button id="tpl-done-btn" onclick="tplHandleDone()">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Bitti & İndir
+      <span data-i18n="tpl.menu_done_export">Bitti &amp; İndir</span>
     </button>
 
-    <button id="tpl-close-btn" onclick="closeTemplateEditor()" title="Kapat (Esc)">
+    <button id="tpl-close-btn" onclick="closeTemplateEditor()" title="Kapat (Esc)" data-i18n-title="tpl.close_esc_title">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
     </button>
   </div>

@@ -430,7 +430,7 @@ async function persistPixelStatesToServer(flats, stateAtTime, actingUsername){
     });
     if(error) throw error;
     if(!data || data.success!==true){
-      throw new Error((data && data.error) || 'admin_set_pixel_states başarısız');
+      throw new Error((data && data.error) || t('rb.err_set_pixel_states'));
     }
   });
 }
@@ -536,7 +536,7 @@ async function undoRollback(){
       });
       if(error) throw error;
       if(!data || data.success!==true){
-        throw new Error((data && data.error) || 'admin_set_pixel_states başarısız');
+        throw new Error((data && data.error) || t('rb.err_set_pixel_states'));
       }
     });
   } catch(err){

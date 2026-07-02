@@ -32,14 +32,14 @@ function checkTLDailyLimit() {
   if (stored === today) {
     infoEl.style.background = 'rgba(240,74,74,.1)';
     infoEl.style.borderColor = 'rgba(240,74,74,.35)';
-    infoEl.innerHTML = '⛔ <b>Bugün zaten timelapse oluşturdun.</b> Yarın tekrar kullanabilirsin.<br><small style="color:var(--muted)">Bu özellik sunucuyu yoğun çalıştırdığı için günde 1 kez sınırlıdır.</small>';
+    infoEl.innerHTML = t('tl.daily_limit_full_html');
     startBtn.disabled = true;
     startBtn.style.opacity = '0.4';
     startBtn.style.cursor = 'not-allowed';
   } else {
     infoEl.style.background = 'linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.08))';
     infoEl.style.borderColor = 'rgba(139,92,246,.3)';
-    infoEl.innerHTML = '📅 Timelapse oluşturmak <b>günde 1 kez</b> kullanılabilir — haritanın yoğun hesaplama gerektiren bir özelliğidir.';
+    infoEl.innerHTML = t('tl.daily_info_full_html');
     startBtn.disabled = false;
     startBtn.style.opacity = '1';
     startBtn.style.cursor = 'pointer';

@@ -483,7 +483,7 @@ canvas.addEventListener('mousemove',e=>{
       tip.style.opacity='1';
       tip.style.left=(mx+14)+'px';
       tip.style.top=(my-10)+'px';
-      tip.innerHTML=(WHITE_SET.has(flat)?'<span style="color:var(--muted)">Sınır — </span>':'')+
+      tip.innerHTML=(WHITE_SET.has(flat)?'<span style="color:var(--muted)">'+t('paint.border_label')+' — </span>':'')+
         `<b>${PROV_NAMES[pid]}</b> <span style="color:${reg.color};font-size:.62rem">${reg.label}</span>`+
         (w?` · <span style="color:${PARTIES[w.p].color}">${PARTIES[w.p].name} ${w.pct}%</span>`:'');
     }else tip.style.opacity='0';
@@ -999,7 +999,7 @@ function updateSidebar(){
   if(rlistEl) rlistEl.innerHTML=rlistHTML;
   if(afeedEl) afeedEl.innerHTML=actLog.length
     ?actLog.slice(0,12).map(a=>`<div class="af"><span>${a.user}</span> → <span style="color:${PARTIES[a.party].color}">${PARTIES[a.party].name}</span> / ${a.prov} <span style="opacity:.4">${tsince(a.t)}</span></div>`).join('')
-    :`<div class="af" style="color:var(--muted)">Henüz hamle yok...</div>`;
+    :`<div class="af" style="color:var(--muted)">${t('sidebar.no_moves_yet')}</div>`;
 }
 let ptmo;
 function showPopup(msg){const el=document.getElementById('popup');el.textContent=msg;el.classList.add('show');clearTimeout(ptmo);ptmo=setTimeout(()=>el.classList.remove('show'),2800);}
@@ -1078,8 +1078,8 @@ async function initMapData(){
 let _pendingClickMx=null, _pendingClickMy=null;
 function showRegisterPrompt(mx, my){
   _pendingClickMx=mx; _pendingClickMy=my;
-  document.getElementById('login-title').textContent='✏ Hesabına Giriş Yap';
-  document.getElementById('login-desc').innerHTML='Piksel basmak için email ile kayıt ol veya giriş yap.';
+  document.getElementById('login-title').textContent=t('login.register_title');
+  document.getElementById('login-desc').innerHTML=t('login.register_desc');
   document.getElementById('login-err').textContent='';
   document.getElementById('login').style.display='flex';
   setTimeout(()=>document.getElementById('uname').focus(), 80);
@@ -1144,7 +1144,7 @@ async function signInWithGoogle(){
     }
   });
   if(error){
-    errEl.textContent='⚠ Google ile giriş başlatılamadı: '+error.message;
+    errEl.textContent=t('login.err_google_failed')+error.message;
   }
   // Hata yoksa tarayıcı Google'a yönlendirilir, bu fonksiyonun devamı çalışmaz.
 }
@@ -1157,17 +1157,17 @@ async function startGame(){
   errEl.textContent='';
 
   if(!email || !password){
-    errEl.textContent='⚠ Email ve şifre gerekli.';
+    errEl.textContent=t('login.err_required');
     return;
   }
   if(password.length < 6){
-    errEl.textContent='⚠ Şifre en az 6 karakter olmalı.';
+    errEl.textContent=t('login.err_pw_short');
     return;
   }
 
   if(_authMode === 'signup'){
     const v=document.getElementById('uname').value.trim();
-    if(!v){document.getElementById('uname').style.borderColor='#e63946';errEl.textContent='⚠ Kullanıcı adı gerekli.';return;}
+    if(!v){document.getElementById('uname').style.borderColor='#e63946';errEl.textContent=t('login.err_uname_required');return;}
 
     // ── GÜVENLİK: kullanıcı adı validasyonu ──────────────────────────
     // Daha sonra faction üye listesi, liderlik tablosu, sohbet gibi pek
@@ -1175,37 +1175,37 @@ async function startGame(){
     // karakteri içeremesin diye (stored XSS önleme) kısıtlanıyor.
     const NAME_RE = /^[\p{L}\p{N} _\-]{2,20}$/u;
     if(!NAME_RE.test(v)){
-      errEl.textContent='⚠ Kullanıcı adı sadece harf, rakam, boşluk, "-" ve "_" içerebilir (2-20 karakter).';
+      errEl.textContent=t('login.err_uname_invalid');
       document.getElementById('uname').style.borderColor='#e63946';
       return;
     }
 
-    btn.disabled=true; btn.textContent='Kayıt olunuyor...';
+    btn.disabled=true; btn.textContent=t('login.signing_up');
     const {data,error} = await supabase.auth.signUp({
       email, password,
       options:{ data:{ display_name: v } }
     });
-    btn.disabled=false; btn.textContent='Kayıt Ol ve Haritaya Gir →';
+    btn.disabled=false; btn.textContent=t('login.submit_signup');
 
     if(error){
-      errEl.textContent='⚠ '+(error.message==='User already registered' ? 'Bu email zaten kayıtlı, "Giriş Yap" sekmesini kullan.' : error.message);
+      errEl.textContent='⚠ '+(error.message==='User already registered' ? t('login.err_already_registered') : error.message);
       return;
     }
     if(!data.session){
-      errEl.textContent='✓ Kayıt başarılı! Email adresine gelen onay linkine tıkla, sonra giriş yap.';
+      errEl.textContent=t('login.signup_success');
       return;
     }
     _activateUser(v);
   } else {
-    btn.disabled=true; btn.textContent='Giriş yapılıyor...';
+    btn.disabled=true; btn.textContent=t('login.signing_in');
     const {data,error} = await supabase.auth.signInWithPassword({ email, password });
-    btn.disabled=false; btn.textContent='Giriş Yap →';
+    btn.disabled=false; btn.textContent=t('login.submit_signin');
 
     if(error){
-      errEl.textContent='⚠ Email veya şifre hatalı.';
+      errEl.textContent=t('login.err_bad_credentials');
       return;
     }
-    const displayName = data.user?.user_metadata?.display_name || data.user?.user_metadata?.full_name || data.user?.email || 'Oyuncu';
+    const displayName = data.user?.user_metadata?.display_name || data.user?.user_metadata?.full_name || data.user?.email || t('login.default_player_name');
     _activateUser(displayName);
   }
 
@@ -1378,21 +1378,21 @@ function closeOwnerPanel(){
 }
 async function refreshOwnerAdminList(){
   const listEl = document.getElementById('owner-admin-list');
-  listEl.innerHTML = '<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;">Yükleniyor...</div>';
+  listEl.innerHTML = '<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;">'+t('owner.loading')+'</div>';
   try{
     const {data,error} = await supabase.rpc('list_admins');
     if(error || !data){
-      listEl.innerHTML = '<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;">Yüklenemedi.</div>';
+      listEl.innerHTML = '<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;">'+t('owner.load_failed')+'</div>';
       return;
     }
     if(data.length===0){
-      listEl.innerHTML = '<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;">Henüz kimse yok.</div>';
+      listEl.innerHTML = '<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;">'+t('owner.none_yet')+'</div>';
       return;
     }
     listEl.innerHTML = data.map(row=>{
       const safeName = _esc(row.display_name||'?');
       const roleColor = row.role==='owner' ? '#f5a623' : 'var(--accent)';
-      const roleLabel = row.role==='owner' ? '👑 Owner' : '🛡 Admin';
+      const roleLabel = row.role==='owner' ? t('owner.role_owner') : t('owner.role_admin');
       return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:.5rem .7rem;">
         <span style="font-size:.78rem;font-weight:600;">${safeName}</span>
         <span style="font-size:.62rem;font-weight:700;color:${roleColor};font-family:'Space Mono',monospace;">${roleLabel}</span>
@@ -1400,54 +1400,54 @@ async function refreshOwnerAdminList(){
     }).join('');
   }catch(e){
     console.error('list_admins hatası:', e);
-    listEl.innerHTML = '<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;">Yüklenemedi.</div>';
+    listEl.innerHTML = '<div style="font-size:.72rem;color:var(--muted);text-align:center;padding:.6rem 0;">'+t('owner.load_failed')+'</div>';
   }
 }
 async function ownerAssignRole(role){
   const emailEl = document.getElementById('owner-add-email');
   const msgEl = document.getElementById('owner-form-msg');
   const email = emailEl.value.trim();
-  if(!email){ msgEl.style.color='#f04a4a'; msgEl.textContent='⚠ Email gerekli.'; return; }
-  msgEl.style.color='var(--muted)'; msgEl.textContent='İşleniyor...';
+  if(!email){ msgEl.style.color='#f04a4a'; msgEl.textContent=t('owner.email_required'); return; }
+  msgEl.style.color='var(--muted)'; msgEl.textContent=t('owner.processing');
   try{
     const {data,error} = await supabase.rpc('make_admin_by_email',{p_email:email,p_role:role});
     if(error || !data || data.success!==true){
-      const errMsg = data && data.error==='user_not_found' ? 'Bu email ile kayıtlı kullanıcı bulunamadı.'
-        : data && data.error==='not_owner' ? 'Bu işlem için owner yetkisi gerekli.'
-        : 'İşlem başarısız.';
+      const errMsg = data && data.error==='user_not_found' ? t('owner.user_not_found')
+        : data && data.error==='not_owner' ? t('owner.not_owner')
+        : t('owner.op_failed');
       msgEl.style.color='#f04a4a'; msgEl.textContent='⚠ '+errMsg;
       return;
     }
-    msgEl.style.color='#00d4a0'; msgEl.textContent='✓ Yetki verildi: '+(role==='owner'?'Owner':'Admin');
+    msgEl.style.color='#00d4a0'; msgEl.textContent=t('owner.assign_success')+(role==='owner'?'Owner':'Admin');
     emailEl.value='';
     await refreshOwnerAdminList();
   }catch(e){
     console.error('make_admin_by_email hatası:', e);
-    msgEl.style.color='#f04a4a'; msgEl.textContent='⚠ Bağlantı hatası.';
+    msgEl.style.color='#f04a4a'; msgEl.textContent=t('owner.conn_error');
   }
 }
 async function ownerRevoke(){
   const emailEl = document.getElementById('owner-add-email');
   const msgEl = document.getElementById('owner-form-msg');
   const email = emailEl.value.trim();
-  if(!email){ msgEl.style.color='#f04a4a'; msgEl.textContent='⚠ Email gerekli.'; return; }
-  msgEl.style.color='var(--muted)'; msgEl.textContent='İşleniyor...';
+  if(!email){ msgEl.style.color='#f04a4a'; msgEl.textContent=t('owner.email_required'); return; }
+  msgEl.style.color='var(--muted)'; msgEl.textContent=t('owner.processing');
   try{
     const {data,error} = await supabase.rpc('revoke_admin_by_email',{p_email:email});
     if(error || !data || data.success!==true){
-      const errMsg = data && data.error==='cannot_revoke_self' ? 'Kendi owner yetkini kaldıramazsın.'
-        : data && data.error==='user_not_found' ? 'Bu email ile kayıtlı kullanıcı bulunamadı.'
-        : data && data.error==='not_owner' ? 'Bu işlem için owner yetkisi gerekli.'
-        : 'İşlem başarısız.';
+      const errMsg = data && data.error==='cannot_revoke_self' ? t('owner.cannot_revoke_self')
+        : data && data.error==='user_not_found' ? t('owner.user_not_found')
+        : data && data.error==='not_owner' ? t('owner.not_owner')
+        : t('owner.op_failed');
       msgEl.style.color='#f04a4a'; msgEl.textContent='⚠ '+errMsg;
       return;
     }
-    msgEl.style.color='#00d4a0'; msgEl.textContent='✓ Yetki kaldırıldı.';
+    msgEl.style.color='#00d4a0'; msgEl.textContent=t('owner.revoke_success');
     emailEl.value='';
     await refreshOwnerAdminList();
   }catch(e){
     console.error('revoke_admin_by_email hatası:', e);
-    msgEl.style.color='#f04a4a'; msgEl.textContent='⚠ Bağlantı hatası.';
+    msgEl.style.color='#f04a4a'; msgEl.textContent=t('owner.conn_error');
   }
 }
 

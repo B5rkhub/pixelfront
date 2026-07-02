@@ -61,9 +61,9 @@ let _tplRightClickDown  = false;
    OPEN / CLOSE
 ══════════════════════════════════════════════════════════ */
 function openTemplateEditor() {
-  if (!username) { showPopup('Şablon aracı için giriş yapman gerekiyor.'); return; }
+  if (!username) { showPopup(t('msg.template_login_required')); return; }
   if (_tplActive) return;
-  if (typeof IMG_W === 'undefined' || !canvas) { showPopup('Harita henüz yüklenmedi.'); return; }
+  if (typeof IMG_W === 'undefined' || !canvas) { showPopup(t('msg.map_not_ready')); return; }
 
   _tplActive = true;
   _editorW = IMG_W;
@@ -346,28 +346,33 @@ function tplOpenColorPicker() {
 /* ══════════════════════════════════════════════════════════
    TOOL SELECTION
 ══════════════════════════════════════════════════════════ */
+// Değerler metin değil i18n anahtarı — bkz. tplEditorSetTool()
 const TPL_TOOL_LABELS = {
-  brush: 'PİKSEL', eraser: 'SİLGİ', fill: 'DOLDUR',
-  line: 'ÇİZGİ', rect: 'DİKDÖRTGEN', rectfill: 'DOLU',
-  picker: 'DAMLALIK'
+  brush: 'tpl.tool_status_brush', eraser: 'tpl.tool_status_eraser', fill: 'tpl.tool_status_fill',
+  line: 'tpl.tool_status_line', rect: 'tpl.tool_status_rect', rectfill: 'tpl.tool_status_rectfill',
+  picker: 'tpl.tool_status_picker'
 };
 
-function tplEditorSetTool(t) {
-  _tplTool = t;
+function tplEditorSetTool(toolName) {
+  // NOT: parametre eskiden "t" idi ve global i18n t() fonksiyonunu
+  // gölgeliyordu (bu fonksiyon içinde t(...) çağırmak TypeError verirdi) —
+  // toolName olarak yeniden adlandırıldı.
+  _tplTool = toolName;
   document.querySelectorAll('.tpl-tool').forEach(el => el.classList.remove('active'));
-  const btn = document.getElementById('tplb-' + t);
+  const btn = document.getElementById('tplb-' + toolName);
   if (btn) btn.classList.add('active');
   const lbl = document.getElementById('tpl-current-tool-label');
-  if (lbl) lbl.textContent = TPL_TOOL_LABELS[t] || t.toUpperCase();
+  const labelKey = TPL_TOOL_LABELS[toolName];
+  if (lbl) lbl.textContent = labelKey ? t(labelKey) : toolName.toUpperCase();
   _editorLineStart = null;
   _editorRectStart = null;
 
   /* cursor */
   const dc = document.getElementById('tpl-draw-canvas');
   if (dc) {
-    dc.style.cursor = t === 'picker' ? 'crosshair' :
-                      t === 'fill'   ? 'cell' :
-                      t === 'eraser' ? 'cell' : 'crosshair';
+    dc.style.cursor = toolName === 'picker' ? 'crosshair' :
+                      toolName === 'fill'   ? 'cell' :
+                      toolName === 'eraser' ? 'cell' : 'crosshair';
   }
 }
 
@@ -662,7 +667,7 @@ function tplToggleRightClickErase() {
 ══════════════════════════════════════════════════════════ */
 function tplMenuNew() {
   if (_tplData.size > 0) {
-    if (!confirm('Şablonu sıfırlamak istiyor musun?')) return;
+    if (!confirm(t('tpl.confirm_reset'))) return;
   }
   _tplPushUndo();
   _tplData.clear();
@@ -698,7 +703,7 @@ function tplHandleImport(input) {
     _editorRender();
     input.value = '';
   };
-  img.onerror = () => { showPopup('Resim yüklenemedi.'); URL.revokeObjectURL(url); };
+  img.onerror = () => { showPopup(t('tpl.err_image_load')); URL.revokeObjectURL(url); };
   img.src = url;
 }
 
@@ -868,7 +873,7 @@ function _tplKeyboardHandler(e) {
 ══════════════════════════════════════════════════════════ */
 async function tplHandleDone() {
   const btn = document.getElementById('tpl-done-btn');
-  btn.disabled = true; btn.textContent = '⏳ Hazırlanıyor...';
+  btn.disabled = true; btn.textContent = t('tpl.preparing');
   try {
     const blob = await _tplExportPNG();
     _tplLastBlob = blob;
@@ -880,10 +885,10 @@ async function tplHandleDone() {
     document.getElementById('tpl-upload-status').className = '';
     document.getElementById('tpl-result-popup').classList.add('show');
   } catch(err) {
-    showPopup('Export hatası: ' + (err.message || 'bilinmiyor'));
+    showPopup(t('tpl.err_export_prefix') + (err.message || t('tpl.err_unknown')));
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-.1em"><polyline points="20 6 9 17 4 12"/></svg> Bitti & İndir';
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-.1em"><polyline points="20 6 9 17 4 12"/></svg> ' + t('tpl.menu_done_export');
   }
 }
 
@@ -910,33 +915,33 @@ async function _tplExportPNG() {
   }
   if (_tplBitmap) ctx2.drawImage(_tplBitmap, 0, 0);
   return new Promise((resolve, reject) => {
-    merged.toBlob(b => b ? resolve(b) : reject(new Error('toBlob başarısız')), 'image/png');
+    merged.toBlob(b => b ? resolve(b) : reject(new Error(t('tpl.err_toblob'))), 'image/png');
   });
 }
 
 async function tplUploadToSupabase() {
-  if (!_tplLastBlob) { showPopup('Önce "Bitti & İndir"e bas.'); return; }
-  if (typeof supabase === 'undefined') { showPopup('Supabase bağlantısı yok.'); return; }
+  if (!_tplLastBlob) { showPopup(t('tpl.err_download_first')); return; }
+  if (typeof supabase === 'undefined') { showPopup(t('tpl.err_no_supabase')); return; }
   const statusEl  = document.getElementById('tpl-upload-status');
   const uploadBtn = document.getElementById('tpl-upload-btn');
-  statusEl.className = ''; statusEl.textContent = '⏳ Yükleniyor...';
+  statusEl.className = ''; statusEl.textContent = t('tpl.uploading');
   uploadBtn.disabled = true;
   try {
     const {data:{user}, error:authErr} = await supabase.auth.getUser();
-    if (authErr || !user) throw new Error('Oturum bulunamadı, tekrar giriş yap.');
+    if (authErr || !user) throw new Error(t('tpl.err_no_session'));
     const uid = user.id, fileName = crypto.randomUUID() + '.png', path = uid + '/' + fileName;
     const {error:upErr} = await supabase.storage.from('player-templates').upload(path, _tplLastBlob, {contentType:'image/png', upsert:false});
     if (upErr) throw upErr;
     const {data:sd, error:signErr} = await supabase.storage.from('player-templates').createSignedUrl(path, 3600);
     if (signErr) throw signErr;
-    statusEl.className = 'ok'; statusEl.textContent = '✓ Yüklendi! Signed URL (1 saat geçerli):';
+    statusEl.className = 'ok'; statusEl.textContent = t('tpl.upload_success');
     const a = document.createElement('a');
     a.href = sd.signedUrl; a.target = '_blank'; a.rel = 'noopener';
-    a.textContent = '🔗 Şablonumu Aç';
+    a.textContent = t('tpl.open_my_template');
     a.style.cssText = 'display:block;margin-top:.35rem;color:#a78bfa;font-size:.68rem;word-break:break-all;';
     statusEl.appendChild(a);
   } catch(err) {
-    statusEl.className = 'err'; statusEl.textContent = '✗ Yükleme başarısız: ' + (err.message || 'bilinmiyor');
+    statusEl.className = 'err'; statusEl.textContent = t('tpl.err_upload_prefix') + (err.message || t('tpl.err_unknown'));
   } finally { uploadBtn.disabled = false; }
 }
 

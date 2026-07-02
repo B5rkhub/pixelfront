@@ -120,7 +120,7 @@ async function renderChatMessages(){
   const uname=typeof username!=='undefined'?username:'';
 
   if(tab==='faction' && !factionData){
-    box.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">⚑ Faction\'a katıl</div>';
+    box.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">⚑ '+t('chat.join_faction_empty')+'</div>';
     return;
   }
 
@@ -175,7 +175,7 @@ async function renderChatMessages(){
 
   if(!log.length){
     box.innerHTML=tab==='faction'
-      ? `<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">💬 Henüz mesaj yok.<br><span style="font-size:.65rem;opacity:.6">[${factionData.tag}] kanalı</span></div>`
+      ? `<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.75rem">💬 ${t('chat.no_messages_yet')}<br><span style="font-size:.65rem;opacity:.6">[${factionData.tag}] ${t('chat.channel_suffix')}</span></div>`
       : '';
     return;
   }
@@ -240,7 +240,7 @@ async function sendChatMsg(){
     .then(({data,error})=>{
       if(error || !data || data.length===0){
         console.error('[chat] Mesaj DB\'ye yazılamadı:', error || 'boş yanıt (RLS reddi olabilir)');
-        showPopup(t('msg.chat_send_failed') || '⚠ Mesaj gönderilemedi.');
+        showPopup(t('msg.chat_send_failed'));
         _persistChatFallback(localKey, entry);
       }
       if(_chatMsgCache) _chatMsgCache[cacheKey]='';
@@ -267,11 +267,11 @@ function updateChatFactionTab(){
   if(fBtn){
     const label=document.getElementById('ch-tab-faction-label');
     if(factionData){
-      if(label) label.textContent='⚑ '+factionData.name;
+      if(label) label.textContent=factionData.name;
       fBtn.style.opacity='1';
       fBtn.style.cursor='pointer';
     } else {
-      if(label) label.textContent='⚑ Faction';
+      if(label) label.textContent=t('chat.tab_faction');
       fBtn.style.opacity='.4';
       fBtn.style.cursor='default';
     }

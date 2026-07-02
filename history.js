@@ -59,7 +59,7 @@ async function loadHistoryView() {
     return;
   }
   if (targetDate > new Date()) {
-    errEl.textContent = '⚠ Gelecek bir tarih seçemezsin.';
+    errEl.textContent = t('hm.err_future');
     errEl.style.display = 'block';
     return;
   }

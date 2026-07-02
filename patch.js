@@ -175,12 +175,12 @@ window.openTemplateEditor=function(){
   }
   /* Normal yol: bölge seçim overlay'ini aç */
   if(typeof username==='undefined'||!username){
-    if(typeof showPopup==='function') showPopup('Şablon aracı için giriş yapman gerekiyor.');
+    if(typeof showPopup==='function') showPopup(t('msg.template_login_required'));
     return;
   }
   if(typeof _tplActive!=='undefined'&&_tplActive) return;
   if(typeof IMG_W==='undefined'){
-    if(typeof showPopup==='function') showPopup('Harita henüz yüklenmedi.');
+    if(typeof showPopup==='function') showPopup(t('msg.map_not_ready'));
     return;
   }
   const ov=document.getElementById('tpl-region-overlay');

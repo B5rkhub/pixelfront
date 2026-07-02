@@ -506,7 +506,7 @@ function renderFactionHome(body){
       <button class="fc-tab${fcActiveTab==='chat'?' active':''}" onclick="switchFcTab('chat')">💬 ${t('faction.tabs_chat')}</button>
       <button class="fc-tab${fcActiveTab==='diplomacy'?' active':''}" onclick="switchFcTab('diplomacy')">🤝 ${t('faction.tabs_diplomacy')}</button>
       <button class="fc-tab${fcActiveTab==='stats'?' active':''}" onclick="switchFcTab('stats')">📊 ${t('faction.tabs_stats')}</button>
-      <button class="fc-tab${fcActiveTab==='browse'?' active':''}" onclick="switchFcTab('browse')">🔍 Keşfet</button>
+      <button class="fc-tab${fcActiveTab==='browse'?' active':''}" onclick="switchFcTab('browse')">🔍 ${t('faction.tabs_browse')}</button>
       ${isLeader?`<button class="fc-tab${fcActiveTab==='settings'?' active':''}" onclick="switchFcTab('settings')">⚙ ${t('faction.tabs_settings')}</button>`:''}
     </div>
 
@@ -578,7 +578,7 @@ function renderFactionHome(body){
         ? `<div class="fc-empty"><strong>🤝</strong>${t('faction.no_other_factions')}</div>`
         : Object.entries(allFactions).filter(([tg])=>tg!==f.tag).map(([tag,of])=>{
           const status = (f.diplomacy||{})[tag] || 'neutral';
-          const statusLabel = status==='ally'?'🤝 İttifak':status==='war'?'⚔️ Savaş':'☮️ Nötr';
+          const statusLabel = status==='ally'?'🤝 '+t('diplomacy.ally'):status==='war'?'⚔️ '+t('diplomacy.war'):'☮️ '+t('diplomacy.neutral');
           const statusGlow = status==='war'
             ? 'box-shadow:0 0 0 2px rgba(240,74,74,.5),0 0 12px rgba(240,74,74,.25);border-color:rgba(240,74,74,.4);'
             : status==='ally'
@@ -597,23 +597,23 @@ function renderFactionHome(body){
             </div>
             <div style="flex:1;min-width:0;">
               <div style="font-size:.78rem;font-weight:800;color:${of.color};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${_esc(of.name)}</div>
-              <div style="font-size:.58rem;color:var(--muted);font-family:'Space Mono',monospace;">[${_esc(of.tag)}] · ${of.members.length} üye</div>
+              <div style="font-size:.58rem;color:var(--muted);font-family:'Space Mono',monospace;">[${_esc(of.tag)}] · ${of.members.length}${t('faction.members_unit')}</div>
             </div>
             <div class="fc-diplo-status ${status}" style="white-space:nowrap;">${statusLabel}</div>
             ${isLeader?`<div class="fc-diplo-actions" style="display:flex;gap:.25rem;flex-shrink:0;">
               ${status==='ally'
-                ? `<button class="fc-diplo-btn" onclick="setDiplomacy('${tag}','neutral')" title="İttifakı Boz" style="border-color:var(--muted);color:var(--muted);">☮️</button>`
+                ? `<button class="fc-diplo-btn" onclick="setDiplomacy('${tag}','neutral')" title="${t('diplomacy.break_alliance')}" style="border-color:var(--muted);color:var(--muted);">☮️</button>`
                 : pendingInvite
-                ? `<button class="fc-diplo-btn" disabled title="Davet gönderildi" style="opacity:.5;cursor:not-allowed;">⏳</button>`
-                : `<button class="fc-diplo-btn ally-btn" onclick="sendAllyInvite('${tag}')" title="İttifak Daveti Gönder">🤝</button>`
+                ? `<button class="fc-diplo-btn" disabled title="${t('diplomacy.invite_sent')}" style="opacity:.5;cursor:not-allowed;">⏳</button>`
+                : `<button class="fc-diplo-btn ally-btn" onclick="sendAllyInvite('${tag}')" title="${t('diplomacy.send_ally_invite')}">🤝</button>`
               }
-              <button class="fc-diplo-btn" onclick="setDiplomacy('${tag}','neutral')" title="Nötr" style="${status==='neutral'?'border-color:var(--accent);color:var(--accent);':''}">☮️</button>
-              <button class="fc-diplo-btn war-btn" onclick="declareWarChecked('${tag}')" title="Savaş İlan Et" style="${status==='war'?'border-color:#f04a4a;color:#f04a4a;background:rgba(240,74,74,.12);':''}">⚔️</button>
+              <button class="fc-diplo-btn" onclick="setDiplomacy('${tag}','neutral')" title="${t('diplomacy.neutral')}" style="${status==='neutral'?'border-color:var(--accent);color:var(--accent);':''}">☮️</button>
+              <button class="fc-diplo-btn war-btn" onclick="declareWarChecked('${tag}')" title="${t('diplomacy.declare_war')}" style="${status==='war'?'border-color:#f04a4a;color:#f04a4a;background:rgba(240,74,74,.12);':''}">⚔️</button>
             </div>`:''}
           </div>`;
         }).join('')
       }
-      ${!isLeader?`<div style="text-align:center;font-size:.65rem;color:var(--muted);padding:.5rem;border-top:1px solid var(--bdr);margin-top:.3rem;">Diplomasi değişikliği yapmak için lider olman gerekiyor.</div>`:''}
+      ${!isLeader?`<div style="text-align:center;font-size:.65rem;color:var(--muted);padding:.5rem;border-top:1px solid var(--bdr);margin-top:.3rem;">${t('diplomacy.leader_required')}</div>`:''}
     </div>
 
     <!-- STATS PANEL -->
@@ -625,11 +625,11 @@ function renderFactionHome(body){
     <div class="fc-panel${fcActiveTab==='browse'?' active':''}" id="fc-panel-browse">
       <div style="display:flex;flex-direction:column;gap:.55rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div class="pc-label">Tüm Fraksiyonlar</div>
-          <span style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted)" id="fc-browse-home-count">${Object.keys(allFactions).length} faction</span>
+          <div class="pc-label">${t('diplomacy.all_factions')}</div>
+          <span style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted)" id="fc-browse-home-count">${Object.keys(allFactions).length} ${t('diplomacy.faction_unit')}</span>
         </div>
         <div style="position:relative;">
-          <input class="pc-input" id="fc-browse-home-search" placeholder="🔍 Fraksiyon ara..." maxlength="30"
+          <input class="pc-input" id="fc-browse-home-search" placeholder="🔍 ${t('faction.search_ph')}" maxlength="30"
             oninput="filterFactionBrowseHome()" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search"
             style="padding-left:1.8rem"/>
           <span style="position:absolute;left:.6rem;top:50%;transform:translateY(-50%);font-size:.75rem;pointer-events:none">🔍</span>
@@ -640,7 +640,7 @@ function renderFactionHome(body){
               if(b.members.length!==a.members.length) return b.members.length-a.members.length;
               return (b.totalPixels||0)-(a.totalPixels||0);
             });
-            if(!sorted2.length) return `<div class="fc-empty" style="padding:.8rem"><strong>🌐</strong>Henüz başka fraksiyon yok.</div>`;
+            if(!sorted2.length) return `<div class="fc-empty" style="padding:.8rem"><strong>🌐</strong>${t('faction.no_other_factions')}</div>`;
             return sorted2.map((of,idx)=>{
               const safeName2=_esc(of.name);
               const safeTag2=_esc(of.tag);
@@ -652,9 +652,9 @@ function renderFactionHome(body){
               const isOwn=of.tag===f.tag;
               const dipStatus=(f.diplomacy||{})[of.tag]||'neutral';
               const dipBadge=dipStatus==='ally'
-                ?`<span style="font-size:.55rem;background:#00d4a022;color:#00d4a0;border-radius:4px;padding:1px 4px;border:1px solid #00d4a055">🤝 İttifak</span>`
+                ?`<span style="font-size:.55rem;background:#00d4a022;color:#00d4a0;border-radius:4px;padding:1px 4px;border:1px solid #00d4a055">🤝 ${t('diplomacy.ally')}</span>`
                 :dipStatus==='war'
-                ?`<span style="font-size:.55rem;background:#f04a4a22;color:#f04a4a;border-radius:4px;padding:1px 4px;border:1px solid #f04a4a55">⚔️ Savaş</span>`
+                ?`<span style="font-size:.55rem;background:#f04a4a22;color:#f04a4a;border-radius:4px;padding:1px 4px;border:1px solid #f04a4a55">⚔️ ${t('diplomacy.war')}</span>`
                 :'';
               return `<div class="fc-browse-row" style="${isOwn?'opacity:.5;pointer-events:none;':''}">
                 ${logoEl2}
@@ -663,7 +663,7 @@ function renderFactionHome(body){
                     ${medal2?`<span style="font-size:.8rem">${medal2}</span>`:`<span style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);min-width:1.2rem">#${idx+1}</span>`}
                     <span style="font-size:.8rem;font-weight:800;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName2}</span>
                     <span style="font-family:'Space Mono',monospace;font-size:.58rem;color:${of.color}">[${safeTag2}]</span>
-                    ${isOwn?`<span style="font-size:.55rem;background:#ffffff11;color:var(--muted);border-radius:4px;padding:1px 4px;">Senin</span>`:''}
+                    ${isOwn?`<span style="font-size:.55rem;background:#ffffff11;color:var(--muted);border-radius:4px;padding:1px 4px;">${t('faction.you_suffix')}</span>`:''}
                     ${dipBadge}
                   </div>
                   <div style="display:flex;gap:.6rem;margin-top:2px;">
@@ -671,7 +671,7 @@ function renderFactionHome(body){
                     ${(of.totalPixels||0)>0?`<span style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--accent)">🟣 ${of.totalPixels||0} px</span>`:''}
                   </div>
                 </div>
-                ${!isOwn?`<button class="fc-small-btn" style="font-size:.62rem;padding:.22rem .5rem;flex-shrink:0" onclick="openDiplomacyFor('${safeTag2}')">İncele</button>`:''}
+                ${!isOwn?`<button class="fc-small-btn" style="font-size:.62rem;padding:.22rem .5rem;flex-shrink:0" onclick="openDiplomacyFor('${safeTag2}')">${t('diplomacy.inspect')}</button>`:''}
               </div>`;
             }).join('');
           })()}
@@ -711,9 +711,9 @@ function filterFactionBrowseHome(){
   const filtered=q?sorted.filter(of=>of.name.toLowerCase().includes(q)||of.tag.toLowerCase().includes(q)):sorted;
   const list=document.getElementById('fc-browse-home-list');
   const cnt=document.getElementById('fc-browse-home-count');
-  if(cnt) cnt.textContent=filtered.length+' faction';
+  if(cnt) cnt.textContent=filtered.length+' '+t('diplomacy.faction_unit');
   if(!list) return;
-  if(!filtered.length){ list.innerHTML=`<div class="fc-empty" style="padding:.8rem"><strong>🔍</strong>Sonuç bulunamadı.</div>`; return; }
+  if(!filtered.length){ list.innerHTML=`<div class="fc-empty" style="padding:.8rem"><strong>🔍</strong>${t('faction.no_results')}</div>`; return; }
   list.innerHTML=filtered.map((of,idx)=>{
     const safeName2=_esc(of.name);
     const safeTag2=_esc(of.tag);
@@ -725,9 +725,9 @@ function filterFactionBrowseHome(){
     const isOwn=of.tag===f.tag;
     const dipStatus=(f.diplomacy||{})[of.tag]||'neutral';
     const dipBadge=dipStatus==='ally'
-      ?`<span style="font-size:.55rem;background:#00d4a022;color:#00d4a0;border-radius:4px;padding:1px 4px;border:1px solid #00d4a055">🤝 İttifak</span>`
+      ?`<span style="font-size:.55rem;background:#00d4a022;color:#00d4a0;border-radius:4px;padding:1px 4px;border:1px solid #00d4a055">🤝 ${t('diplomacy.ally')}</span>`
       :dipStatus==='war'
-      ?`<span style="font-size:.55rem;background:#f04a4a22;color:#f04a4a;border-radius:4px;padding:1px 4px;border:1px solid #f04a4a55">⚔️ Savaş</span>`
+      ?`<span style="font-size:.55rem;background:#f04a4a22;color:#f04a4a;border-radius:4px;padding:1px 4px;border:1px solid #f04a4a55">⚔️ ${t('diplomacy.war')}</span>`
       :'';
     return `<div class="fc-browse-row" style="${isOwn?'opacity:.5;pointer-events:none;':''}">
       ${logoEl2}
@@ -736,7 +736,7 @@ function filterFactionBrowseHome(){
           ${medal2?`<span style="font-size:.8rem">${medal2}</span>`:`<span style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);min-width:1.2rem">#${idx+1}</span>`}
           <span style="font-size:.8rem;font-weight:800;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${safeName2}</span>
           <span style="font-family:'Space Mono',monospace;font-size:.58rem;color:${of.color}">[${safeTag2}]</span>
-          ${isOwn?`<span style="font-size:.55rem;background:#ffffff11;color:var(--muted);border-radius:4px;padding:1px 4px;">Senin</span>`:''}
+          ${isOwn?`<span style="font-size:.55rem;background:#ffffff11;color:var(--muted);border-radius:4px;padding:1px 4px;">${t('faction.you_suffix')}</span>`:''}
           ${dipBadge}
         </div>
         <div style="display:flex;gap:.6rem;margin-top:2px;">
@@ -744,7 +744,7 @@ function filterFactionBrowseHome(){
           ${(of.totalPixels||0)>0?`<span style="font-family:'Space Mono',monospace;font-size:.6rem;color:var(--accent)">🟣 ${of.totalPixels||0} px</span>`:''}
         </div>
       </div>
-      ${!isOwn?`<button class="fc-small-btn" style="font-size:.62rem;padding:.22rem .5rem;flex-shrink:0" onclick="openDiplomacyFor('${safeTag2}')">İncele</button>`:''}
+      ${!isOwn?`<button class="fc-small-btn" style="font-size:.62rem;padding:.22rem .5rem;flex-shrink:0" onclick="openDiplomacyFor('${safeTag2}')">${t('diplomacy.inspect')}</button>`:''}
     </div>`;
   }).join('');
 }
@@ -930,11 +930,11 @@ function hasPendingAllyInvite(fromTag, toTag){
 function sendAllyInvite(targetTag){
   if(!factionData) return;
   if(hasPendingAllyInvite(factionData.tag, targetTag)){
-    showPopup('⏳ Bu fraksiyona zaten davet gönderildi.');
+    showPopup('⏳ '+t('diplomacy.invite_already_sent'));
     return;
   }
   const targetFaction = allFactions[targetTag];
-  if(!targetFaction){ showPopup('Fraksiyon bulunamadı.'); return; }
+  if(!targetFaction){ showPopup(t('diplomacy.faction_not_found')); return; }
   // Davet kaydı
   const invites = getAllyInvites();
   invites.push({from: factionData.name, fromTag: factionData.tag,
@@ -949,7 +949,7 @@ function sendAllyInvite(targetTag){
       ts: Date.now()
     }});
   }catch(e){}
-  showPopup(`🤝 ${targetFaction.name} fraksiyonuna ittifak daveti gönderildi!`);
+  showPopup(`🤝 ${targetFaction.name} `+t('diplomacy.ally_invite_sent_suffix'));
   renderFactionModal();
 }
 
@@ -986,7 +986,7 @@ function acceptAllyInvite(mailId, fromTag){
   if(typeof SFX!=='undefined') SFX.ally();
   renderMailbox();
   renderFactionModal();
-  showPopup('✅ İttifak kuruldu!');
+  showPopup('✅ '+t('diplomacy.alliance_formed'));
 }
 
 function rejectAllyInvite(mailId, fromTag){
@@ -1028,10 +1028,10 @@ function declareWarChecked(targetTag){
   }
   const warCount = getActiveWarCount();
   if(warCount >= MAX_WARS){
-    showPopup(`⚠️ Maksimum ${MAX_WARS} fraksiyona aynı anda savaş açabilirsiniz!`);
+    showPopup(`⚠️ `+t('diplomacy.max_wars',{n:MAX_WARS}));
     return;
   }
-  if(!confirm(`⚔️ ${allFactions[targetTag]?.name||targetTag} fraksiyonuna savaş ilan etmek istiyor musunuz?`)) return;
+  if(!confirm(`⚔️ ${allFactions[targetTag]?.name||targetTag} `+t('diplomacy.confirm_declare_war'))) return;
   setDiplomacy(targetTag, 'war');
 }
 
@@ -1052,7 +1052,7 @@ function setupMailboxListeners(){
       fromColor: p.fromColor, fromEmoji: p.fromEmoji,
       pending: true
     });
-    showPopup(`🤝 ${p.from} fraksiyonundan ittifak daveti aldınız!`);
+    showPopup(`🤝 ${p.from} `+t('diplomacy.ally_invite_received_suffix'));
   });
   ch.on('broadcast', { event:'ally_accept' }, (payload)=>{
     const p = payload && payload.payload;
@@ -1068,7 +1068,7 @@ function setupMailboxListeners(){
     const invites = getAllyInvites().filter(i=>!(i.fromTag===factionData.tag && i.toTag===p.fromTag));
     saveAllyInvites(invites);
     addMail({ type:'ally_accept', from: p.from, fromTag: p.fromTag });
-    showPopup(`🎉 ${p.from} ittifak davetinizi kabul etti!`);
+    showPopup(`🎉 ${p.from} `+t('diplomacy.ally_invite_accepted_suffix'));
     renderFactionModal();
   });
   ch.on('broadcast', { event:'ally_reject' }, (payload)=>{
@@ -1079,7 +1079,7 @@ function setupMailboxListeners(){
     const invites = getAllyInvites().filter(i=>!(i.fromTag===factionData.tag && i.toTag===p.fromTag));
     saveAllyInvites(invites);
     addMail({ type:'ally_reject', from: p.from, fromTag: p.fromTag });
-    showPopup(`💔 ${p.from} ittifak davetinizi reddetti.`);
+    showPopup(`💔 ${p.from} `+t('diplomacy.ally_invite_rejected_suffix'));
     renderFactionModal();
   });
 }

@@ -39,18 +39,18 @@ async function sendAnnouncement(){
   const inp = document.getElementById('announce-text-input');
   const msgEl = document.getElementById('announce-form-msg');
   const text = inp.value.trim();
-  if(!text){ msgEl.style.color='#f04a4a'; msgEl.textContent='⚠ Duyuru metni boş olamaz.'; return; }
+  if(!text){ msgEl.style.color='#f04a4a'; msgEl.textContent=t('am.empty_error'); return; }
   const btn = document.getElementById('announce-send-btn');
   btn.disabled = true; btn.style.opacity='.6';
-  msgEl.style.color='var(--muted)'; msgEl.textContent='Yayınlanıyor...';
+  msgEl.style.color='var(--muted)'; msgEl.textContent=t('am.publishing');
   try{
     const ch = getAnnounceChannel();
     await ch.send({ type:'broadcast', event:'announce', payload:{ text: text.slice(0,180) } });
-    msgEl.style.color='#00d4a0'; msgEl.textContent='✓ Duyuru yayınlandı!';
+    msgEl.style.color='#00d4a0'; msgEl.textContent=t('am.published');
     setTimeout(()=>{ closeAnnounceModal(); }, 600);
   }catch(e){
     console.error('Duyuru yayınlama hatası:', e);
-    msgEl.style.color='#f04a4a'; msgEl.textContent='⚠ Yayınlanamadı, bağlantını kontrol et.';
+    msgEl.style.color='#f04a4a'; msgEl.textContent=t('am.publish_failed');
   }finally{
     btn.disabled = false; btn.style.opacity='1';
   }

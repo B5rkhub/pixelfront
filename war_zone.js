@@ -40,21 +40,20 @@
     card.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
         <span style="font-size:1.2rem">⚔️</span>
-        <span style="font-weight:700;font-size:.9rem;color:#f04a4a;letter-spacing:.03em">SAVAŞ BÖLGESİ YÖNETİMİ</span>
+        <span style="font-weight:700;font-size:.9rem;color:#f04a4a;letter-spacing:.03em">${t('war.admin_card_title')}</span>
       </div>
       <div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:12px;line-height:1.5">
-        Aktif bir savaş seçip harita üzerinde savaş bölgesi çizin.<br>
-        Tüm oyunculara borozoanlı bildirim gönderilir ve o bölgeye ışınlanabilirler.
+        ${t('war.admin_card_desc')}
       </div>
       <div id="wz-war-list" style="margin-bottom:12px;">
-        <div style="color:rgba(255,255,255,.4);font-size:.75rem">Aktif savaşlar yükleniyor…</div>
+        <div style="color:rgba(255,255,255,.4);font-size:.75rem">${t('war.loading_active')}</div>
       </div>
       <button id="wz-pick-btn" onclick="wzStartZonePick()"
         style="display:none;width:100%;padding:9px 0;border:none;border-radius:8px;
                background:linear-gradient(135deg,#f04a4a,#f97316);color:#fff;
                font-weight:700;font-size:.82rem;cursor:pointer;letter-spacing:.04em;
                box-shadow:0 0 14px rgba(240,74,74,.35);">
-        🗺️ Savaş Bölgesini Haritada Çiz
+        🗺️ ${t('war.draw_zone_btn')}
       </button>
       <div id="wz-status" style="font-size:.72rem;color:rgba(255,255,255,.4);margin-top:8px;min-height:16px;"></div>
     `;
@@ -72,7 +71,7 @@
     /* _wars global dizisini kullan (war_overlay.js'den) */
     const wars = (typeof _wars !== 'undefined' && Array.isArray(_wars)) ? _wars : [];
     if (wars.length === 0) {
-      listEl.innerHTML = `<div style="color:rgba(255,255,255,.35);font-size:.75rem">Şu an aktif savaş yok.</div>`;
+      listEl.innerHTML = `<div style="color:rgba(255,255,255,.35);font-size:.75rem">${t('war.none_active')}</div>`;
       const btn = document.getElementById('wz-pick-btn');
       if (btn) btn.style.display = 'none';
       window._wzSelectedWarId = null;
@@ -110,7 +109,7 @@
     const btn = document.getElementById('wz-pick-btn');
     if (btn) btn.style.display = 'block';
     const st = document.getElementById('wz-status');
-    if (st) st.textContent = 'Savaşı seçtiniz. Şimdi haritada bölge çizebilirsiniz.';
+    if (st) st.textContent = t('war.selected_now_draw');
   };
 
   /* loadWars her çağrıldığında listeyi de güncelle */
@@ -176,9 +175,9 @@
           box-shadow:0 4px 24px rgba(0,0,0,.6),0 0 20px rgba(240,74,74,.2);
           pointer-events:none;z-index:9401;">
           <span style="font-size:1.1rem">⚔️</span>
-          <span>Savaş bölgesini <b>sürükleyerek</b> çizin</span>
+          <span>${t('war.hud_instruction')}</span>
           <span id="wz-pick-dim" style="color:#f97316;font-size:.72rem"></span>
-          <span style="color:rgba(255,255,255,.4);font-size:.7rem">ESC = iptal</span>
+          <span style="color:rgba(255,255,255,.4);font-size:.7rem">${t('war.hud_esc_cancel')}</span>
         </div>
 
         <div id="wz-pick-actions" style="
@@ -191,19 +190,19 @@
             padding:7px 16px;border:none;border-radius:7px;
             background:linear-gradient(135deg,#f04a4a,#f97316);
             color:#fff;font-weight:700;font-size:.78rem;cursor:pointer;">
-            ✓ Bölgeyi Yayınla
+            ✓ ${t('war.publish_zone_btn')}
           </button>
           <button onclick="wzResetZone()" style="
             padding:7px 12px;border:1px solid rgba(255,255,255,.15);
             border-radius:7px;background:transparent;
             color:rgba(255,255,255,.6);font-size:.75rem;cursor:pointer;">
-            ↺ Yeniden Çiz
+            ↺ ${t('war.redraw_btn')}
           </button>
           <button onclick="wzCancelZonePick()" style="
             padding:7px 12px;border:1px solid rgba(255,255,255,.1);
             border-radius:7px;background:transparent;
             color:rgba(255,255,255,.4);font-size:.75rem;cursor:pointer;">
-            ✕ Vazgeç
+            ✕ ${t('common.cancel')}
           </button>
         </div>
       </div>
@@ -359,7 +358,7 @@
   /* Public: Admin "Savaş Bölgesini Haritada Çiz" butonuna basınca */
   window.wzStartZonePick = function () {
     if (!window._wzSelectedWarId) {
-      if (typeof showPopup === 'function') showPopup('Önce bir savaş seçin.');
+      if (typeof showPopup === 'function') showPopup(t('war.select_first'));
       return;
     }
     _injectWzOverlayHTML();
@@ -419,7 +418,7 @@
     showWarZoneBanner({ war, region });
 
     const st = document.getElementById('wz-status');
-    if (st) st.textContent = '✓ Savaş bölgesi tüm oyunculara yayınlandı!';
+    if (st) st.textContent = '✓ '+t('war.zone_published');
   };
 
   /* ══════════════════════════════════════════════════════════════
@@ -510,12 +509,12 @@
               color:#fff;letter-spacing:.08em;
               text-shadow:0 0 14px rgba(240,74,74,.9),0 0 4px rgba(255,200,0,.4);
               animation:wzGlow 1.4s ease-in-out infinite alternate;">
-              ⚔️ SAVAŞ BAŞLADI! ⚔️
+              ⚔️ ${t('war.banner_default_title')} ⚔️
             </div>
             <div id="wz-banner-sub" style="
               font-size:.7rem;font-weight:600;
               color:rgba(255,220,180,.85);letter-spacing:.04em;margin-top:2px;">
-              Tıkla → Savaş bölgesine git
+              ${t('war.click_to_go')}
             </div>
           </div>
           <span style="font-size:1.35rem;animation:wzSword 0.7s ease-in-out infinite alternate-reverse;">⚔️</span>
@@ -579,8 +578,8 @@
     }
     if (sub) {
       sub.textContent = region
-        ? `SAVAŞ BÖLGESİ: (${region.cx}, ${region.cy}) — Tıkla → Bölgeye ışınlan!`
-        : 'Tıkla → Savaş bölgesine git';
+        ? `${t('war.zone_label')}: (${region.cx}, ${region.cy}) — ${t('war.click_to_teleport')}`
+        : t('war.click_to_go');
     }
 
     /* Borozanı çal */
@@ -701,10 +700,10 @@
       modal.innerHTML = `
         <div style="background:#12121e;border:1px solid rgba(240,74,74,.35);border-radius:16px;padding:1.8rem 2rem;max-width:380px;width:92vw;text-align:center;">
           <div style="font-size:2rem;margin-bottom:.6rem;">⚔️</div>
-          <div style="font-size:1rem;font-weight:800;color:#f04a4a;margin-bottom:.6rem;">Savaş Bölgesi</div>
-          <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:1.2rem;">Şu an aktif savaş bölgesi yok.<br>Bir savaş başladığında buradan bölgeye gidebilirsin.</div>
+          <div style="font-size:1rem;font-weight:800;color:#f04a4a;margin-bottom:.6rem;">${t('war.zone_label')}</div>
+          <div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:1.2rem;">${t('war.pick_modal_empty')}</div>
           <button onclick="document.getElementById('wz-pick-modal').remove()"
-            style="padding:.6rem 1.4rem;border:none;border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-weight:700;cursor:pointer;font-size:.8rem;">Kapat</button>
+            style="padding:.6rem 1.4rem;border:none;border-radius:8px;background:rgba(255,255,255,.1);color:#fff;font-weight:700;cursor:pointer;font-size:.8rem;">${t('common.close')}</button>
         </div>
       `;
     } else {
@@ -720,7 +719,7 @@
               <span style="color:rgba(255,255,255,.4);"> VS </span>
               <span style="color:${w.factionB && w.factionB.color ? w.factionB.color : '#7B61FF'}">${_wzEsc((w.factionB && w.factionB.name) ? w.factionB.name : 'B')}</span>
             </div>
-            ${w.region ? '<div style="font-size:.68rem;color:rgba(255,255,255,.4);margin-top:2px;">📍 Bölge tanımlı — Tıkla, ışınlan!</div>' : '<div style="font-size:.68rem;color:rgba(255,255,255,.3);margin-top:2px;">Henüz bölge çizilmedi</div>'}
+            ${w.region ? '<div style="font-size:.68rem;color:rgba(255,255,255,.4);margin-top:2px;">📍 '+t('war.zone_defined_click')+'</div>' : '<div style="font-size:.68rem;color:rgba(255,255,255,.3);margin-top:2px;">'+t('war.no_zone_drawn_yet')+'</div>'}
           </div>
           ${w.region ? '<span style="color:#f04a4a;font-size:.8rem;">→</span>' : ''}
         </div>
@@ -729,7 +728,7 @@
       modal.innerHTML = `
         <div style="background:#12121e;border:1px solid rgba(240,74,74,.35);border-radius:16px;padding:1.6rem 1.8rem;max-width:420px;width:92vw;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-            <div style="font-size:.95rem;font-weight:800;color:#f04a4a;">⚔️ Aktif Savaş Bölgeleri</div>
+            <div style="font-size:.95rem;font-weight:800;color:#f04a4a;">⚔️ ${t('war.active_zones_title')}</div>
             <button onclick="document.getElementById('wz-pick-modal').remove()"
               style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:1.1rem;">✕</button>
           </div>
@@ -750,7 +749,7 @@
     const wars = (typeof _wars !== 'undefined' && Array.isArray(_wars)) ? _wars : [];
     const war = wars.find(function(w) { return w.id === warId; });
     if (!war || !war.region) {
-      alert('Bu savaş için henüz bölge çizilmedi.');
+      alert(t('war.no_zone_drawn_yet'));
       return;
     }
     window._wzActiveBanner = { war: war, region: war.region };

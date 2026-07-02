@@ -1,13 +1,18 @@
 // ── PROFILE ──
+function _frameLabel(id){
+  const KEYS={none:'frame.name_none',red:'frame.name_red',green:'frame.name_green',cyan:'frame.name_cyan',
+    pink:'frame.name_pink',dark:'frame.name_dark',gold:'frame.name_gold',rainbow:'frame.name_rainbow'};
+  return typeof t==='function' ? t(KEYS[id]) : id;
+}
 const FRAMES=[
-  {id:'none',   label:'Yok',    style:'background:linear-gradient(135deg,#7B61FF,#c4aaff)', unlockLevel:1},
-  {id:'red',    label:'Kırmızı',style:'background:linear-gradient(135deg,#e50000,#ff6565)', unlockLevel:1},
-  {id:'green',  label:'Yeşil',  style:'background:linear-gradient(135deg,#02be01,#94e044)', unlockLevel:1},
-  {id:'cyan',   label:'Cyan',   style:'background:linear-gradient(135deg,#00d3dd,#0083c7)', unlockLevel:1},
-  {id:'pink',   label:'Pembe',  style:'background:linear-gradient(135deg,#ff54b2,#ffa7d1)', unlockLevel:1},
-  {id:'dark',   label:'Koyu',   style:'background:linear-gradient(135deg,#191928,#252538)', unlockLevel:1},
-  {id:'gold',   label:'Altın',  style:'background:linear-gradient(135deg,#f5a623,#ffc53d)', unlockLevel:5},
-  {id:'rainbow',label:'Gökkuşağı',style:'background:conic-gradient(#e50000,#e59500,#e5d900,#02be01,#0083c7,#820080,#e50000)', unlockLevel:20},
+  {id:'none',   get label(){return _frameLabel('none');},    style:'background:linear-gradient(135deg,#7B61FF,#c4aaff)', unlockLevel:1},
+  {id:'red',    get label(){return _frameLabel('red');},style:'background:linear-gradient(135deg,#e50000,#ff6565)', unlockLevel:1},
+  {id:'green',  get label(){return _frameLabel('green');},  style:'background:linear-gradient(135deg,#02be01,#94e044)', unlockLevel:1},
+  {id:'cyan',   get label(){return _frameLabel('cyan');},   style:'background:linear-gradient(135deg,#00d3dd,#0083c7)', unlockLevel:1},
+  {id:'pink',   get label(){return _frameLabel('pink');},  style:'background:linear-gradient(135deg,#ff54b2,#ffa7d1)', unlockLevel:1},
+  {id:'dark',   get label(){return _frameLabel('dark');},   style:'background:linear-gradient(135deg,#191928,#252538)', unlockLevel:1},
+  {id:'gold',   get label(){return _frameLabel('gold');},  style:'background:linear-gradient(135deg,#f5a623,#ffc53d)', unlockLevel:5},
+  {id:'rainbow',get label(){return _frameLabel('rainbow');},style:'background:conic-gradient(#e50000,#e59500,#e5d900,#02be01,#0083c7,#820080,#e50000)', unlockLevel:20},
 ];
 const FRAME_BORDERS={
   none:'#7B61FF',gold:'#f5a623',red:'#e50000',green:'#02be01',

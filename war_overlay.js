@@ -187,7 +187,7 @@ function _updateBadge(war) {
       <div class="war-badge-header">
         <div class="war-live-dot"></div>
         <span class="war-badge-sword">⚔️</span>
-        <span style="color:rgba(255,255,255,.5);font-size:.55rem;letter-spacing:.06em">SAVAŞ</span>
+        <span style="color:rgba(255,255,255,.5);font-size:.55rem;letter-spacing:.06em">${t('war.badge_label')}</span>
       </div>
       <div class="war-badge-title">
         <span style="color:${war.factionA.color || '#f04a4a'}">${_truncate(war.factionA.name, 10)}</span>
@@ -313,7 +313,7 @@ function _buildWarPopupHTML(war) {
 
   const renderPlayers = (players, color) => {
     if (!players || players.length === 0) {
-      return `<div class="wp-empty-list">Henüz katılımcı yok</div>`;
+      return `<div class="wp-empty-list">${t('war.no_participants_yet')}</div>`;
     }
     return players.slice(0, 15).map((p, i) => {
       const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
@@ -518,8 +518,8 @@ function _injectWarOverlayToggle() {
   row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:.75rem;min-height:40px;';
   row.innerHTML = `
     <div>
-      <div class="pca-row-title">Savaş Overlay</div>
-      <div class="pca-row-desc">Haritada aktif savaş badge'lerini göster</div>
+      <div class="pca-row-title">${t('war.overlay_toggle_title')}</div>
+      <div class="pca-row-desc">${t('war.overlay_toggle_desc')}</div>
     </div>
     <label class="pca-toggle">
       <input type="checkbox" id="war-overlay-cb" onchange="setWarOverlay(this.checked)" ${_warOverlayEnabled ? 'checked' : ''}>
